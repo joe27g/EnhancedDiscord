@@ -6,7 +6,16 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
+function askQuestion(question) {
+    return new Promise((resolve) => {
+        rl.question(question + '\nInput: ', answer => {
+            resolve(answer);
+        });
+    });
+}
+
 module.exports = {
+    askQuestion,
     getDiscordProcess: function() {
         return new Promise((resolve, reject) => {
             ps.lookup({psargs: 'alx'}, function (err, res) {
@@ -32,7 +41,7 @@ module.exports = {
                         for (let i = 0; i < keys.length; i++) {
                             question += `\n${i}. ${keys[i]} (${procs[keys[i]].pid.join(', ')})`;
                         }
-                        this.askQuestion(question).then(answer => {
+                        askQuestion(question).then(answer => {
                             const index = parseInt(answer);
                             if (!isNaN(index) && index >= 0 && index < keys.length) {
                                 resolve(procs[keys[index]]);
@@ -42,13 +51,6 @@ module.exports = {
                         });
                     }
                 }
-            });
-        });
-    },
-    askQuestion: function(question) {
-        return new Promise((resolve) => {
-            rl.question(question + '\nInput: ', answer => {
-                resolve(answer);
             });
         });
     }
