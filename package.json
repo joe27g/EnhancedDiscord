@@ -1,0 +1,20 @@
+{
+  "name": "EnhancedDiscord",
+  "version": "0.7.0",
+  "description": "does 1337 discord things",
+  "main": "index.js",
+  "author": "CAC27",
+  "license": "MIT",
+  "repository": "https://github.com/CAC27/EnhancedDiscord",
+  "dependencies": {
+    "mkdirp": "^0.5.1",
+    "ps-node": "^0.1.5",
+    "require-all": "*",
+    "electron": "*",
+    "asar": "*"
+  },
+  "pkg": {
+    "scripts": "./*.js*"
+  },
+  "bin": "./index.js"
+}
