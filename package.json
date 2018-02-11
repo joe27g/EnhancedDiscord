@@ -11,7 +11,8 @@
     "ps-node": "^0.1.5",
     "require-all": "*",
     "electron": "*",
-    "asar": "*"
+    "asar": "*",
+    "common-tags": "*"
   },
   "pkg": {
     "scripts": "./*.js*"
