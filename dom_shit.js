@@ -3,22 +3,22 @@ const path = require('path');
 var c = {
     log: function(msg, plugin) {
         if (plugin && plugin.name)
-            console.log(`%c[EnhancedDiscord] %c[${plugin.name}]`, 'color: red;', `color: ${plugin.color || 'orange'}`, msg);
+            console.log(`%c[EnhancedDiscord] %c[${plugin.name}]`, 'color: red;', `color: ${plugin.color}`, msg);
     	else console.log('%c[EnhancedDiscord]', 'color: red;', msg);
     },
     info: function(msg, plugin) {
         if (plugin && plugin.name)
-            console.info(`%c[EnhancedDiscord] %c[${plugin.name}]`, 'color: red;', `color: ${plugin.color || 'orange'}`, msg);
+            console.info(`%c[EnhancedDiscord] %c[${plugin.name}]`, 'color: red;', `color: ${plugin.color}`, msg);
     	else console.info('%c[EnhancedDiscord]', 'color: red;', msg);
     },
     warn: function(msg, plugin) {
         if (plugin && plugin.name)
-            console.warn(`%c[EnhancedDiscord] %c[${plugin.name}]`, 'color: red;', `color: ${plugin.color || 'orange'}`, msg);
+            console.warn(`%c[EnhancedDiscord] %c[${plugin.name}]`, 'color: red;', `color: ${plugin.color}`, msg);
     	else console.warn('%c[EnhancedDiscord]', 'color: red;', msg);
     },
     error: function(msg, plugin) {
         if (plugin && plugin.name)
-            console.error(`%c[EnhancedDiscord] %c[${plugin.name}]`, 'color: red;', `color: ${plugin.color || 'orange'}`, msg);
+            console.error(`%c[EnhancedDiscord] %c[${plugin.name}]`, 'color: red;', `color: ${plugin.color}`, msg);
     	else console.error('%c[EnhancedDiscord]', 'color: red;', msg);
     },
     sleep: function(ms) { 
@@ -33,11 +33,11 @@ for (var name in plugins) {
     if (!plugins[name] || !plugins[name].name || typeof plugins[name].load !== 'function') {
         c.info(`Skipping invalid plugin: ${name}`); plugins[name] = null; continue;
     }
-    Object.assign(plugins[name], c);
+    //Object.assign(plugins[name], c);
 }
 function loadPlugin(plugin) {
     try {
-        console.log(`%c[EnhancedDiscord] %cLoading plugin %c${plugin.name}`, 'color: red;', 'color: white;', `color: ${plugin.color || 'orange'}`, `by ${plugin.author || '<unknown>'}...`);
+        console.log(`%c[EnhancedDiscord] %cLoading plugin %c${plugin.name}`, 'color: red;', '', `color: ${plugin.color}`, `by ${plugin.author}...`);
         plugin.load();
     } catch(err) {
         c.error(`Failed to load:\n${err.stack}`, plugin);
@@ -45,7 +45,7 @@ function loadPlugin(plugin) {
 }
 
 process.once("loaded", async () => {
-	c.log('Loading v0.6.0...');
+	c.log('Loading v0.7.0...');
 
     for (var name in plugins) {
         if (plugins[name] && plugins[name].preload)
