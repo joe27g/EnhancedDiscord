@@ -25,4 +25,6 @@ Loosely based off of [DiscordInjections](https://github.com/DiscordInjections/Di
    - `plugins/css_shit.js` ~ Loads a custom theme from `plugins/style.css`, and hot-reloads the file when it's changed.
    
    - `plugins/splash_stuff.js` ~ Loads a "theme" and changes random messages in the splash screen. Easy way to add messages coming soon:tm:.
+   - `plugins/experiments.js` ~ Enables Discord staff "expermients."
    
+   - `plugins/hidden_channels.js` ~ Shows a list of hidden channels (where you can't view messages) in every server.
