@@ -12,7 +12,8 @@
     "require-all": "*",
     "electron": "*",
     "asar": "*",
-    "jquery": "*"
+    "jquery": "*",
+    "common-tags": "*"
   },
   "pkg": {
     "scripts": "./*.js*"
