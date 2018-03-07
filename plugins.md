@@ -9,6 +9,7 @@ module.exports = new Plugin({
     name: 'A Plugin', /* Human-readable plugin name. */
     author: 'Joe', /* [Optional] Put your name here to give yourself credit for making it :) */
     description: 'Does absolutely nothing, lol', /* Description of what this plugin does. */
+    preload: true, /* Load this before Discord has finished starting up */
     color: '#666', /* [Optional] The color that this plugin shows in logs and in the plugin settings tab. Any valid CSS color will work here. */
     id: 'a_plugin', /* Unique ID for your plugin, e.g. "hidden_channels". Typically, this should be the same as your filename. */
 
