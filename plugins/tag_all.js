@@ -27,7 +27,7 @@ module.exports = new Plugin({
             let unMen = [];
             for (let id in g.roles)
                 if (!g.roles[id].mentionable && !g.roles[id].managed) // ignore bot roles
-                    unMen.push(g.roles[id]);
+                    unMen.push(g.roles[id].replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
 
             let roles = unMen.map(r => r.name.toLowerCase());
             for (let i in roles) {
@@ -43,7 +43,7 @@ module.exports = new Plugin({
             let hiddenChans = [];
             for (let id in globalChans) {
                 if (globalChans[id].guild_id == guildID && !(cp.computePermissions(me, globalChans[id]) & 1024))
-                    hiddenChans.push(globalChans[id]);
+                    hiddenChans.push(globalChans[id].replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
             }
 
             let chans = hiddenChans.map(c => c.name.toLowerCase());
