@@ -21,7 +21,7 @@ module.exports = {
             ps.lookup({psargs: 'alx'}, function (err, res) {
                 if (err) reject(err);
                 else {
-                    const rawProcs = res.filter(p => p.command.includes('Discord'));
+                    const rawProcs = res.filter(p => p.command.includes('Discord') && !p.command.includes('EnhancedDiscord') && p.id !== process.pid);
                     const procs = {};
 
                     rawProcs.forEach(p => {

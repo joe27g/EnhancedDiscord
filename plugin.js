@@ -1,12 +1,15 @@
+const fs = require('fs');
+
 class Plugin {
 	constructor (opts = {}) {
-		if (!opts.name || typeof opts.load !== 'function')
-			return 'Invalid plugin. Needs a name and a load() function.';
-
-		this.color = 'orange';
-		this.author = '<unknown>';
+		if (!opts.id || !opts.name || typeof opts.load !== 'function')
+			return 'Invalid plugin. Needs an ID, name and a load() function.';
 
 		Object.assign(this, opts);
+        if (!this.color)
+            this.color = 'orange';
+        if (!this.author)
+            this.author = '<unknown>';
 	}
 
 	load () {}
@@ -30,6 +33,31 @@ class Plugin {
             setTimeout(resolve, ms);
         });
     }
+    get settings() {
+        //this.log('getting settings');
+        if (window.ED.config && window.ED.config[this.id])
+            return window.ED.config[this.id];
+
+        let final = {};
+        if (this.config)
+            for (let key in this.config)
+                final[key] = this.config[key].default;
+        return this.settings = final;
+        //return final;
+    }
+    set settings(newSets = {}) {
+        //this.log(__dirname, process.env.injDir);
+        //console.log(`setting settings for ${this.id} to`, newSets);
+        try {
+            let gay = window.ED.config;
+            gay[this.id] = newSets;
+            window.ED.config = gay;
+            //console.log(`set settings for ${this.id} to`, this.settings);
+        } catch(err) {
+            this.error(err);
+        }
+        return this.settings;
+    }
 }
 
-module.exports = Plugin
+module.exports = Plugin;

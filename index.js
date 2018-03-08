@@ -18,7 +18,11 @@ function err(err) {
 
 util.getDiscordProcess().then((proc) => {
 	util.askQuestion( stripIndents`
-		EnhancedDiscord v0.7
+		EnhancedDiscord v1.1.0
+		${process.pkg ? `----------------------------------------------------------------------
+		NOTE: You should be running this file where you want EnhancedDiscord's files to go.
+		(A directory called EnhancedDiscord will be created here, with plugins and other essential files inside.)
+		If this is not the desired location, find a suitable location and place this executable there.` : ''}
 		----------------------------------------------------------------------
 		Please choose an operation:
 		1. inject (install EnhancedDiscord; for first-time use or after uninject)
@@ -31,20 +35,17 @@ util.getDiscordProcess().then((proc) => {
 	        case 1:
 	        	console.log('Installing...');
 	            install(proc).then(exit).catch(err);
-	            resolve();
 	            break;
 	        case 2:
 	        	console.log('Uninstalling');
 	            uninstall(proc).then(exit).catch(err);
-	            resolve();
 	            break;
 	        case 3:
 	            console.log('Reinstalling');
         		uninstall(proc, true).then(() => install(proc, false, true)).then(exit).catch(err);
-	            resolve();
 	            break;
 	        default:
-	            reject(new Error('Invalid response'));
+	            throw new Error('Invalid response');
 	            break;
 	    }
     });

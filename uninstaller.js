@@ -45,7 +45,12 @@ function restoreClient(_path) {
         if (fs.existsSync(folder)) {
             console.log('Deleting the app folder...');
             deleteFolderRecursive(folder);
-        } else console.log('DI folder does not exist, skipping...');
+        } else console.log('ED folder does not exist, skipping...');
+        const gayFolder = path.join(process.cwd(), 'EnhancedDiscord');
+        if (process.pkg && fs.existsSync(gayFolder)) {
+            console.log('Deleting the app folder...');
+            deleteFolderRecursive(gayFolder);
+        } else console.log('ED folder does not exist, skipping...');
         resolve();
     });
 }

@@ -5,29 +5,40 @@ module.exports = new Plugin({
     description: 'Shows hidden channels n stuff.',
     color: 'magenta',
     author: 'Joe 🎸#7070',
+    id: 'hidden_channels',
 
     load: async function() {
-        this.mo = new MutationObserver(this.tickChannels.bind(this));
-        while(!document.querySelector(".channels-3g2vYe"))
+        while (!document.querySelector(".channels-3g2vYe") || !findModule('getGuild', true) || !findModule('getChannels', true) || !findModule('getCurrentUser', true) || !findModule('computePermissions', true) || !findModule('getLastSelectedGuildId', true))
             await this.sleep(1000);
+
+        this.mo = new MutationObserver(this.rebuildHidden.bind(this));
         this.mo.observe(document.querySelector(".channels-3g2vYe"), { childList: true, subtree: true });
+
+        this.m = { //modules ~ only find them once
+            gg: findModule('getGuild'),
+            lg: findModule('getLastSelectedGuildId'),
+            gc: findModule('getChannels'),
+            gu: findModule('getCurrentUser'),
+            cp: findModule('computePermissions')
+        };
     },
 
-    tickChannels: function() {
-        const $ = require("jquery");
+    rebuildHidden: function() {
+        const $ = require('jquery');
+
         this.mo.disconnect(); // Prevent loop
 
-        var guildID = findModule('getLastSelectedGuildId').getLastSelectedGuildId();
-        var g = findModule('getGuild').getGuild(guildID);
+        var guildID = this.m.lg.getLastSelectedGuildId();
+        var g = this.m.gg.getGuild(guildID);
         
         if (g && !document.getElementById(`hc-${guildID}`)) {
             $('.hidden-channels').remove();
 
-            let globalChans = findModule('getChannels').getChannels();
-            let me = findModule('getCurrentUser').getCurrentUser();
+            let globalChans = this.m.gc.getChannels();
+            let me = this.m.gu.getCurrentUser();
             let hiddenChans = [];
             for (let id in globalChans) {
-                if (globalChans[id].guild_id == guildID && !(findModule('computePermissions').computePermissions(me, globalChans[id]) & 1024))
+                if (globalChans[id].guild_id == guildID && !(this.m.cp.computePermissions(me, globalChans[id]) & 1024))
                     hiddenChans.push(globalChans[id]);
             }
             //this.log(hiddenChans);
@@ -57,7 +68,10 @@ module.exports = new Plugin({
     },
     
     unload: function() {
-        $('.hidden-channels').remove();
-        this.mo.disconnect();
+        let hc = document.querySelector('.hidden-channels');
+        if (hc)
+            hc.parentElement.removeChild(hc);
+        if (this.mo)
+            this.mo.disconnect();
     }
 });

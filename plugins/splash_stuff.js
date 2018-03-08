@@ -12,7 +12,7 @@ setTimeout(() => {
 	checkingText.style.color = '#e17e17';
 
 	var promoShit = document.createElement('span');
-	promoShit.innerHTML = '<span id="theme_shit">Theme by <b style="color: rgba(255, 255, 255, 0.7);">Joe 🎸#7070</b></span>';
+	promoShit.innerHTML = '<span id="theme_shit">EnhancedDiscord v1.1 by <b style="color: rgba(255, 255, 255, 0.7);">Joe 🎸#7070</b></span>';
 	promoShit.style.color = 'rgba(255, 255, 255, 0.5)';
 	splashInner.appendChild(promoShit);
 }, 1000);

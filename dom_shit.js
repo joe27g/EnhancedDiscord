@@ -1,6 +1,8 @@
 const path = require('path');
+const fs = require('fs');
+
 //set up global functions
-var c = {
+let c = {
     log: function(msg, plugin) {
         if (plugin && plugin.name)
             console.log(`%c[EnhancedDiscord] %c[${plugin.name}]`, 'color: red;', `color: ${plugin.color}`, msg);
@@ -27,29 +29,56 @@ var c = {
         });
     }
 }
-//load and validate plugins
-var plugins = require('require-all')(path.join(process.env.injDir, 'plugins'));
-for (var name in plugins) {
-    if (!plugins[name] || !plugins[name].name || typeof plugins[name].load !== 'function') {
-        c.info(`Skipping invalid plugin: ${name}`); plugins[name] = null; continue;
+// config util
+window.ED = {plugins: {}};
+Object.defineProperty(window.ED, 'config', {
+    get: function() {
+        return require('./config.json') || {};
+    },
+    set: function(newSets = {}) {
+        try {
+            fs.writeFileSync(require.resolve('./config.json'), JSON.stringify(newSets));
+            delete require.cache[require.resolve('./config.json')];
+        } catch(err) {
+            c.error(err);
+        }
+        return this.config;
     }
+});
+
+//load and validate plugins
+let plugins = require('require-all')(path.join(process.env.injDir, 'plugins'));
+for (let id in plugins) {
+    if (!plugins[id] || !plugins[id].name || typeof plugins[id].load !== 'function') {
+        c.info(`Skipping invalid plugin: ${id}`); plugins[id] = null; continue;
+    }
+    plugins[id].settings; // this will set default settings in config if necessary
     //Object.assign(plugins[name], c);
+    window.ED.plugins[id] = plugins[id];
 }
+
 function loadPlugin(plugin) {
+    /*if (window.ED.plugins[plugin.name]) {
+        console.log(`%c[EnhancedDiscord] %cSkipped plugin %c${plugin.name}`, 'color: red;', '', `color: ${plugin.color}`, `because it was already loaded.`);
+        return false;
+    }*/
     try {
         console.log(`%c[EnhancedDiscord] %cLoading plugin %c${plugin.name}`, 'color: red;', '', `color: ${plugin.color}`, `by ${plugin.author}...`);
         plugin.load();
+        //window.ED.plugins[plugin.id] = plugin;
     } catch(err) {
         c.error(`Failed to load:\n${err.stack}`, plugin);
     }
 }
 
 process.once("loaded", async () => {
-	c.log('Loading v0.7.0...');
+	c.log('Loading v1.1.0...');
 
-    for (var name in plugins) {
-        if (plugins[name] && plugins[name].preload)
-            loadPlugin(plugins[name]);
+    for (let id in plugins) {
+        if (window.ED.config[id] && window.ED.config[id].enabled == false) continue;
+
+        if (plugins[id] && plugins[id].preload && (!window.ED.config[id] || window.ED.config[id] !== false))
+            loadPlugin(plugins[id]);
     }
 
 	while (typeof window.webpackJsonp != 'function')
@@ -84,7 +113,7 @@ process.once("loaded", async () => {
         return null;
     };
     window.findModules = (module) => {
-        var mods = [];
+        let mods = [];
         for (let i in req.c) {
             if (req.c.hasOwnProperty(i)) {
                 let m = req.c[i].exports;
@@ -123,12 +152,20 @@ process.once("loaded", async () => {
         return true;
     };
 
-    while (!window.findModule('sendMessage', true))
+    while (!window.findModule('sendTyping', true) || !window.findModule('track', true))
         await c.sleep(1000); // wait until essential modules are loaded
 
+    if (window.ED.config.silentTyping)
+        window.monkeyPatch(window.findModule('sendTyping'), 'sendTyping', () => {});
+
+    if (window.ED.config.antiTrack !== false)
+        window.monkeyPatch(window.findModule('track'), 'track', () => {});
+
     /* Load plugins */
-	for (var name in plugins) {
-        if (plugins[name] && !plugins[name].preload)
-            loadPlugin(plugins[name]);
+	for (let id in plugins) {
+        if (window.ED.config[id] && window.ED.config[id].enabled == false) continue;
+
+        if (plugins[id] && !plugins[id].preload && (!window.ED.config[id] || window.ED.config[id] !== false))
+            loadPlugin(plugins[id]);
 	}
 })

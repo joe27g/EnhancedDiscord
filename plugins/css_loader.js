@@ -4,8 +4,10 @@ module.exports = new Plugin({
     name: 'CSS Loader',
     author: 'Joe 🎸#7070',
     description: 'Loads and hot-reloads CSS.',
-    preload: true, //load this before Discord hqs finished starting up
+    preload: true, //load this before Discord has finished starting up
     color: 'blue',
+    id: 'css_loader',
+
     load: async function() {
         const path = window.require('path');
         const fs = window.require('fs');
@@ -37,7 +39,13 @@ module.exports = new Plugin({
         }).catch(e => console.info('Custom CSS not found. Skipping...'));
     },
     unload: function() {
-        document.head.removeChild(window.customCss);
-        window.customCss = null;
+        if (window.customCss) {
+            document.head.removeChild(window.customCss);
+            window.customCss = null;
+        }
+        if (window.cssWatcher) {
+            window.cssWatcher.close();
+            window.cssWatcher = null;
+        }
     }
 });

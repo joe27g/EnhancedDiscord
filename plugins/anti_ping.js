@@ -5,21 +5,25 @@ module.exports = new Plugin({
     author: 'Joe 🎸#7070',
     description: 'Removes ping box for any server that is muted and has @everyone surpressed.',
     color: 'aqua',
+    id: 'anti_ping',
 
     load: async function() {
 
         while (!findModule('getMentionCount', true) || !findModule('isMuted', true) || !findModule('getChannels', true))
             await this.sleep(1000);
 
+        let m = findModule('isMuted');
+        let c = findModule('getChannels');
+
         monkeyPatch(findModule('getMentionCount'), 'getMentionCount', function () {
-            let ch = findModule('getChannels').getChannels()[arguments[0].methodArguments[0]];
-            if (ch && ch.guild_id && findModule('isMuted').isMuted(ch.guild_id) && findModule('isMuted').isSuppressEveryoneEnabled(ch.guild_id)) {
+            let ch = c.getChannels()[arguments[0].methodArguments[0]];
+            if (ch && ch.guild_id && m.isMuted(ch.guild_id) && m.isSuppressEveryoneEnabled(ch.guild_id)) {
                 return 0;
             }
             return arguments[0].callOriginalMethod(arguments[0].methodArguments);
         });
     },
     unload: function() {
-        findModule('getMentionCount').getMentionCount.unpatch();
+        this.log(findModule('getMentionCount').getMentionCount.unpatch);
     }
 });

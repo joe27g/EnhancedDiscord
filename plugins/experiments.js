@@ -4,7 +4,8 @@ module.exports = new Plugin({
     name: 'Experiments',
     author: 'Joe 🎸#7070',
     description: 'Enables Discord Staff "experiments." (super-secret dev features)',
-    color: 'cyan',
+    color: 'limegreen',
+    id: 'experiments',
 
     load: function() {
         findModule('isDeveloper').__proto__ = {

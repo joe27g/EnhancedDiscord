@@ -1,5 +1,5 @@
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs-extra');
 const childProcess = require('child_process');
 const mkdirp = require('mkdirp');
 var appPath;
@@ -27,17 +27,42 @@ function closeClient(proc, close) {
     });
 }
 
-function injectClient(_path) {
-    return new Promise((resolve) => {
+async function injectClient(_path) {
+    //return new Promise((resolve) => {
         console.log('Creating injector...');
         mkdirp.sync(path.join(_path, 'app'));
+
+        if (process.pkg) {
+            try{
+            fs.copySync(path.join(__dirname, 'dom_shit.js'), path.join(process.cwd(), 'EnhancedDiscord', 'dom_shit.js'));
+            fs.copySync(path.join(__dirname, 'plugin.js'), path.join(process.cwd(), 'EnhancedDiscord', 'plugin.js'));
+            fs.copySync(path.join(__dirname, 'plugins'), path.join(process.cwd(), 'EnhancedDiscord', 'plugins'));
+            }catch(e){console.error(e);}
+            if (!fs.existsSync(path.join(process.cwd(), 'EnhancedDiscord', 'config.json')))
+                fs.writeFileSync(path.join(process.cwd(), 'EnhancedDiscord', 'config.json'), '{}');
+        } else {
+            if (!fs.existsSync(path.join(process.cwd(), 'config.json')))
+                fs.writeFileSync(path.join(process.cwd(), 'config.json'), '{}');
+        }
+        let p = require('./package.json');
+        let npm = require('npm-programmatic');
+        await npm.install(p['post-install-deps'], {
+            cwd: path.join(process.cwd(), 'EnhancedDiscord'),
+            save:true
+        })
+        .then(function(){
+            console.log("yeet");
+        })
+        .catch(console.error);
+
         const file = fs.readFileSync(path.join(__dirname, 'inject.js'), { encoding: 'utf8' });
-        fs.writeFileSync(path.join(_path, 'app', 'index.js'), `process.env.injDir = '${__dirname.replace(/\\/g, '\\\\')}';\n${file}`);
+        fs.writeFileSync(path.join(_path, 'app', 'index.js'), `process.env.injDir = '${process.cwd().replace(/\\/g, '\\\\').replace(/'/g, "\\'")}${process.pkg ? '\\\\EnhancedDiscord' : ''}';\n${file}`);
         const pkgShit = fs.readFileSync(path.join(__dirname, 'package.json'), { encoding: 'utf8' });
         fs.writeFileSync(path.join(_path, 'app', 'package.json'), pkgShit);
         
-        resolve();
-    });
+        return;
+        //resolve();
+    //});
 }
 
 function relaunchClient() {
