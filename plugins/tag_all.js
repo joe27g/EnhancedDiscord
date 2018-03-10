@@ -27,9 +27,9 @@ module.exports = new Plugin({
             let unMen = [];
             for (let id in g.roles)
                 if (!g.roles[id].mentionable && !g.roles[id].managed) // ignore bot roles
-                    unMen.push(g.roles[id].replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
+                    unMen.push(g.roles[id]);
 
-            let roles = unMen.map(r => r.name.toLowerCase());
+            let roles = unMen.map(r => r.name.toLowerCase().replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
             for (let i in roles) {
                 try {
                     text = text.replace( new RegExp('@'+roles[i]+'([^#])?', 'gi'), `<@&${unMen[i].id}>$1`);
@@ -43,10 +43,10 @@ module.exports = new Plugin({
             let hiddenChans = [];
             for (let id in globalChans) {
                 if (globalChans[id].guild_id == guildID && !(cp.computePermissions(me, globalChans[id]) & 1024))
-                    hiddenChans.push(globalChans[id].replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
+                    hiddenChans.push(globalChans[id]);
             }
 
-            let chans = hiddenChans.map(c => c.name.toLowerCase());
+            let chans = hiddenChans.map(c => c.name.toLowerCase().replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
             for (let i in chans) {
                 text = text.replace('#'+chans[i], `<#${hiddenChans[i].id}>`);
             }
