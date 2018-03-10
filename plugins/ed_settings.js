@@ -51,11 +51,10 @@ module.exports = new Plugin({
             //console.log(tab);
             if (!tab || tab.length < 1) {
                 let parent = document.querySelector('.side-2nYO0F');
-                let anchor = document.querySelector('.side-2nYO0F > .separator-3z7STW:nth-child(20)');
-
-                //console.log(parent, anchor);
-
-                if (!parent || !anchor)
+                if (!parent)
+                    return arguments[0].callOriginalMethod(arguments[0].methodArguments);
+                let anchor = parent.querySelector(`.separator-3z7STW:nth-child(${process.platform == 'win32' ? 20 : 18})`);
+                if (!anchor)
                     return arguments[0].callOriginalMethod(arguments[0].methodArguments);
 
                 let header = document.createElement('div');
