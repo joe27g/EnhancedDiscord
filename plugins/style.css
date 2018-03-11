@@ -33,7 +33,7 @@ body, .appMount-14L89u {
 * {
     -webkit-transition: none !important;
     transition: none !important;
-}**/
+}*/
 .channel-members .member, .action-buttons *, .contentDefaultText-2elG3R, .marginReset-1YolDJ+div, #user-profile-modal .guilds .guild,
 .theme-dark .ui-selectable-item, .side-2nYO0F .item-3879bf, .buttonRedOutlinedDefault-1VCgwL,
 .chat > .title-wrap.title-wrap-dark .topic a, .theme-dark .message-group a, .content-region a, .buttonLinkLink-PqcWoA, .modal-2LIEKY a,
@@ -279,9 +279,6 @@ body, .appMount-14L89u {
 .emojiPicker-3g68GS .categories-jw8z2h .item-lsWB-j.flags-3bbR5D {
     background-image: url(/assets/ccda5cf0a64abbd18fdb9f914b55292e.svg);
 }
-.emojiPicker-3g68GS .emojiItem-3l4Fa9.disabled-1mwvoa {
-    display: none; height: 0px;
-}
 /* mentions */
 .theme-dark  .mention,
 .theme-dark .message-group .comment .markup .mention:not([style]),
@@ -374,7 +371,7 @@ body, .appMount-14L89u {
     padding-left: 10px;
     border-radius: 10px;
 }
-.theme-dark .message-group .embedInner-t4ag7g {
+.theme-dark .message-group .embedInner-t4ag7g, .theme-dark .invite-CTGItT {
     background: rgba(0, 0, 0, 0.15);
     border: none;
 }
@@ -792,8 +789,9 @@ code.hljs.prolog:before {
 .wrapper-VSYYTS .instantInviteModal-5L33Qh .copy-2xFKb_, .wrapper-VSYYTS .instantInviteModalAdvanced-38f2M0 .form-actions .btn-primary,
 .headerInfo-Gkqcz9+.buttonBrandInvertedDefault-uUmgsD, .lookFilled-luDKDo.colorBrand-3PmwCE, .lookInverted-2lPGe7.colorBrand-3PmwCE,
 .theme-dark .lookFilled-luDKDo.colorPrimary-2KuK5O, .headerButtonColor-2ZJMqn, .button-NA7MEa,
-[class*="lookFilled-"][class*="colorGreen-"], [class*="lookInverted-"][class*="colorGreen-"], [class*="buttonInverted"], [class*="buttonGreen"],
-.detected-platform-accounts-modal .btn-group .btn-primary {
+.lookInverted-2lPGe7.colorGreen-22At8E, .buttonInvertedPurple-15OGid, .lookFilled-luDKDo.colorGreen-22At8E,
+.detected-platform-accounts-modal .btn-group .btn-primary,
+.lookOutlined-1c5nhl.colorWhite-1IbOTe, .theme-dark .lookOutlined-1c5nhl.colorPrimary-2KuK5O {
     background-color: var(--accent-color);
     /*transition: filter 150ms;*/ /* causes flicker; tried and failed to find solution (that didn't fuck with hardware acceleration) */
 }
@@ -804,8 +802,9 @@ code.hljs.prolog:before {
 .private-channel-recipients-invite .footer button:hover, .lookFilled-luDKDo.colorBrand-3PmwCE:hover, .lookInverted-2lPGe7.colorBrand-3PmwCE:hover,
 .theme-dark .lookFilled-luDKDo.hoverBrand-31w0Ap.hasHover-FPgGm-:hover, .theme-light .lookFilled-luDKDo.hoverBrand-31w0Ap.hasHover-FPgGm-:hover,
 .theme-dark .lookFilled-luDKDo.hoverGreen-1Uak9k.hasHover-FPgGm-:hover, .theme-light .lookFilled-luDKDo.hoverGreen-1Uak9k.hasHover-FPgGm-:hover,
-[class*="lookFilled-"][class*="colorGreen-"]:hover, [class*="lookInverted-"][class*="colorGreen-"]:hover, [class*="buttonInverted"]:hover, [class*="buttonGreen"]:hover,
-.detected-platform-accounts-modal .btn-group .btn-primary:hover:not(:disabled) {
+.lookInverted-2lPGe7.colorGreen-22At8E:hover, .buttonInvertedPurple-15OGid:hover, .lookFilled-luDKDo.colorGreen-22At8E:hover,
+.detected-platform-accounts-modal .btn-group .btn-primary:hover:not(:disabled),
+.lookOutlined-1c5nhl.colorWhite-1IbOTe:hover, .theme-dark .lookOutlined-1c5nhl.colorPrimary-2KuK5O:hover {
     background-color: var(--accent-color);
     filter: brightness(1.3);
 }
@@ -873,7 +872,7 @@ code.hljs.prolog:before {
 }
 /* member list loading */
 .theme-dark .channel-members-wrap > *:not(:last-child) {
-    display: none;
+    visibility: hidden !important; /* DO NOT use [display: none;] here. For some reason it causes massive lag. */
 }
 .theme-dark .channel-members-loading {
     background: transparent;
@@ -1282,7 +1281,7 @@ button.addButton-3RuTE0:hover {
 .member-role > .name {
     mix-blend-mode: difference;
 }*/
-.theme-dark [class^="quickMessage-"] {
+.theme-dark .quickMessage-OCo-Q0, .quickMessage-318jK- {
     border: none;
     background: rgba(255, 255, 255, 0.1);
     color: #fff;
@@ -1296,15 +1295,15 @@ button.addButton-3RuTE0:hover {
 .member-roles .member-role.member-role-add button {
     filter: brightness(2);
 }
-.header-3budic:not([class^="headerSpotify-"]):not([class^="headerStreaming-"]) > .activity-AFBUEw, 
-.header-3budic:not([class^="headerSpotify-"]):not([class^="headerStreaming-"]) > .activity-3NviKQ {
+.header-3budic:not(.headerSpotify-26yUf5):not(.headerStreaming-lmgoma) > .activity-AFBUEw, 
+.header-3budic:not(.headerSpotify-26yUf5):not(.headerStreaming-lmgoma) > .activity-3NviKQ {
     background-color: var(--popup-highlight);
     margin: 0 -10px;
 }
-[class^="topSectionNormal-"] [class^="tabBarContainer-"] {
+.headerNormal-3Vn9nT .tabBarContainer-3RVZc-, .topSectionNormal-2LlRG1 .tabBarContainer-3RVZc- {
     background-color: var(--popup-highlight);
 }
-.theme-dark .headerNormal-1cioxU, .theme-dark [class^="headerNormal-"], .headerPlaying-2eYqm9, .headerPlaying-2Q7mBy {
+.theme-dark .headerNormal-1cioxU, .theme-dark .headerNormal-3Vn9nT, .headerPlaying-2eYqm9, .headerPlaying-2Q7mBy {
     background-color: var(--popup-highlight);
     background-image: var(--profile-background);
     background-size: 90%;
@@ -1350,7 +1349,7 @@ button.addButton-3RuTE0:hover {
     background-image: var(--profile-background); /*url(https://svgshare.com/i/5nf.svg);*/
     background-size: 30%;
 }
-:not([class^="topSectionSpotify-"]):not([class^="topSectionStreaming-"]) > [class^="headerFill-"] {
+:not(.headerSpotify-26yUf5):not(.topSectionSpotify-3744IX):not(.topSectionStreaming-3rIBIm):not(.headerStreaming-lmgoma) > .headerFill-TTyrtz {
     background-color: var(--popup-highlight);
 }
 /*
@@ -1481,7 +1480,7 @@ button.addButton-3RuTE0:hover {
     box-shadow: none;
     border-bottom: 3px solid rgba(255, 255, 255, 0.1)
 }
-.game-name-input {
+.game-name-input, .lookOutlined-1c5nhl.colorWhite-1IbOTe, .theme-dark .lookOutlined-1c5nhl.colorPrimary-2KuK5O {
     border: none !important;
 }
 .theme-dark .ui-search-bar, .theme-dark .ui-hover-card:before, .theme-dark .round-remove-button, .theme-dark .emoji-alias-input .emoji-input,
@@ -1726,13 +1725,13 @@ button.addButton-3RuTE0:hover {
 }
 /* links */
 .chat>.title-wrap.title-wrap-dark .topic a, .theme-dark .message-group a, .content-region a, .buttonLinkLink-PqcWoA,
-.modal-2LIEKY a:not([class^="bodyLink-"]), .theme-dark .chat .welcome-message a,
+.modal-2LIEKY a:not(.bodyLink-rRVoAA), .theme-dark .chat .welcome-message a,
 .message-group .comment .attachment .upload>.filename,
 .theme-dark .topic-1KFf6J a, .theme-dark .welcomeMessage-1U7Ntv a, .lfg-3xoFkI a {
     color: var(--link-color) !important;
 }
 .chat>.title-wrap.title-wrap-dark .topic a:hover, .theme-dark .message-group a:hover, .content-region a:hover, .buttonLinkLink-PqcWoA:hover,
-.modal-2LIEKY a:not([class^="bodyLink-"]):hover, .theme-dark .chat .welcome-message a:hover,
+.modal-2LIEKY a:not(.bodyLink-rRVoAA):hover, .theme-dark .chat .welcome-message a:hover,
 .message-group .comment .attachment .upload>.filename:hover,
 .theme-dark .topic-1KFf6J a:hover {
     text-decoration: none !important;
@@ -1846,31 +1845,24 @@ video.ready-2UbIdM {
 .theme-dark .themed-popout .footer {
     background: var(--popup-highlight);
 }
-/* annoying connect accounts popup */
-.backdrop-2ohBEd {
-    background: var(--popup-background) !important;
-}
-.switch-3Y0fRt input:checked+.slider-1S7GYD {
-    background-color: var(--accent-color);
-}
 /* cards in "Games" section [experiment] */
 .theme-dark .card-2WxYqG, .theme-dark .header-1qeJfQ, .theme-dark .card-2WxYqG:hover .header-1qeJfQ {
     background: rgba(255, 255, 255, 0.1);
 }
-.theme-dark .body-8pBSC7, .theme-dark [class^="activityFeed-"], .theme-dark .lfg-3xoFkI {
+.theme-dark .body-8pBSC7, .theme-dark .activityFeed--1mYMS, .theme-dark .lfg-3xoFkI {
     background: transparent;
 }
-.theme-dark [class^="activityFeed-"] [class^="carousel-"] {
+.theme-dark .activityFeed--1mYMS .carousel-28zrtT {
     background: rgba(255, 255, 255, 0.1);
 }
 .article-2abys7 {
     background-color: transparent;
 }
-[class^="newsLink-"] {
+.newsLink-SC025S {
     background-color: rgba(0, 0, 0, 0.3);
     transition: background-color 150ms;
 }
-[class^="newsLink-"]:hover {
+.newsLink-SC025S:hover {
     background-color: rgba(0, 0, 0, 0.5);
 }
 /* loading spinner */
@@ -1894,22 +1886,23 @@ video.ready-2UbIdM {
 
 /* hiding dumb shit */
 /* nitro link */
-[class*="itemBrand-"],
-[class*="itemDefault-"][style="color: rgb(114, 137, 218);"],
-[class*="itemDefault-"][style="color: rgb(114, 137, 218);"] + .separator-3z7STW,
-/* nitro ad in emoji suggestions */
+.itemDefault-3NDwnY[style="color: rgb(114, 137, 218);"],
+.itemDefault-3NDwnY[style="color: rgb(114, 137, 218);"] + .separator-3z7STW,
+/* nitro ad in emoji suggestions *
 .premium-promo-autocomplete,
 /* antisocial */
-[class^="socialLinks-"],
-[class^="itemDefault-"][style*="color: rgb(240, 71, 71);"] + .separator-3z7STW,
+.socialLinks-1oZoF3,
+.itemDefault-3NDwnY[style*="color: rgb(240, 71, 71);"] + .separator-3z7STW,
 /* clyde *
 .is-local-bot-message,
 /* help button in header *
 .icon-mr9wAc:last-child,
 /* mentions below *
-.unread-mentions-indicator-bottom*/
+.unread-mentions-indicator-bottom,
 /* protips */
-.block-3bMcN6 .pro-1IhGKk, .block-3bMcN6 .tip-1Hs8ce, .tip-1Hs8ce {
+.block-3bMcN6 .pro-1IhGKk, .block-3bMcN6 .tip-1Hs8ce, .tip-1Hs8ce,
+/* "disabled" emojis */
+.emojiPicker-3g68GS .emojiItem-3l4Fa9.disabled-1mwvoa {
     display: var(--annoyances);
 }
 /* nitrofag badge */
