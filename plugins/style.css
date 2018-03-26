@@ -1,4 +1,4 @@
-/* EnhancedDiscord Theme v1.4.1 by Joe 🎸#7070 */
+/* EnhancedDiscord Theme v1.4.2 by Joe 🎸#7070 */
 /* Loosely based on/inspired by Beard's Material Theme. Credit for the images (at the bottom of the page) goes to them. */
 
 /* theme settings */
@@ -348,8 +348,8 @@ body, .appMount-14L89u {
 }
 .message-group .comment .edited {
     font-size: 0;
-    width: 13px!important;
-    height: 13px!important;
+    width: 13px !important;
+    height: 13px !important;
     display: inline-block;
     background-image: var(--edited-pencil);
     background-size: 100%;
@@ -359,10 +359,10 @@ body, .appMount-14L89u {
 .emoji.jumboable {
     margin: 0 !important;
     vertical-align: bottom;
-    max-height: 32px;
+    /*max-height: 32px;
     max-width: 32px;
     height: auto;
-    width: auto;
+    width: auto;*/
 }
 .theme-dark .message-group.is-local-bot-message {
     background-image: linear-gradient(90deg,rgba(255,255,255,.07) 80%, rgba(255,255,255,.2));
@@ -473,6 +473,10 @@ code.hljs.xml:before {
     content: 'xml';
     background-color: #6718bb;
 }
+code.hljs.html:before {
+    content: 'html';
+    background-color: #6718bb;
+}
 code.hljs.http:before {
     content: 'http';
     background-color: #6718bb;
@@ -574,13 +578,11 @@ code.hljs.prolog:before {
 }
 /* reacts */
 .theme-dark .reaction.reaction-me {
-    background: rgba(250, 0, 0, 0.2);
+    background: transparent;
+    box-shadow: inset 0 0 19px var(--accent-color); /* basically this sets opacity of accent color */
 }
 .theme-dark .reaction.reaction-me .reaction-count {
     color: rgba(255, 255, 255, 0.5);
-}
-.reaction .emoji {
-    width: auto;
 }
 /* new server */
 .create-guild-container.deprecated, .create-guild-container.deprecated .create-or-join .form-inner, .region-select-modal {
@@ -1333,11 +1335,12 @@ button.addButton-3RuTE0:hover {
 /* ^ both v */
 #user-profile-modal .header .discord-tag .username,
 .user-popout .username-wrapper .discord-tag .username {
-    color: #fff!important
+    color: #fff !important;
 }
 #user-profile-modal .header .discord-tag .discriminator,
 .user-popout .username-wrapper .discord-tag .discriminator {
-    color: rgba(255, 255, 255, 0.6)!important
+    color: rgba(255, 255, 255, 0.6) !important;
+    display: inline-block;
 }
 #user-profile-modal .header .header-info .header-info-inner .activity,
 .user-popout .username-wrapper .activity {
@@ -1448,6 +1451,10 @@ button.addButton-3RuTE0:hover {
 }
 .icon.icon-file.video {
     width: 29px;
+}
+/* upload progress */
+.progressBar-mI5LOq {
+    background-color: var(--accent-color);
 }
 /* calls */
 .theme-dark .private-channel-call, .theme-dark .ui-video {
@@ -1915,16 +1922,6 @@ video.ready-2UbIdM {
 .botTag-1OwMgs, .botTagInvert-gorWR_ {
     background: var(--tag-bg);
     color: var(--tag-color) !important;
-}
-/* normies */
-.comment .user-name:not([style]):after {
-    content: 'NORMIE'; /* no roles */
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    margin-left: 5px;
-    padding: 2px 5px;
-    border-radius: 5px;
-    font-size: 11px;
 }
 /* Tags */
 .avatar-large+.comment .username-wrapper:after,
