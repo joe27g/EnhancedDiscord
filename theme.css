@@ -848,7 +848,9 @@ code.hljs.prolog:before {
 .channel-members .member, .channel-members h2 {
     padding-left: 15px;
 }*/
-.theme-dark .channel-members .member.popout-open, .theme-dark .channel-members .member:hover {
+.theme-dark .member-2FrNV0.popout-open .content-3JzEqq,
+.theme-dark .member-2FrNV0.popout-open:hover .content-3JzEqq,
+.theme-dark .member-2FrNV0:hover .content-3JzEqq {
     background: rgba(255, 255, 255, 0.06);
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
@@ -1914,8 +1916,7 @@ video.ready-2UbIdM {
     color: var(--tag-color) !important;
 }
 /* user tags */
-.avatar-large+.comment .username-wrapper:after,
-.avatar-small+.member-inner .member-username-inner:after {
+.avatar-large+.comment .username-wrapper:after {
     margin-left: 5px;
     padding: 0 3px;
     border-radius: 5px;
