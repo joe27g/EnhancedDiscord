@@ -24,6 +24,8 @@ Go to [this Google Drive folder](https://drive.google.com/drive/folders/1_vDfuMG
 
 ### Explanation of files:
 
+- `theme.css` ~ CSS file that's imported by the main CSS file (`plugins/style.css` by default) in order to allow auto-updating. Not useful by itself.
+
 - `dom_shit.js` ~ File that's loaded when Discord starts. This file loads all plugins, etc.
 
 - `plugins` ~ Directory to store custom plugins. Examples/guides on how to create plugins coming soon:tm:.
