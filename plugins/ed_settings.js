@@ -154,11 +154,13 @@ module.exports = new Plugin({
                             settingsPane.innerHTML += '<div class="divider-1G01Z9 margin-bottom-20"></div>';
 
                             if (window.ED.plugins[id].settingListeners) {
-                                for (let sel in window.ED.plugins[id].settingListeners) {
-                                    let elem = document.querySelector(sel);
-                                    if (sel)
-                                        elem.onclick = window.ED.plugins[id].settingListeners[sel];
-                                }
+                                setTimeout(() => { // let shit render
+                                    for (let sel in window.ED.plugins[id].settingListeners) {
+                                        let elem = settingsPane.querySelector(sel);
+                                        if (sel)
+                                            elem.onclick = window.ED.plugins[id].settingListeners[sel];
+                                    }
+                                }, 5);
                             }
                         }
                     }
@@ -169,11 +171,25 @@ module.exports = new Plugin({
                     let parent = e.target.parentElement;
 
                     if (e.target.className && (e.target.className == 'contents-4L4hQM' || e.target.className.indexOf('ed-plugin-reload') > -1)) {
+                        let button = e.target.className == 'contents-4L4hQM' ? e.target : e.target.firstElementChild;
                         let plugin = e.target.className == 'contents-4L4hQM' ? e.target.parentElement.nextElementSibling : e.target.nextElementSibling;
                         //console.log(plugin);
                         if (!plugin || !plugin.id || !window.ED.plugins[plugin.id] || plugin.className.indexOf('valueChecked-3Bzkbm') == -1) return;
+                        button.innerHTML = 'Reloading...';
                         window.ED.plugins[plugin.id].unload();
+                        try {
+                            delete require.cache[require.resolve(`./${plugin.id}`)];
+                            let newPlugin = require(`./${plugin.id}`);
+                            window.ED.plugins[plugin.id] = newPlugin;
+                            button.innerHTML = 'Reloaded!';
+                        } catch(err) {
+                            console.error(err);
+                            button.innerHTML = `Failed to reload (${err.name} - see console.)`;
+                        }
                         window.ED.plugins[plugin.id].load();
+                        setTimeout(() => {
+                            try { button.innerHTML = 'Reload'; } catch(err){}
+                        }, 3000);
                         return;
                     }
 
