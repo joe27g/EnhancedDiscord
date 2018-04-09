@@ -143,10 +143,18 @@ module.exports = new Plugin({
                 return false; // don't show hidden channels as unread.
             return b.callOriginalMethod(b.methodArguments);
         });
+        monkeyPatch(findModule('hasUnread').__proto__, 'hasUnreadPins', function(b) {
+            if (window.ED._hiddenChans.indexOf(b.methodArguments[0]) > -1)
+                return false; // don't show icon on hidden channel pins.
+            return b.callOriginalMethod(b.methodArguments);
+        });
     },
     
     unload: function() {
         let m = findModule('hasUnread').__proto__.hasUnread;
+        if (m.__monkeyPatched && m.unpatch)
+            m.unpatch();
+        m = findModule('hasUnread').__proto__.hasUnreadPins;
         if (m.__monkeyPatched && m.unpatch)
             m.unpatch();
         m = findModule('computePermissions');
