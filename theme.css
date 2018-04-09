@@ -855,6 +855,11 @@ code.hljs.prolog:before {
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
 }
+/* pins */
+.iconBadge-1FYlQB {
+    border: none;
+    box-shadow: 0 0 0 3px rgba(240, 71, 71, 0.3);
+}
 /* member list loading */
 .theme-dark .channel-members-wrap > *:not(:last-child) {
     visibility: hidden !important; /* DO NOT use [display: none;] here. For some reason it causes massive lag. */
@@ -1583,7 +1588,7 @@ button.addButton-3RuTE0:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 /* context menus */
-.theme-dark .contextMenu-uoJTbz {
+.theme-dark .contextMenu-uoJTbz, .theme-dark.contextMenu-uoJTbz {
     background: var(--context-menu-bg);
 }
 .theme-dark.context-menu .item-subMenu, .theme-dark .itemSubMenu-3ZgIw- {
@@ -1885,13 +1890,13 @@ video.ready-2UbIdM {
 
 /* hiding dumb shit */
 /* nitro link */
-.itemDefault-3NDwnY[style="color: rgb(114, 137, 218);"],
-.itemDefault-3NDwnY[style="color: rgb(114, 137, 218);"] + .separator-3z7STW,
+.sidebar-region .itemDefault-3NDwnY[style="color: rgb(114, 137, 218);"],
+.sidebar-region .itemDefault-3NDwnY[style="color: rgb(114, 137, 218);"] + .separator-3z7STW,
 /* nitro ad in emoji suggestions *
 .premium-promo-autocomplete,
 /* antisocial */
 .socialLinks-1oZoF3,
-.itemDefault-3NDwnY[style*="color: rgb(240, 71, 71);"] + .separator-3z7STW,
+.sidebar-region .itemDefault-3NDwnY[style*="color: rgb(240, 71, 71);"] + .separator-3z7STW,
 /* clyde *
 .is-local-bot-message,
 /* help button in header *
