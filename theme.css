@@ -643,7 +643,7 @@ code.hljs.prolog:before {
 .form-deprecated .Select-control .Select-arrow {
     top: 0px;
 }
-/* accept invite*/
+/* accept invite */
 .inviteModal-1di4Hk .scroller {
     background-color: var(--popup-background);
     background-image: url(https://i.imgur.com/y5Of6et.png);
@@ -1348,7 +1348,7 @@ button.addButton-3RuTE0:hover {
 /* user profile */
 .topSectionNormal-2LlRG1, .topSectionPlaying-3jAH9b {
     background-color: var(--popup-highlight);
-    background-image: var(--profile-background); /*url(https://svgshare.com/i/5nf.svg);*/
+    background-image: var(--profile-background);
     background-size: 30%;
 }
 :not(.headerSpotify-26yUf5):not(.topSectionSpotify-3744IX):not(.topSectionStreaming-3rIBIm):not(.headerStreaming-lmgoma) > .headerFill-TTyrtz {
@@ -1912,7 +1912,7 @@ video.ready-2UbIdM {
 /* nitrofag badge */
 .profileBadgePremium-3Lp76B, .topSectionNormal-2LlRG1 .profileBadgePremium-3Lp76B,
 .profileBadgePremium-3Lp76B, .topSectionPlaying-3jAH9b .profileBadgePremium-3Lp76B {
-    background-image: url(https://upload.wikimedia.org/wikipedia/commons/6/68/Gay_flag.svg);
+    background-image: url(https://discordapp.com/assets/9c252d28ca4980d65054a0258052983b.svg);
 }
 
 /* bot tags */
