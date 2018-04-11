@@ -70,7 +70,7 @@ The following functions/variables are available from the `window` object to help
    
    * To undo your patch, use the `unpatch()` function; for example, `findModule('sendMessage').sendMessage.unpatch();`. The `__monkeyPatched` property, located in the same place, can be used to determine if a function is already patched.
    
-Credits to [samogot](github.com/samogot) for making the internals for this, in [Lib Discord Internals](https://github.com/samogot/betterdiscord-plugins/blob/master/v2/1Lib%20Discord%20Internals/plugin.js) plugin.
+Original versions of these two functions are from [samogot](https://github.com/samogot)'s [Lib Discord Internals](https://github.com/samogot/betterdiscord-plugins/blob/master/v2/1Lib%20Discord%20Internals/plugin.js).
 
 ### Advanced plugin functionality
 
