@@ -5,8 +5,7 @@ module.exports = new Plugin({
     author: 'Joe 🎸#7070',
     description: "Silences Clyde saying stupid shit about Nitro, for users that don't have it.",
     color: '#7289da',
-    id: 'silence',
-    
+
     load: async function() {
 
         while (!findModule('sendBotMessage', true) || !findModule('Messages', true) || !findModule('getCurrentUser', true))

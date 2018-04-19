@@ -40,7 +40,6 @@ module.exports = new Plugin({
     author: 'Joe 🎸#7070',
     description: `Lets you copy a user or guild's avatar URL by right-clicking on their avatar.`,
     color: '#ffe000',
-    id: 'avatar_links',
 
     load: async function() {
         while (!findModule('dispatch', true))
@@ -62,7 +61,7 @@ module.exports = new Plugin({
                 else if (elem && elem.tagName == 'A' && elem.href && elem.href.startsWith('https://discordapp.com/channels/@me/')){
                     elem.className = 'dmTempClass';
                 }
-                
+
                 let cn = elem ? elem.getAttribute("class") : null;
                 if (!elem || !cn || typeof cn !== 'string') return og;
 

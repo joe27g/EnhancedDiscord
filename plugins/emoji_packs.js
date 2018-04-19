@@ -5,7 +5,6 @@ module.exports = new Plugin({
     author: 'Joe 🎸#7070',
     description: "Replaces Discord's default emojis with different ones of your choice.",
     color: 'maroon',
-    id: 'emoji_packs',
 
     config: {
         pack: {

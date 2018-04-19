@@ -1,5 +1,5 @@
-const path = require('path');
-const fs = require('fs');
+const path = window.require('path');
+const fs = window.require('fs');
 
 //set up global functions
 let c = {
@@ -23,7 +23,7 @@ let c = {
             console.error(`%c[EnhancedDiscord] %c[${plugin.name}]`, 'color: red;', `color: ${plugin.color}`, msg);
     	else console.error('%c[EnhancedDiscord]', 'color: red;', msg);
     },
-    sleep: function(ms) { 
+    sleep: function(ms) {
         return new Promise(resolve => {
             setTimeout(resolve, ms);
         });
@@ -47,7 +47,22 @@ Object.defineProperty(window.ED, 'config', {
 });
 
 //load and validate plugins
-let plugins = require('require-all')(path.join(process.env.injDir, 'plugins'));
+let pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));
+let plugins = {};
+for (let i in pluginFiles) {
+    if (!pluginFiles[i].endsWith('.js')) continue;
+    let p, pName = pluginFiles[i].replace(/\.js$/, '');
+    try {
+        p = require(path.join(process.env.injDir, 'plugins', pName));
+        if (typeof p.name !== 'string' || typeof p.load !== 'function') {
+            throw new Error('Plugin must have a name and load() function.');
+        }
+        plugins[pName] = Object.assign(p, {id: pName});
+    }
+    catch (err) {
+        c.warn(`Failed to load ${pluginFiles[i]}: ${err}\n${err.stack}`, p);
+    }
+}
 for (let id in plugins) {
     if (!plugins[id] || !plugins[id].name || typeof plugins[id].load !== 'function') {
         c.info(`Skipping invalid plugin: ${id}`); plugins[id] = null; continue;
@@ -72,7 +87,7 @@ function loadPlugin(plugin) {
 }
 
 process.once("loaded", async () => {
-	c.log('Loading v1.1.0...');
+	c.log('Loading v2.0.0...');
 
     for (let id in plugins) {
         if (window.ED.config[id] && window.ED.config[id].enabled == false) continue;

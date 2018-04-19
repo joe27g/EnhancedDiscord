@@ -1,4 +1,4 @@
-@import url(https://benderbot.co/ed_theme.css);
+@import url(https://enhanceddiscord.com/theme.css);
 
 /* theme settings */
 :root {
@@ -24,7 +24,7 @@
 @keyframes rainbow {
     0%{background-position-x:0%}
     50%{background-position-x:100%}
-    100%{background-position-x:200%}  
+    100%{background-position-x:200%}
 }
 .message-group .message-text.april-fools {
     background: repeating-linear-gradient(90deg,rgba(127,0,0,.2),rgba(255,0,0,.2),rgba(255,255,0,.2),rgba(0,255,0,.2),rgba(0,0,255,.2),rgba(127,0,0,.2));

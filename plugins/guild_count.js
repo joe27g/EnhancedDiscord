@@ -5,7 +5,6 @@ module.exports = new Plugin({
     author: 'Joe 🎸#7070',
     description: "Adds the number of servers you're currently in right above the list.",
     color: 'indigo',
-    id: 'guild_count',
 
     load: async function() {
         while (!window.findModule('getGuilds', true))

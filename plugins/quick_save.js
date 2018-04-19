@@ -5,7 +5,6 @@ module.exports = new Plugin({
     author: 'Joe 🎸#7070',
     description: 'Use Ctrl+S or Cmd+S to save server, channel, or account settings.',
     color: 'salmon',
-    id: 'quick_save',
 
     load: async function() {
         let hcModules = window.findModules('hasChanges');

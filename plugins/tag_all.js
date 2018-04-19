@@ -5,10 +5,8 @@ module.exports = new Plugin({
     author: 'Joe 🎸#7070',
     description: `Allows you to mention roles and channels you can't normally.`,
     color: 'yellow',
-    id: 'tag_all',
 
     load: async function() {
-        const $ = require('jquery');
 
         while (!findModule('getGuild', true) || !findModule('getChannels', true) || !findModule('getCurrentUser', true) || !findModule('computePermissions', true) || !findModule('getLastSelectedGuildId', true))
             await this.sleep(1000);
@@ -54,11 +52,11 @@ module.exports = new Plugin({
 
             e.target.value = text;
         };
-        $(document).on("keypress.ts", this.lis);
+        document.addEventListener("input", this.lis);
     },
 
     unload: function() {
-        document.removeEventListener("keypress.ts", this.lis);
+        document.removeEventListener("input", this.lis);
         this.lis = null;
     }
 });

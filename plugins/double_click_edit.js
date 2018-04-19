@@ -9,11 +9,15 @@ module.exports = new Plugin({
 
     load: async function() {
         this._listener = function(e) {
-            if (e.target.className !== 'markup') return;
-            let dots = e.target.previousElementSibling.previousElementSibling;
+            let messageElem = e.target.closest('.message');
+            if (!messageElem) return;
+
+            let dots = messageElem.querySelector('.btn-option');
             if (dots) dots.click();
+
             let messageOpts = document.querySelectorAll('.popouts .option-popout .btn-item');
             if (!messageOpts) return;
+
             let hasEditOption = false;
             for (let i in messageOpts) {
                 if (messageOpts[i].innerHTML == 'Edit') {
@@ -37,12 +41,17 @@ module.exports = new Plugin({
                 module.exports._deletePressed = false;
         });
         this._listener2 = function(e) {
-            if (e.target.className !== 'markup' || !module.exports._deletePressed) return;
+            if (!module.exports._deletePressed) return;
 
-            let dots = e.target.previousElementSibling.previousElementSibling;
+            let messageElem = e.target.closest('.message');
+            if (!messageElem) return;
+
+            let dots = messageElem.querySelector('.btn-option');
             if (dots) dots.click();
+
             let messageOpts = document.querySelectorAll('.popouts .option-popout .btn-item');
             if (!messageOpts) return;
+
             let hasDeleteOption = false;
             for (let i in messageOpts) {
                 if (messageOpts[i].innerHTML == 'Delete') {

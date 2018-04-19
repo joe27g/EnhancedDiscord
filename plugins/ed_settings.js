@@ -9,7 +9,6 @@ module.exports = new Plugin({
     author: 'Joe 🎸#7070',
     description: 'Adds an EnhancedDiscord tab in user settings.',
     color: 'darkred',
-    id: 'ed_settings',
 
     load: async function() {
 

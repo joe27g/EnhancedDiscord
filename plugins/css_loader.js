@@ -8,7 +8,6 @@ module.exports = new Plugin({
     description: 'Loads and hot-reloads CSS.',
     preload: true, //load this before Discord has finished starting up
     color: 'blue',
-    id: 'css_loader',
 
     config: {
         path: {

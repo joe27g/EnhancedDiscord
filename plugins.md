@@ -11,7 +11,6 @@ module.exports = new Plugin({
     description: 'Does absolutely nothing, lol', /* Description of what this plugin does. */
     preload: false, /* [Optional] If true, load this before Discord has finished starting up */
     color: '#666', /* [Optional] The color that this plugin shows in logs and in the plugin settings tab. Any valid CSS color will work here. */
-    id: 'a_plugin', /* Unique ID for your plugin, e.g. "hidden_channels". Typically, this should be the same as your filename. */
 
     load: function() {
         /* What your plugin does when Discord is loaded, or when the plugin is reloaded. */
@@ -39,7 +38,7 @@ The Plugin class and settings plugin offer the following helpers for plugin sett
 * **`config`**: Integrates with `settings`. This should essentially store all your default settings, and these will be saved to the config file the first time your plugin is loaded, or when the user resets their settings. Use this when creating your plugin, in the object that is used in `new Plugin({})`.
 
    * This should be located in the object you used to create the plugin (i.e. between the `id` property and `load` function.)
-   
+
    * The format is as follows:
    ```js
    config: {
@@ -49,7 +48,7 @@ The Plugin class and settings plugin offer the following helpers for plugin sett
       }
    }
    ```
-   
+
 ### Global helper functions
 
 The following functions/variables are available from the `window` object to help you make plugins:
@@ -59,17 +58,17 @@ The following functions/variables are available from the `window` object to help
 * `findModules(name)`: Same as above, but returns an Array of modules.
 
 * `monkeyPatch(module, functionName, newFunction)`: Replaces a function by the name of `functionName` inside a `module` with a new one (`newFunction`). **This has special properties regarding the original method - Details below.**
-   
+
    * To access the original arguments, use `arguments[0].methodArguments`. For example, in sendMessage, `arguments[0].methodArguments[0]` is the channel ID.
-   
+
    * To access the "this" object used internally, use `arguments[0].thisObject`.
-   
+
    * To access the original function, use `arguments[0].originalMethod`.
-   
+
    * To run the original function, use `arguments[0].callOriginalMethod(arguments[0].methodArguments)`.
-   
+
    * To undo your patch, use the `unpatch()` function; for example, `findModule('sendMessage').sendMessage.unpatch();`. The `__monkeyPatched` property, located in the same place, can be used to determine if a function is already patched.
-   
+
 Original versions of these two functions are from [samogot](https://github.com/samogot)'s [Lib Discord Internals](https://github.com/samogot/betterdiscord-plugins/blob/master/v2/1Lib%20Discord%20Internals/plugin.js).
 
 ### Advanced plugin functionality

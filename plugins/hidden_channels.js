@@ -5,7 +5,6 @@ module.exports = new Plugin({
     description: 'Shows hidden channels and lets you view server permissions.',
     color: 'magenta',
     author: 'Joe 🎸#7070',
-    id: 'hidden_channels',
 
     load: async function() {
         if (!window.ED._readOnlyPerms)
@@ -149,7 +148,7 @@ module.exports = new Plugin({
             return b.callOriginalMethod(b.methodArguments);
         });
     },
-    
+
     unload: function() {
         let m = findModule('hasUnread').__proto__.hasUnread;
         if (m.__monkeyPatched && m.unpatch)

@@ -5,7 +5,6 @@ module.exports = new Plugin({
     author: 'Joe 🎸#7070',
     description: 'Removes ping box for any server that is muted and has @everyone surpressed.',
     color: 'aqua',
-    id: 'anti_ping',
 
     load: async function() {
 
