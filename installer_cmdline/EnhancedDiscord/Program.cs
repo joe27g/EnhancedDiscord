@@ -180,7 +180,7 @@ namespace EnhancedDiscord
                     basePath = Path.Combine(basePath, ".config");
                 }
             }
-            string[] pathPieces = { basePath, release, appVersion, "modules", "discord_desktop_core", "index.js" };
+            string[] pathPieces = { basePath, channel, appVersion, "modules", "discord_desktop_core", "index.js" };
             // the base "appdata" folder ^        ^       ^
             // i.e. "discord" or "discordcanary" -'       |
             // i.e. "0.0.300" or "0.0.204" ---------------'
@@ -285,7 +285,7 @@ namespace EnhancedDiscord
             {
                 Console.WriteLine("EnhancedDiscord was already injected. Reinjecting...");
             }
-            string stuffToInject = File.ReadAllText("./shit_to_inject.js");
+            string stuffToInject = Properties.Resources.injection;
             string cd = Directory.GetCurrentDirectory() + "/EnhancedDiscord";
             cd = cd.Replace("\\", "/").Replace("'", "\\'").Replace("/", "\\\\");
             string newContents = "process.env.injDir = '" + cd + "';\n";
@@ -301,9 +301,8 @@ namespace EnhancedDiscord
             
             Console.WriteLine();
             Console.WriteLine("Successfully injected. Downloading ED...");
-            // https://github.com/joe27g/EnhancedDiscord/archive/master.zip
 
-            string zipLink = "https://codeload.github.com/joe27g/EnhancedDiscord/zip/master";
+            string zipLink = Properties.Resources.zipLink + Properties.Resources.branch;
 
             WebClient wc = new WebClient();
             try
@@ -316,7 +315,7 @@ namespace EnhancedDiscord
             }
 
             Console.WriteLine("Finished downloading! Extracting now...");
-            if (Directory.Exists("./EnhancedDiscord") || Directory.Exists("./EnhancedDiscord-master"))
+            if (Directory.Exists("./EnhancedDiscord") || Directory.Exists("./EnhancedDiscord-" + Properties.Resources.branch))
             {
                 Console.WriteLine();
                 Console.WriteLine("EnhancedDiscord folder already exists. Do you want to overwrite it? [y/n]");
@@ -339,9 +338,9 @@ namespace EnhancedDiscord
                     {
                         Directory.Delete("./EnhancedDiscord", true);
                     }
-                    if (Directory.Exists("./EnhancedDiscord-master"))
+                    if (Directory.Exists("./EnhancedDiscord-" + Properties.Resources.branch))
                     {
-                        Directory.Delete("./EnhancedDiscord-master", true);
+                        Directory.Delete("./EnhancedDiscord-" + Properties.Resources.branch, true);
                     }
                 }
                 catch
@@ -360,7 +359,7 @@ namespace EnhancedDiscord
             Console.WriteLine("Finished extracting zip. Cleaning up...");
             try
             {
-                Directory.Move("./EnhancedDiscord-master", "./EnhancedDiscord");
+                Directory.Move("./EnhancedDiscord-" + Properties.Resources.branch, "./EnhancedDiscord");
             }
             catch
             {
