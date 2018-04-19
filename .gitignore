@@ -1,6 +1,3 @@
-/installer/EnhancedDiscordUI/.vs
-/installer/EnhancedDiscordUI/bin
-/installer/EnhancedDiscordUI/obj
-/installer_cmdline/EnhancedDiscord/.vs
-/installer_cmdline/EnhancedDiscord/bin
-/installer_cmdline/EnhancedDiscord/obj
+**/.vs
+**/bin
+**/obj
