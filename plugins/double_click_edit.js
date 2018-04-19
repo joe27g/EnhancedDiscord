@@ -5,7 +5,6 @@ module.exports = new Plugin({
     author: 'Joe 🎸#7070',
     description: 'Allows you to double-click a message to edit it.',
     color: '#ff5900',
-    id: 'double_click_edit',
 
     load: async function() {
         this._listener = function(e) {

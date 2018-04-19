@@ -61,6 +61,15 @@ namespace EnhancedDiscordUI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to beta.
+        /// </summary>
+        internal static string branch {
+            get {
+                return ResourceManager.GetString("branch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap discord_canary_16 {

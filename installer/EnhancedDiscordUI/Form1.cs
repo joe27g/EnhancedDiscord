@@ -200,7 +200,7 @@ namespace EnhancedDiscordUI
 
             string dLocation = Path.GetDirectoryName(path);
             platform = "Windows";
-            int platID = (int) Environment.OSVersion.Platform;
+            int platID = (int)Environment.OSVersion.Platform;
             if (platID == 6)
             {
                 platform = "Mac";
@@ -272,7 +272,7 @@ namespace EnhancedDiscordUI
             InstallProgress.Value = 40;
             StatusText.Text = "Successfully injected. Downloading ED...";
 
-            string zipLink = Properties.Resources.zipLink;
+            string zipLink = Properties.Resources.zipLink + Properties.Resources.branch;
             WebClient wc = new WebClient();
             try
             {
@@ -285,7 +285,7 @@ namespace EnhancedDiscordUI
             InstallProgress.Value = 60;
             StatusText.Text = "Successfully downloaded. Extracting...";
 
-            if (Directory.Exists("./EnhancedDiscord") || Directory.Exists("./EnhancedDiscord-master"))
+            if (Directory.Exists("./EnhancedDiscord") || Directory.Exists("./EnhancedDiscord-" + Properties.Resources.branch))
             {
                 DialogResult confirmResult = MessageBox.Show("ED folder already exists. Overwrite it?", "EnhancedDiscord - Confirm Overwrite", MessageBoxButtons.YesNo);
                 if (confirmResult == DialogResult.No)
@@ -298,9 +298,9 @@ namespace EnhancedDiscordUI
                     {
                         Directory.Delete("./EnhancedDiscord", true);
                     }
-                    if (Directory.Exists("./EnhancedDiscord-master"))
+                    if (Directory.Exists("./EnhancedDiscord-" + Properties.Resources.branch))
                     {
-                        Directory.Delete("./EnhancedDiscord-master", true);
+                        Directory.Delete("./EnhancedDiscord-" + Properties.Resources.branch, true);
                     }
                 }
                 catch
@@ -320,7 +320,7 @@ namespace EnhancedDiscordUI
             StatusText.Text = "Finished extracting zip. Cleaning up...";
             try
             {
-                Directory.Move("./EnhancedDiscord-master", "./EnhancedDiscord");
+                Directory.Move("./EnhancedDiscord-" + Properties.Resources.branch, "./EnhancedDiscord");
             }
             catch
             {
