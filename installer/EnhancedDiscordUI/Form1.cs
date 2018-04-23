@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.IO.Compression;
+using System.Runtime.InteropServices;
 
 namespace EnhancedDiscordUI
 {
@@ -199,15 +200,18 @@ namespace EnhancedDiscordUI
             InstallProgress.Value = 20;
 
             string dLocation = Path.GetDirectoryName(path);
-            platform = "Windows";
-            int platID = (int)Environment.OSVersion.Platform;
-            if (platID == 6)
+            platform = "";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                platform = "Mac";
+                platform = "Windows";
             }
-            else if (platID == 4 || platID == 128)
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 platform = "Linux";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                platform = "Mac";
             }
             StatusText.Text = "Detected platform: " + platform + " | Discord release: " + release;
 

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.IO.Compression;
+using System.Runtime.InteropServices;
 
 namespace EnhancedDiscord
 {
@@ -147,15 +148,18 @@ namespace EnhancedDiscord
             string dLocation = Path.GetDirectoryName(path);
             Console.WriteLine("Your Discord install dir is: " + dLocation);
 
-            string platform = "Windows";
-            int platID = (int)Environment.OSVersion.Platform;
-            if (platID == 6)
+            string platform = "";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                platform = "Mac";
+                platform = "Windows";
             }
-            else if (platID == 4 || platID == 128)
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 platform = "Linux";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                platform = "Mac";
             }
             Console.WriteLine("Your platform is: " + platform + " | Your Discord release channel is: " + channel);
 

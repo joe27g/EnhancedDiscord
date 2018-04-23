@@ -116,14 +116,6 @@ process.once("loaded", async () => {
                     return m;
             }
         }
-        /*console.warn(`Cannot find module ${module} in cache. Attempting to load all modules...`);
-        for (let i = 0; i < req.m.length; ++i) {
-            let m = req(i);
-            if (m && m.__esModule && m.default && m.default[module] !== undefined)
-                return m.default;
-            if (m && m[module] !== undefined)
-                return m;
-        }*/
         if (!silent) c.warn(`Could not find module ${module}.`, {name: 'Modules', color: 'black'});
         return null;
     };
@@ -139,6 +131,19 @@ process.once("loaded", async () => {
             }
         }
         return mods;
+    };
+    window.findRawModule = (module, silent) => {
+        for (let i in req.c) {
+            if (req.c.hasOwnProperty(i)) {
+                let m = req.c[i].exports;
+                if (m && m.__esModule && m.default && m.default[module] !== undefined)
+                    return req.c[i];
+                if (m && m[module] !== undefined)
+                    return req.c[i];
+            }
+        }
+        if (!silent) c.warn(`Could not find module ${module}.`, {name: 'Modules', color: 'black'});
+        return null;
     };
     window.monkeyPatch = function(what, methodName, newFunc) {
         if (!what || typeof what !== 'object')
@@ -167,8 +172,16 @@ process.once("loaded", async () => {
         return true;
     };
 
-    while (!window.findModule('sendTyping', true) || !window.findModule('track', true))
+    while (!window.findModule('sendTyping', true) || !window.findModule('track', true) || !findRawModule('showPendingNotification', true))
         await c.sleep(1000); // wait until essential modules are loaded
+
+    let m = findRawModule('showPendingNotification');
+    if (m && m.i && req.c[m.i + 1]) {
+        monkeyPatch(req.c[m.i + 1].exports.prototype, '_handleHeartbeatAck', function(b) {
+            window.ED.webSocket = b.thisObject;
+        	return b.callOriginalMethod(b.methodArguments);
+        });
+    }
 
     if (window.ED.config.silentTyping)
         window.monkeyPatch(window.findModule('sendTyping'), 'sendTyping', () => {});
