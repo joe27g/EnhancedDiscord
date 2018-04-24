@@ -87,7 +87,7 @@ function loadPlugin(plugin) {
 }
 
 process.once("loaded", async () => {
-	c.log('Loading v2.0.0...');
+	c.log('Loading v2.0.2...');
 
     for (let id in plugins) {
         if (window.ED.config[id] && window.ED.config[id].enabled == false) continue;
@@ -95,6 +95,13 @@ process.once("loaded", async () => {
         if (plugins[id] && plugins[id].preload && (!window.ED.config[id] || window.ED.config[id] !== false))
             loadPlugin(plugins[id]);
     }
+
+    let x = setInterval(() => {
+        if (window._ws) {
+            window.ED.webSocket = window._ws;
+            clearInterval(x);
+        }
+    }, 100);
 
 	while (typeof window.webpackJsonp != 'function')
 		await c.sleep(1000); // wait until this is loaded in order to use it for modules
@@ -172,16 +179,8 @@ process.once("loaded", async () => {
         return true;
     };
 
-    while (!window.findModule('sendTyping', true) || !window.findModule('track', true) || !findRawModule('showPendingNotification', true))
+    while (!window.findModule('sendTyping', true) || !window.findModule('track', true))
         await c.sleep(1000); // wait until essential modules are loaded
-
-    let m = findRawModule('showPendingNotification');
-    if (m && m.i && req.c[m.i + 1]) {
-        monkeyPatch(req.c[m.i + 1].exports.prototype, '_handleHeartbeatAck', function(b) {
-            window.ED.webSocket = b.thisObject;
-        	return b.callOriginalMethod(b.methodArguments);
-        });
-    }
 
     if (window.ED.config.silentTyping)
         window.monkeyPatch(window.findModule('sendTyping'), 'sendTyping', () => {});

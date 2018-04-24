@@ -2,7 +2,7 @@ const fs = require('fs');
 
 class Plugin {
 	constructor (opts = {}) {
-		if (!opts.id || !opts.name || typeof opts.load !== 'function')
+		if (!opts.name || typeof opts.load !== 'function')
 			return 'Invalid plugin. Needs an ID, name and a load() function.';
 
 		Object.assign(this, opts);
@@ -28,7 +28,7 @@ class Plugin {
     error (msg) {
         console.error(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, msg);
     }
-    sleep (ms) { 
+    sleep (ms) {
         return new Promise(resolve => {
             setTimeout(resolve, ms);
         });
