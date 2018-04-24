@@ -103,6 +103,13 @@ process.once("loaded", async () => {
         }
     }, 100);
 
+    let y = setInterval(() => {
+        if (window.localStorage) {
+            window.ED.localStorage = window.localStorage;
+            clearInterval(y);
+        }
+    }, 100);
+
 	while (typeof window.webpackJsonp != 'function')
 		await c.sleep(1000); // wait until this is loaded in order to use it for modules
 
