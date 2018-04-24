@@ -171,7 +171,7 @@ const browser_window_path = require.resolve(path.resolve(electron_path, '..', '.
 require.cache[browser_window_path].exports = PatchedBrowserWindow;</value>
   </data>
   <data name="zipLink" xml:space="preserve">
-    <value>https://codeload.github.com/joe27g/EnhancedDiscord/zip/master</value>
+    <value>https://codeload.github.com/joe27g/EnhancedDiscord/zip/</value>
   </data>
   <data name="branch" xml:space="preserve">
     <value>beta</value>

@@ -284,7 +284,7 @@ namespace EnhancedDiscordUI
             }
             catch
             {
-                endInstallation("Failed to download ED files. Check your firewall and file permissions.", true); return;
+                endInstallation("Failed to download ED files.", true); return;
             }
             InstallProgress.Value = 60;
             StatusText.Text = "Successfully downloaded. Extracting...";

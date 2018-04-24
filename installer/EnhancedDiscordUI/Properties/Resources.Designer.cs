@@ -190,7 +190,7 @@ namespace EnhancedDiscordUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to https://codeload.github.com/joe27g/EnhancedDiscord/zip/master.
+        ///   Looks up a localized string similar to https://codeload.github.com/joe27g/EnhancedDiscord/zip/.
         /// </summary>
         internal static string zipLink {
             get {
