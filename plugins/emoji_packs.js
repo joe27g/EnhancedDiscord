@@ -60,9 +60,9 @@ module.exports = new Plugin({
     },
     generateSettings: function() {
         let current = this.settings.pack, stuff = this.config.pack.allowed;
-        let result = `<div class="description-3MVziF formText-1L-zZB marginBottom8-1mABJ4 marginTop8-2gOa2N modeDefault-389VjU primary-2giqSn">Replace Discord's emojis with a set stolen from somewhere else :^)<br>NOTE: the emoji packs are incomplete. If you know a better place to obtain the images, say so in the support server.</div><h5 class="h5-3KssQU title-1pmpPr size12-1IGJl9 height16-1qXrGy weightSemiBold-T8sxWH defaultMarginh5-2UwwFY marginBottom8-1mABJ4 marginTop8-2gOa2N">[Requires restart to take full effect]</h5><div class="radioGroup-2P3MJo margin-bottom-40" id="ed-emoji-pack">`;
+        let result = `<div class="description-3_Ncsb formText-3fs7AJ marginBottom8-AtZOdT marginTop8-1DLZ1n modeDefault-3a2Ph1 primary-jw0I4K">Replace Discord's emojis with a set stolen from somewhere else :^)<br>NOTE: the emoji packs are incomplete. If you know a better place to obtain the images, say so in the support server.</div><h5 class="h5-18_1nd title-3sZWYQ size12-3R0845 height16-2Lv3qA weightSemiBold-NJexzi defaultMarginh5-2mL-bP marginBottom8-AtZOdT marginTop8-1DLZ1n">[Requires restart to take full effect]</h5><div class="radioGroup-1GBvlr margin-bottom-40" id="ed-emoji-pack">`;
         for (let key in stuff) {
-            result += `<div class="flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw flex-3B1Tl4 directionRow-yNbSvJ justifyBetween-1d1Hto alignCenter-3VxkQP noWrap-v6g9vO item-3tXG-o${current == key || (!current && this.config.pack.default) == key ? ' selected-3XmEtI' : ''}" style="flex: 1 1 auto;"><div class="flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw flex-3B1Tl4 directionRow-yNbSvJ justifyStart-2yIZo0 alignStretch-1hwxMa noWrap-v6g9vO label-1e_dsR" style="flex: 0 1 auto;"><label class="checkboxWrapper-2Yvr_Y checkbox-3TvRoo flexChild-1KGW5q"><input type="checkbox" class="inputReadonly-1t0gSm input-oWyROL" value="on"><div id="${key}" class="ed-emoji-pack checkbox-1QwaS4 flexCenter-28Hs0n flex-3B1Tl4 justifyCenter-29N31w alignCenter-3VxkQP round-30vw42${current == key || (!current && this.config.pack.default) == key ? ' checked-2TahvT' : ''}" style="flex: 1 1 auto;${current == key || (!current && this.config.pack.default) == key ? ' background-color: rgb(67, 181, 129); border-color: rgb(67, 181, 129);' : ''}"><svg name="Checkmark" width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><polyline stroke="transparent" stroke-width="2" points="3.5 9.5 7 13 15 5"></polyline></g></svg></div></label><h3 class="h3-gDcP8B title-1pmpPr size16-3IvaX_ height24-2pMcnc weightMedium-13x9Y8 defaultColor-v22dK1 labelText-16HDq2 marginReset-3ymHSV marginReset-3hwONl" style="flex: 1 1 auto;">${stuff[key].split(' | ')[0]}</h3></div><div class="flex-lFgbSz flex-3B1Tl4 horizontal-2BEEBe horizontal-2VE-Fw flex-3B1Tl4 directionRow-yNbSvJ justifyStart-2yIZo0 alignStretch-1hwxMa noWrap-v6g9vO" style="flex: 0 1 auto;"><div class="description-3MVziF formText-1L-zZB marginReset-3ymHSV marginReset-3hwONl modeDefault-389VjU primary-2giqSn" style="flex: 1 1 auto;">${stuff[key].split(' | ')[1]}</div>`+/*<img src="/assets/3590df6f2ae2f7202dab15c0bd3aca9a.png" class="image-1ileLu noUserDrag-aLJFCB flexChild-1KGW5q" style="flex: 1 1 auto;">*/`</div></div>`;
+            result += `<div class="flex-1xMQg5 flex-1O1GKY horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyBetween-2tTqYu alignCenter-1dQNNs noWrap-3jynv6 item-3eFBNF${current == key || (!current && this.config.pack.default) == key ? ' selected-2DeaDa' : ''}" style="flex: 1 1 auto;"><div class="flex-1xMQg5 flex-1O1GKY horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignStretch-DpGPf3 noWrap-3jynv6 label-1ZuVT-" style="flex: 0 1 auto;"><label class="checkboxWrapper-SkhIWG checkbox-3qBG_9 flexChild-faoVW3"><input type="checkbox" class="inputReadonly-rYU97L input-3ITkQf" value="on"><div id="${key}" class="ed-emoji-pack checkbox-1ix_J3 flexCenter-3_1bcw flex-1O1GKY justifyCenter-3D2jYp alignCenter-1dQNNs round-2jCFai${current == key || (!current && this.config.pack.default) == key ? ' checked-3_4uQ9' : ''}" style="flex: 1 1 auto;${current == key || (!current && this.config.pack.default) == key ? ' background-color: rgb(67, 181, 129); border-color: rgb(67, 181, 129);' : ''}"><svg name="Checkmark" width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><polyline stroke="transparent" stroke-width="2" points="3.5 9.5 7 13 15 5"></polyline></g></svg></div></label><h3 class="h3-3PDeKG title-3sZWYQ size16-14cGz5 height24-3XzeJx weightMedium-2iZe9B defaultColor-1_ajX0 labelText-2kBs7x marginReset-2pBy6s marginReset-236NPn" style="flex: 1 1 auto;">${stuff[key].split(' | ')[0]}</h3></div><div class="flex-1xMQg5 flex-1O1GKY horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignStretch-DpGPf3 noWrap-3jynv6" style="flex: 0 1 auto;"><div class="description-3_Ncsb formText-3fs7AJ marginReset-2pBy6s marginReset-236NPn modeDefault-3a2Ph1 primary-jw0I4K" style="flex: 1 1 auto;">${stuff[key].split(' | ')[1]}</div>`+/*<img src="/assets/3590df6f2ae2f7202dab15c0bd3aca9a.png" class="image-z8whH4 noUserDrag-5Mb43F flexChild-faoVW3" style="flex: 1 1 auto;">*/`</div></div>`;
         }
         result += '</div>';
         return result;
@@ -70,16 +70,16 @@ module.exports = new Plugin({
     settingListeners: {
         '#ed-emoji-pack': function(e) {
             //console.log(e.target, this);
-            if (!e.target.className || e.target.className.indexOf('flex-lFgbSz') == -1) return;
+            if (!e.target.className || e.target.className.indexOf('flex-1xMQg5') == -1) return;
 
-            let gay = document.querySelector('.selected-3XmEtI');
+            let gay = document.querySelector('.selected-2DeaDa');
             if (gay)
-                gay.className = gay.className.replace(' selected-3XmEtI', '');
-            e.target.className += ' selected-3XmEtI';
+                gay.className = gay.className.replace(' selected-2DeaDa', '');
+            e.target.className += ' selected-2DeaDa';
 
-            let cs = document.querySelector('.ed-emoji-pack.checked-2TahvT');
+            let cs = document.querySelector('.ed-emoji-pack.checked-3_4uQ9');
             if (cs) {
-                cs.className = cs.className.replace(' checked-2TahvT', '');
+                cs.className = cs.className.replace(' checked-3_4uQ9', '');
             /*let cb = document.querySelector('[style="flex: 1 1 auto; background-color: rgb(67, 181, 129); border-color: rgb(67, 181, 129);"]');*/
             //if (cb)
                 cs.style = 'flex: 1 1 auto;';
@@ -88,7 +88,7 @@ module.exports = new Plugin({
             //cs = e.target.previousElementSibling;
             let cb = e.target.querySelector('.ed-emoji-pack');
             if (cb) {
-                cb.className += ' checked-2TahvT';
+                cb.className += ' checked-3_4uQ9';
             //cb = cs.querySelector(`#${cb.id}[style="flex: 1 1 auto;"]`);
             //if (cb)
                 cb.style = "flex: 1 1 auto; background-color: rgb(67, 181, 129); border-color: rgb(67, 181, 129);";

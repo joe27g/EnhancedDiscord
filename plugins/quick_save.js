@@ -24,7 +24,7 @@ module.exports = new Plugin({
                 //module.exports.log('No setting changes detected. Aborting.');
                 return;
             }
-            let saveButton = document.querySelector('.lookFilled-luDKDo.colorGreen-22At8E');
+            let saveButton = document.querySelector('.lookFilled-1Gx00P.colorGreen-29iAKY');
             if (saveButton)
                 try { saveButton.click(); } catch(err) { module.exports.error(err); }
             return;
