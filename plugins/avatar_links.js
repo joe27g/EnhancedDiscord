@@ -12,11 +12,11 @@ function copyToClipboard(text) {
     document.body.removeChild(textArea);
 }
 function addMenuItem(imageURL, d, text) {
-    let cmGroups = document.getElementsByClassName('itemGroup-oViAgA');
+    let cmGroups = document.getElementsByClassName('itemGroup-1tL0uz');
     if (!cmGroups || cmGroups.length == 0) return;
 
     let newCmItem = document.createElement('div');
-    newCmItem.className = 'item-1XYaYf';
+    newCmItem.className = 'item-1Yvehc';
     let newCmItemContent = document.createElement('span');
     newCmItemContent.innerHTML = text;
     newCmItem.appendChild(newCmItemContent);
@@ -55,7 +55,7 @@ module.exports = new Plugin({
                 if (elem && elem.tagName == 'STRONG' && elem.parentElement.className && elem.parentElement.className == 'activityText-258pdj') {
                     elem.className = 'strongTempClass';
                 }
-                else if (elem && elem.tagName == 'path' && elem.parentElement.parentElement.getAttribute("class") && elem.parentElement.parentElement.getAttribute("class").indexOf('ownerIcon-2RBgEv') > -1){
+                else if (elem && elem.tagName == 'path' && elem.parentElement.parentElement.getAttribute("class") && elem.parentElement.parentElement.getAttribute("class").indexOf('ownerIcon-uZ6mE7') > -1){
                     elem.setAttribute('class', 'pathTempClass');
                 }
                 else if (elem && elem.tagName == 'A' && elem.href && elem.href.startsWith('https://discordapp.com/channels/@me/')){
@@ -68,29 +68,29 @@ module.exports = new Plugin({
                 let isGuild = (elem.tagName == 'A' && cn == 'avatar-small' && elem.href && elem.href.startsWith('https://discordapp.com/channels/'));
 
                 let imageElem;
-                if (cn.indexOf('avatar-large') > -1 || cn.indexOf('image-EVRGPw') > -1 || isGuild || cn.startsWith('avatar-small')) {
+                if (cn.indexOf('avatar-large') > -1 || cn.indexOf('image-33JSyf') > -1 || isGuild || cn.startsWith('avatar-small')) {
                     imageElem = elem;
-                } else if (cn.indexOf('avatar-1BXaQj') > -1 || cn == 'dmTempClass') {
+                } else if (cn.indexOf('avatar-16XVId') > -1 || cn == 'dmTempClass') {
                     imageElem = elem.firstElementChild;
-                } else if (cn.indexOf('status-3jUEha') > -1 || cn == 'channel-name') {
+                } else if (cn.indexOf('status-oxiHuE') > -1 || cn == 'channel-name') {
                     imageElem = elem.previousElementSibling;
                 } else if (elem.tagName == 'BUTTON' && cn == 'close') {
                     imageElem = elem.parentElement.firstElementChild;
-                } else if (cn == 'avatarWrapper-3E-a5I') {
+                } else if (cn == 'avatarWrapper-3B0ndJ') {
                     imageElem = elem.firstElementChild.firstElementChild;
-                } else if (cn == 'content-3JzEqq') {
+                } else if (cn == 'content-OzHfo4') {
                     imageElem = elem.firstElementChild.firstElementChild.firstElementChild;
-                } else if (cn.indexOf('member-2FrNV0') > -1) {
+                } else if (cn.indexOf('member-3W1lQa') > -1) {
                     imageElem = elem.firstElementChild.firstElementChild.firstElementChild.firstElementChild;
-                } else if (cn == 'memberInner-3XUq9K') {
+                } else if (cn == 'memberInner-2CPc3V') {
                     imageElem = elem.parentElement.firstElementChild.firstElementChild.firstElementChild;
-                } else if (cn.indexOf('nameTag-26T3kW') > -1 || cn.indexOf('activity-1PAe08') > -1) {
+                } else if (cn.indexOf('nameTag-m8r81H') > -1 || cn.indexOf('activity-1IYsbk') > -1) {
                     imageElem = elem.parentElement.parentElement.firstElementChild.firstElementChild.firstElementChild;
-                } else if (cn.indexOf('username-MwOsla') > -1 || cn.indexOf('ownerIcon-2RBgEv') > -1) {
+                } else if (cn.indexOf('username-1cB_5E') > -1 || cn.indexOf('ownerIcon-uZ6mE7') > -1) {
                     imageElem = elem.parentElement.parentElement.parentElement.firstElementChild.firstElementChild.firstElementChild;
                 } else if (cn == 'pathTempClass') {
                     imageElem = elem.parentElement.parentElement.parentElement.parentElement.parentElement.firstElementChild.firstElementChild.firstElementChild;
-                } else if (cn == 'activityText-258pdj') {
+                } else if (cn == 'activityText-sLG0UL') {
                     imageElem = elem.parentElement.parentElement.parentElement.parentElement.firstElementChild.firstElementChild.firstElementChild.firstElementChild;
                 } else if (cn == 'username-wrapper') {
                     imageElem = elem.parentElement.parentElement.parentElement.parentElement.parentElement.firstElementChild;

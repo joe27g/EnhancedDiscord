@@ -21,32 +21,32 @@ module.exports = new Plugin({
             //console.log('executing disButt();');
             let r = document.getElementById('app-mount');
             if (!r) return;
-            let permButtons = r.getElementsByClassName('item-3H-QZD');
+            let permButtons = r.getElementsByClassName('item-3T2z1R');
             if (permButtons && permButtons.length > 0) {
                 for (let i in permButtons) {
                     permButtons[i].disabled = true;
                 }
             }
-            let redButton = r.querySelector('.content-1orzGj .colorRed-3HTNPV');
+            let redButton = r.querySelector('.content-1rPSz4 .colorRed-1TFJan');
             hide(redButton);
 
-            let syncButton = r.querySelector('.sidebarScrollable-3YmeW_ .card-MdjsU4 .button-yZBPFS');
+            let syncButton = r.querySelector('.sidebarScrollable-1qPI87 .card-2j1p1_ .button-1dUBJq');
             hide(syncButton);
 
-            let addPermOverw = r.querySelector('.sidebarScrollable-3YmeW_ img.sidebarHeader-382ZJJ');
+            let addPermOverw = r.querySelector('.sidebarScrollable-1qPI87 img.sidebarHeader-2uiNOo');
             hide(addPermOverw);
 
-            let switches = r.getElementsByClassName('checkbox-1KYsPm');
+            let switches = r.getElementsByClassName('checkbox-2tyjJg');
             if (switches && switches.length > 0) {
                 for (let i in switches) {
                     if (!switches[i]) continue;
-                    switches[i].className = 'checkboxDisabled-31CpDw checkbox-1KYsPm';
+                    switches[i].className = 'checkboxDisabled-1MA81A checkbox-2tyjJg';
                     //console.log(switches[i].parentElement);
                     if (switches[i].parentElement)
-                        switches[i].parentElement.className = (switches[i].parentElement.className || '').replace('switchEnabled-3CPlLV', 'switchDisabled-2OLY_e');
+                        switches[i].parentElement.className = (switches[i].parentElement.className || '').replace('switchEnabled-V2WDBB', 'switchDisabled-3HsXAJ');
                 }
             }
-            let addRoleButtons = r.getElementsByClassName('addButton-3RuTE0');
+            let addRoleButtons = r.getElementsByClassName('addButton-pcyyf6');
             if (addRoleButtons && addRoleButtons.length > 0) {
                 for (let i in addRoleButtons) {
                     hide(addRoleButtons[i]);
@@ -56,8 +56,8 @@ module.exports = new Plugin({
         function hide(element) { // these elements need to be hidden, NOT removed. Removing causes React to crash
             if (!element) return;
             //console.log('hiding', element);
-            const hiddenClass = 'roleRemoveIcon-2iu0iE';
-            if (element.className && element.className.indexOf('roleRemoveIcon-2iu0iE') > -1) return;
+            const hiddenClass = 'roleRemoveIcon-2-TeGW';
+            if (element.className && element.className.indexOf('roleRemoveIcon-2-TeGW') > -1) return;
             else if (element.className)
                 element.className += ' '+hiddenClass;
             else element.className = hiddenClass;

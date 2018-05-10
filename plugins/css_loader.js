@@ -72,7 +72,7 @@ module.exports = new Plugin({
         }
     },
     generateSettings: function() {
-        let result = `<div class="description-3MVziF formText-1L-zZB marginBottom8-1mABJ4 marginTop8-2gOa2N modeDefault-389VjU primary-2giqSn">Custom CSS Path<br>This can be relative to the EnhancedDiscord directory (e.g. <code class="inline">./big_gay.css</code>) or absolute (e.g. <code class="inline">C:/theme.css</code>.)</div><input type="text" class="inputDefault-Y_U37D input-2YozMi size16-3IvaX_" value="${this.settings.path || this.config.path.default}" maxlength="2000" placeholder="${this.config.path.default}" id="custom-css-path"><button type="button" id="save-css-path" class="button-2t3of8 lookFilled-luDKDo colorBrand-3PmwCE marginBottom8-1mABJ4 marginTop8-2gOa2N" style="height:24px;margin-right:10px;"><div class="contents-4L4hQM">Save</div></button>`;
+        let result = `<div class="description-3_Ncsb formText-3fs7AJ marginBottom8-AtZOdT marginTop8-1DLZ1n modeDefault-3a2Ph1 primary-jw0I4K">Custom CSS Path<br>This can be relative to the EnhancedDiscord directory (e.g. <code class="inline">./big_gay.css</code>) or absolute (e.g. <code class="inline">C:/theme.css</code>.)</div><input type="text" class="inputDefault-_djjkz input-cIJ7To size16-14cGz5" value="${this.settings.path || this.config.path.default}" maxlength="2000" placeholder="${this.config.path.default}" id="custom-css-path"><button type="button" id="save-css-path" class="button-38aScr lookFilled-1Gx00P colorBrand-3pXr91 marginBottom8-AtZOdT marginTop8-1DLZ1n" style="height:24px;margin-right:10px;"><div class="contents-18-Yxp">Save</div></button>`;
         return result;
     },
     settingListeners: {
