@@ -110,13 +110,15 @@ process.once("loaded", async () => {
         }
     }, 100);
 
-	while (typeof window.webpackJsonp != 'function')
+	while (typeof window.webpackJsonp != 'function' && typeof window.webpackJsonp != 'object')
 		await c.sleep(1000); // wait until this is loaded in order to use it for modules
 
 	/* Add helper functions that make plugins easy to create */
-	window.req = webpackJsonp([], {
+	window.req = typeof(webpackJsonp) == "function" ? webpackJsonp([], {
             '__extra_id__': (module, exports, req) => exports.default = req
-        }, ['__extra_id__']).default;
+        }, ['__extra_id__']).default : webpackJsonp.push([[], {
+			'__extra_id__': (module, exports, req) => module.exports = req
+		}, [['__extra_id__']]]);
         delete req.m['__extra_id__'];
         delete req.c['__extra_id__'];
 
