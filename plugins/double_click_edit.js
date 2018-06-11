@@ -48,7 +48,8 @@ module.exports = new Plugin({
             let dots = messageElem.querySelector('.btn-option');
             if (dots) dots.click();
 
-            let messageOpts = document.querySelectorAll('.popouts-1TN9u9 .option-popout .btn-item');
+            let messageOpts = document.querySelectorAll('[class^="theme-dark popouts-"] .option-popout .btn-item');
+            console.log(messageOpts);
             if (!messageOpts) return;
 
             let hasDeleteOption = false;
@@ -60,7 +61,7 @@ module.exports = new Plugin({
             if (!hasDeleteOption && dots)
                 return dots.click(); // hide the menu again
 
-            let confirmationModalButton = document.querySelector('.modal-2LIEKY button[type="submit"].colorRed-3HTNPV');
+            let confirmationModalButton = document.querySelector('[class="theme-dark"] > [class^="backdrop-"] + [class^="modal-"] form button[type="submit"]');
             if (confirmationModalButton)
                 confirmationModalButton.click();
         }

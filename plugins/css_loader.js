@@ -72,12 +72,17 @@ module.exports = new Plugin({
         }
     },
     generateSettings: function() {
-        let result = `<div class="description-3MVziF formText-1L-zZB marginBottom8-1mABJ4 marginTop8-2gOa2N modeDefault-389VjU primary-2giqSn">Custom CSS Path<br>This can be relative to the EnhancedDiscord directory (e.g. <code class="inline">./big_gay.css</code>) or absolute (e.g. <code class="inline">C:/theme.css</code>.)</div><input type="text" class="inputDefault-Y_U37D input-2YozMi size16-3IvaX_" value="${this.settings.path || this.config.path.default}" maxlength="2000" placeholder="${this.config.path.default}" id="custom-css-path"><button type="button" id="save-css-path" class="button-2t3of8 lookFilled-luDKDo colorBrand-3PmwCE marginBottom8-1mABJ4 marginTop8-2gOa2N" style="height:24px;margin-right:10px;"><div class="contents-4L4hQM">Save</div></button>`;
+        const d = window.ED.classMaps.description;
+        const b = window.ED.classMaps.buttons;
+        const id = findModule('inputDefault');
+        const m = findModule('marginTop8');
+
+        let result = `<div class="${d.description} ${d.modeDefault}">Custom CSS Path<br>This can be relative to the EnhancedDiscord directory (e.g. <code class="inline">./big_gay.css</code>) or absolute (e.g. <code class="inline">C:/theme.css</code>.)</div><input type="text" class="${id.inputDefault}" value="${this.settings.path || this.config.path.default}" maxlength="2000" placeholder="${this.config.path.default}" id="custom-css-path"><button type="button" id="save-css-path" class="${b.button} ${b.lookFilled} ${b.colorBrand} ${m.marginTop8} ${m.marginBottom8}" style="height:24px;margin-right:10px;"><div class="${b.contents}">Save</div></button>`;
         return result;
     },
     settingListeners: {
         '#save-css-path': function(e) {
-            console.log(this, e.target);
+            //console.log(this, e.target);
             let pathInput = document.getElementById('custom-css-path');
             if (!pathInput) return;
             if (pathInput.value && module.exports.config.path.parse(pathInput.value) == false) {

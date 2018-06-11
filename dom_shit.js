@@ -110,15 +110,15 @@ process.once("loaded", async () => {
         }
     }, 100);
 
-	while (typeof window.webpackJsonp != 'function')
+	while (typeof window.webpackJsonp === 'undefined')
 		await c.sleep(1000); // wait until this is loaded in order to use it for modules
 
 	/* Add helper functions that make plugins easy to create */
-	window.req = webpackJsonp([], {
-            '__extra_id__': (module, exports, req) => exports.default = req
-        }, ['__extra_id__']).default;
-        delete req.m['__extra_id__'];
-        delete req.c['__extra_id__'];
+	window.req = webpackJsonp.push([[], {
+	    '__extra_id__': (module, exports, req) => module.exports = req
+	}, [['__extra_id__']]]);
+	delete req.m['__extra_id__'];
+	delete req.c['__extra_id__'];
 
     window.findModule = (module, silent) => {
         for (let i in req.c) {
