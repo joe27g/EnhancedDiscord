@@ -17,19 +17,6 @@
     --popup-highlight: #333; /* color of headers and footers of "popouts" (linked to above) */
     --context-menu-bg: #333; /* color of context (right-click) menus. */
     --unread-color: #f00; /* color of unread/selected server indicators. */
-    --annoyances: none; /* whether to show things like nitro tab in settings and social media links. "none" to hide, "block" to show. */
-}
-
-/* gay april fools stuff */
-@keyframes rainbow {
-    0%{background-position-x:0%}
-    50%{background-position-x:100%}
-    100%{background-position-x:200%}
-}
-.message-group .message-text.april-fools {
-    background: repeating-linear-gradient(90deg,rgba(127,0,0,.2),rgba(255,0,0,.2),rgba(255,255,0,.2),rgba(0,255,0,.2),rgba(0,0,255,.2),rgba(127,0,0,.2));
-    background-size: 200% 100%;
-    animation: rainbow 5s infinite linear;
 }
 
 /* tags */
@@ -41,4 +28,10 @@
 }
 .avatar-large[style*="300800171988484096"]+.comment .botTag-1OwMgs {
     display: none;
+}
+
+/* nitrofag badge */
+.profileBadgePremium-3kZ9Qj, .topSectionNormal-2-vo2m .profileBadgePremium-3kZ9Qj,
+.profileBadgePremium-3kZ9Qj, .topSectionPlaying-1J5E4n .profileBadgePremium-3kZ9Qj {
+    background-image: url(https://discordapp.com/assets/9c252d28ca4980d65054a0258052983b.svg);
 }

@@ -1,6 +1,10 @@
 # EnhancedDiscord
 A simple way to load plugins and themes on Discord without token stealing and lag.
 
+By default, this loads my theme, with some settings applied. More info [on its repo](https://github.com/joe27g/Discord-Theme). To change this, edit `plugins/style.css` or change the theme location in settings.
+
+Extra plugins available at [the plugins repo](https://github.com/joe27g/EnhancedDiscord-Plugins). This will contain weird or niche plugins that should not be preincluded.
+
 **Now with a brand-new graphical installer!**
 
 ### Installing the easy way:
@@ -32,8 +36,6 @@ You can also use the console installer (no GUI.)
 See the [advanced installation guide](/advanced_installation.md).
 
 ### Explanation of files:
-
-- `theme.css` ~ CSS file that's imported by the main CSS file (`plugins/style.css` by default) in order to allow auto-updating. Not useful by itself.
 
 - `dom_shit.js` ~ File that's loaded when Discord starts. This file loads all plugins, etc.
 
