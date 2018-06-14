@@ -156,13 +156,16 @@ class PatchedBrowserWindow extends BrowserWindow {
     constructor(originalOptions) {
         const options = Object.create(originalOptions);
         options.webPreferences = Object.create(options.webPreferences);
+		
+		const originalPreloadScript = options.webPreferences.preload;
 
         // Make sure Node integration is enabled
         options.webPreferences.nodeIntegration = true;
         options.webPreferences.preload = path.join(process.env.injDir, 'dom_shit.js');
         options.webPreferences.transparency = true;
 
-        return new BrowserWindow(options);
+        super(options);
+        this.__preload = originalPreloadScript;
     }
 }
 

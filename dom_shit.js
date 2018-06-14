@@ -1,5 +1,8 @@
 const path = window.require('path');
 const fs = window.require('fs');
+const electron = window.require('electron');
+const currentWindow = electron.remote.getCurrentWindow();
+if (currentWindow.__preload) require(currentWindow.__preload);
 
 //set up global functions
 let c = {
