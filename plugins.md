@@ -12,10 +12,10 @@ module.exports = new Plugin({
     preload: false, /* [Optional] If true, load this before Discord has finished starting up */
     color: '#666', /* [Optional] The color that this plugin shows in logs and in the plugin settings tab. Any valid CSS color will work here. */
 
-    load: function() {
+    load: () => {
         /* What your plugin does when Discord is loaded, or when the plugin is reloaded. */
     },
-    unload: function() {
+    unload: () => {
         /* What your plugin does when it is disabled or being reloaded. */
     }
 });
@@ -83,7 +83,7 @@ You can also add your own section to EnhancedDiscord's settings in your plugin, 
    * For example, if your `generateSettings` function has an element `<input type="checkbox" id="memez">`, you might use the following format:
    ```js
    settingListeners: {
-      '#memez': function() {
+      '#memez': () => {
          alert('some dumb text');
       }
    }
