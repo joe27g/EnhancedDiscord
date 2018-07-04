@@ -3,7 +3,7 @@ const fs = require('fs');
 class Plugin {
 	constructor (opts = {}) {
 		if (!opts.name || typeof opts.load !== 'function')
-			return 'Invalid plugin. Needs an ID, name and a load() function.';
+			return 'Invalid plugin. Needs a name and a load() function.';
 
 		Object.assign(this, opts);
         if (!this.color)
