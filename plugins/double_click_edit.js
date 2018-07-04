@@ -14,7 +14,7 @@ module.exports = new Plugin({
             let dots = messageElem.querySelector('.btn-option');
             if (dots) dots.click();
 
-            let messageOpts = document.querySelectorAll('.popouts-1TN9u9 .option-popout .btn-item');
+            let messageOpts = document.querySelectorAll('[class^="theme-dark popouts-"] [role="menu"] [role="menuitem"]');
             if (!messageOpts) return;
 
             let hasEditOption = false;
@@ -48,7 +48,7 @@ module.exports = new Plugin({
             let dots = messageElem.querySelector('.btn-option');
             if (dots) dots.click();
 
-            let messageOpts = document.querySelectorAll('[class^="theme-dark popouts-"] .option-popout .btn-item');
+            let messageOpts = document.querySelectorAll('[class^="theme-dark popouts-"] [role="menu"] [role="menuitem"]');
             console.log(messageOpts);
             if (!messageOpts) return;
 
