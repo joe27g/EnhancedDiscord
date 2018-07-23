@@ -65,7 +65,7 @@ module.exports = new Plugin({
                 let cn = elem ? elem.getAttribute("class") : null;
                 if (!elem || !cn || typeof cn !== 'string') return og;
 
-                let isGuild = (elem.tagName == 'A' && cn == 'avatar-small' && elem.href && elem.href.startsWith('https://discordapp.com/channels/'));
+                let isGuild = (elem.tagName == 'DIV' && cn.indexOf('guild-icon') > -1);
 
                 let imageElem;
                 if (cn.indexOf('avatar-large') > -1 || cn.indexOf('image-33JSyf') > -1 || isGuild || cn.startsWith('avatar-small')) {
