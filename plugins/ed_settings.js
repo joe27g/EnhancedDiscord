@@ -162,11 +162,11 @@ module.exports = new Plugin({
 
                             if (window.ED.plugins[id].settingListeners) {
                                 setTimeout(() => { // let shit render
-                                    for (let sel in window.ED.plugins[id].settingListeners) {
-                                        let elem = settingsPane.querySelector(sel);
-                                        if (sel)
-                                            elem.onclick = window.ED.plugins[id].settingListeners[sel];
-                                    }
+                                    window.ED.plugins[id].settingListeners.forEach(eventObject => {
+                                            let elem = settingsPane.querySelector(eventObject.el);
+                                            if (elem)
+                                                elem.addEventListener(eventObject.type, eventObject.eHandler);
+                                    });
                                 }, 5);
                             }
                         }

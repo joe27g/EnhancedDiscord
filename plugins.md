@@ -77,16 +77,18 @@ You can also add your own section to EnhancedDiscord's settings in your plugin, 
 
 * **You must have a `config` for the following to work.** Set it to an empty object if you do not need it.
 
-* `generateSettings`: a function that is called when EnhancedDiscord settins are opened. This should return HTML to be placed in your setttings section.
+* `generateSettings`: a function that is called when EnhancedDiscord settings are opened. This should return HTML to be placed in your setttings section.
 
-* `settingListeners`: an Object mapping selectors to click listeners.
+* `settingListeners`: an Object mapping selectors to eventlisteners.
    * For example, if your `generateSettings` function has an element `<input type="checkbox" id="memez">`, you might use the following format:
    ```js
-   settingListeners: {
-      '#memez': function() {
-         alert('some dumb text');
-      }
-   }
+   settingListeners: [{
+		el: '#memez',
+		type: 'click'
+		eHandler: function() {
+			alert('some dumb text');
+		}
+   }]
    ```
 
 #### For more examples, just browse the included plugins, namely `emoji_packs`.
