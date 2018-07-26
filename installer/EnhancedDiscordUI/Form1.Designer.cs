@@ -110,6 +110,7 @@
             this.UpdateButton.Text = "Update";
             this.toolTip1.SetToolTip(this.UpdateButton, "Replaces the ED files with the most recent ones [Coming Soon™]");
             this.UpdateButton.UseVisualStyleBackColor = true;
+            this.UpdateButton.Click += new System.EventHandler(this.UpdateButton_Click);
             // 
             // InstallProgress
             // 
