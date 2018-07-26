@@ -42,6 +42,7 @@ namespace EnhancedDiscordUI
             StatusText.Hide();
             StatusLabel.Show();
             StatusLabel.Text = (operation == "UNINSTALL" ? "Unin" : "In") + "stallation " + (failed ? " failed." : "completed!");
+            StatusLabel.ForeColor = failed ? Color.Red : Color.Lime;
             StatusLabel2.Show();
             StatusLabel2.Text = reason;
             StatusCloseButton.Show();
