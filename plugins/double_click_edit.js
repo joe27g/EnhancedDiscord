@@ -19,7 +19,7 @@ module.exports = new Plugin({
 
             let hasEditOption = false;
             for (let i in messageOpts) {
-                if (messageOpts[i].innerHTML == 'Edit') {
+                if (messageOpts[i].innerText == 'Edit\n') {
                     messageOpts[i].click(); hasEditOption = true; break;
                 }
             }
@@ -54,7 +54,7 @@ module.exports = new Plugin({
 
             let hasDeleteOption = false;
             for (let i in messageOpts) {
-                if (messageOpts[i].innerHTML == 'Delete') {
+                if (messageOpts[i].innerText == 'Delete\n') {
                     messageOpts[i].click(); hasDeleteOption = true; break;
                 }
             }
