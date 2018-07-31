@@ -1,5 +1,3 @@
-const fs = require('fs');
-
 /**
  * Plugin Class
  */
