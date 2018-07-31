@@ -29,28 +29,28 @@ class Plugin {
      * @param {...string} msg - Message to be logged
      */
     log (...msg) {
-        console.log(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, msg.join(' '));
+        console.log(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, ...msg);
     }
     /**
      * Send a decorated console.info prefixed with ED and your plugin name
      * @param {...string} msg - Message to be logged
      */
     info (...msg) {
-        console.info(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, msg.join(' '));
+        console.info(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, ...msg);
     }
     /**
      * Send a decorated console.warn prefixed with ED and your plugin name
      * @param {...string} msg - Message to be logged
      */
     warn (...msg) {
-        console.warn(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, msg.join(' '));
+        console.warn(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, ...msg);
     }
     /**
      * Send a decorated console.error prefixed with ED and your plugin name
      * @param {...string} msg - Message to be logged
      */
     error (...msg) {
-        console.error(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, msg.join(' '));
+        console.error(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, ...msg);
     }
     /**
      * Returns a Promise that resolves after ms milliseconds.
