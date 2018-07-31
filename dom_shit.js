@@ -4,8 +4,6 @@ const electron = window.require('electron');
 const currentWindow = electron.remote.getCurrentWindow();
 if (currentWindow.__preload) require(currentWindow.__preload);
 
-electron.webFrame.registerURLSchemeAsBypassingCSP('https');
-
 //set up global functions
 let c = {
     log: function(msg, plugin) {
