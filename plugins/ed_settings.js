@@ -17,6 +17,7 @@ module.exports = new Plugin({
     color: 'darkred',
 
     load: async function() {
+        let parentThis = this; //Allow use of parent methods in sub functions
 
         while (!findModule('getUserSettingsSections', true) || !findModule('UserSettingsSections', true))
             await this.sleep(1000);
@@ -150,7 +151,6 @@ module.exports = new Plugin({
                         if (at && window.ED.config.antiTrack !== false)
                             at.className = at.className.replace(cbM.valueUnchecked, cbM.valueChecked);
                         //console.log(st, at);
-
                         for (let id in window.ED.plugins) {
                             if (!window.ED.plugins[id].config || !window.ED.plugins[id].generateSettings) continue;
 
@@ -159,14 +159,22 @@ module.exports = new Plugin({
                             settingsPane.innerHTML += window.ED.plugins[id].generateSettings();
 
                             settingsPane.innerHTML += `<div class="${div}"></div>`;
-
                             if (window.ED.plugins[id].settingListeners) {
                                 setTimeout(() => { // let shit render
-                                    for (let sel in window.ED.plugins[id].settingListeners) {
-                                        let elem = settingsPane.querySelector(sel);
-                                        if (sel)
-                                            elem.onclick = window.ED.plugins[id].settingListeners[sel];
-                                    }
+                                        for(let eventObject in window.ED.plugins[id].settingListeners){
+                                            //Check if plugin is using the old format
+                                            if(Array.isArray(window.ED.plugins[id].settingListeners)){
+                                                let elem = settingsPane.querySelector(eventObject.el);
+                                                if (elem)
+                                                    elem.addEventListener(eventObject.type, eventObject.eHandler);
+                                            } else {
+                                                let elem = settingsPane.querySelector(eventObject);
+                                                if (elem){
+                                                    parentThis.warn(`Plugin ${window.ED.plugins[id].name} is using a deprecated plugin format (New format: https://github.com/joe27g/EnhancedDiscord/blob/beta/plugins.md#advanced-plugin-functionality). Ignore this unless you're the plugin dev`)
+                                                    elem.onclick = window.ED.plugins[id].settingListeners[elem];
+                                                }
+                                            }
+                                        }
                                 }, 5);
                             }
                         }

@@ -5,7 +5,7 @@ module.exports = new Plugin({
     author: 'Joe 🎸#7070',
     description: "Replaces Discord's default emojis with different ones of your choice.",
     color: 'maroon',
-
+    
     config: {
         pack: {
             default: 'none',
@@ -22,12 +22,12 @@ module.exports = new Plugin({
             }
         }
     },
-
+    
     load: async function() {
-
+        
         while (!findModule('getURL', true) || !findModule('convert', true))
-            await this.sleep(1000);
-
+        await this.sleep(1000);
+        
         let formats = {
             'blobs': 'https://raw.githubusercontent.com/googlei18n/noto-emoji/563fa14298e103d54b81b370668f1c92370273da/png/128/emoji_u{code_}.png',
             'emojione': 'https://www.emojiok.com/resolution/static/img/emoji/std/one/{code}.png',
@@ -38,21 +38,21 @@ module.exports = new Plugin({
             'facebook': 'https://www.emojiok.com/resolution/static/img/emoji/std/fb/{code}.png',
             'fbmessenger': 'https://www.emojiok.com/resolution/static/img/emoji/std/fbm/{code}.png',
         };
-
+        
         window.emojiMode = 'blobs';
-
+        
         const c = findModule('convert').convert;
-
+        
         let thiss = this;
-
+        
         monkeyPatch( findModule('getURL'), 'getURL', function() {
             if (!thiss.settings.pack || !formats[thiss.settings.pack])
-                return arguments[0].callOriginalMethod(arguments[0].methodArguments);
-
+            return arguments[0].callOriginalMethod(arguments[0].methodArguments);
+            
             return formats[thiss.settings.pack]
-                .replace('{code}', c.toCodePoint(arguments[0].methodArguments[0]))
-                .replace('{codE}', c.toCodePoint(arguments[0].methodArguments[0]).toUpperCase())
-                .replace('{code_}', c.toCodePoint(arguments[0].methodArguments[0]).replace(/-/g, '_'))
+            .replace('{code}', c.toCodePoint(arguments[0].methodArguments[0]))
+            .replace('{codE}', c.toCodePoint(arguments[0].methodArguments[0]).toUpperCase())
+            .replace('{code_}', c.toCodePoint(arguments[0].methodArguments[0]).replace(/-/g, '_'))
         })
     },
     unload: function() {
@@ -65,7 +65,7 @@ module.exports = new Plugin({
         const l = window.ED.classMaps.labels = findModule('labelText');
         const cbw = window.ED.classMaps.cbWrapper = findModule('checkboxWrapper');
         const fc = findModule('flexChild');
-
+        
         let current = this.settings.pack, stuff = this.config.pack.allowed;
         let result = `<div class="${d.description} ${d.modeDefault}">Replace Discord's emojis with a set stolen from somewhere else :^)<br>NOTE: the emoji packs are incomplete. If you know a better place to obtain the images, say so in the support server.</div><h5 class="${h.h5}">[Requires restart to take full effect]</h5><div class="radioGroup-2P3MJo margin-bottom-40" id="ed-emoji-pack">`;
         for (let key in stuff) {
@@ -74,38 +74,42 @@ module.exports = new Plugin({
         result += '</div>';
         return result;
     },
-    settingListeners: {
-        '#ed-emoji-pack': function(e) {
-            const l = window.ED.classMaps.labels;
-            const cbw = window.ED.classMaps.cbWrapper;
-
-            //console.log(e.target, this);
-            if (!e.target.className || e.target.className.indexOf('horizontal-') == -1) return;
-
-            let gay = document.querySelector('.' + l.selected);
-            if (gay)
+    settingListeners: [
+        {
+            el: '#ed-emoji-pack',
+            type: "click",
+            eHandler: function(e) {
+                const l = window.ED.classMaps.labels;
+                const cbw = window.ED.classMaps.cbWrapper;
+                
+                //console.log(e.target, this);
+                if (!e.target.className || e.target.className.indexOf('horizontal-') == -1) return;
+                
+                let gay = document.querySelector('.' + l.selected);
+                if (gay)
                 gay.className = gay.className.replace(' ' + l.selected, '');
-            e.target.className += ' ' + l.selected;
-
-            let cs = document.querySelector('.ed-emoji-pack.' + cbw.checked);
-            if (cs) {
-                cs.className = cs.className.replace(' ' + cbw.checked, '');
-            /*let cb = document.querySelector('[style="flex: 1 1 auto; background-color: rgb(67, 181, 129); border-color: rgb(67, 181, 129);"]');*/
-            //if (cb)
-                cs.style = 'flex: 1 1 auto;';
+                e.target.className += ' ' + l.selected;
+                
+                let cs = document.querySelector('.ed-emoji-pack.' + cbw.checked);
+                if (cs) {
+                    cs.className = cs.className.replace(' ' + cbw.checked, '');
+                    /*let cb = document.querySelector('[style="flex: 1 1 auto; background-color: rgb(67, 181, 129); border-color: rgb(67, 181, 129);"]');*/
+                    //if (cb)
+                    cs.style = 'flex: 1 1 auto;';
+                }
+                
+                //cs = e.target.previousElementSibling;
+                let cb = e.target.querySelector('.ed-emoji-pack');
+                if (cb) {
+                    cb.className += ' ' + cbw.checked;
+                    //cb = cs.querySelector(`#${cb.id}[style="flex: 1 1 auto;"]`);
+                    //if (cb)
+                    cb.style = "flex: 1 1 auto; background-color: rgb(67, 181, 129); border-color: rgb(67, 181, 129);";
+                }
+                let ssssss = module.exports.settings || {};
+                ssssss.pack = cb.id || 'none';
+                module.exports.settings = ssssss;
             }
-
-            //cs = e.target.previousElementSibling;
-            let cb = e.target.querySelector('.ed-emoji-pack');
-            if (cb) {
-                cb.className += ' ' + cbw.checked;
-            //cb = cs.querySelector(`#${cb.id}[style="flex: 1 1 auto;"]`);
-            //if (cb)
-                cb.style = "flex: 1 1 auto; background-color: rgb(67, 181, 129); border-color: rgb(67, 181, 129);";
-            }
-            let ssssss = module.exports.settings || {};
-            ssssss.pack = cb.id || 'none';
-            module.exports.settings = ssssss;
         }
-    }
+    ]
 });
