@@ -69,7 +69,8 @@ module.exports = new Plugin({
                 let parent = document.querySelector('.' + tabsM.side);
                 if (!parent)
                     return arguments[0].callOriginalMethod(arguments[0].methodArguments);
-                let anchor = parent.querySelector(`[class="${tabsM.separator}"]:nth-child(${process.platform == 'win32' ? 20 : 18})`);
+                //let anchor = parent.querySelector(`[class="${tabsM.separator}"]:nth-child(${process.platform == 'win32' ? 20 : 18})`);
+                let anchor = parent.querySelectorAll(`[class="${tabsM.separator}"]`)[3];
                 if (!anchor)
                     return arguments[0].callOriginalMethod(arguments[0].methodArguments);
 
