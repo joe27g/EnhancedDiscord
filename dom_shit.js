@@ -49,32 +49,6 @@ Object.defineProperty(window.ED, 'config', {
     }
 });
 
-//load and validate plugins
-let pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));
-let plugins = {};
-for (let i in pluginFiles) {
-    if (!pluginFiles[i].endsWith('.js')) continue;
-    let p, pName = pluginFiles[i].replace(/\.js$/, '');
-    try {
-        p = require(path.join(process.env.injDir, 'plugins', pName));
-        if (typeof p.name !== 'string' || typeof p.load !== 'function') {
-            throw new Error('Plugin must have a name and load() function.');
-        }
-        plugins[pName] = Object.assign(p, {id: pName});
-    }
-    catch (err) {
-        c.warn(`Failed to load ${pluginFiles[i]}: ${err}\n${err.stack}`, p);
-    }
-}
-for (let id in plugins) {
-    if (!plugins[id] || !plugins[id].name || typeof plugins[id].load !== 'function') {
-        c.info(`Skipping invalid plugin: ${id}`); plugins[id] = null; continue;
-    }
-    plugins[id].settings; // this will set default settings in config if necessary
-    //Object.assign(plugins[name], c);
-    window.ED.plugins[id] = plugins[id];
-}
-
 function loadPlugin(plugin) {
     /*if (window.ED.plugins[plugin.name]) {
         console.log(`%c[EnhancedDiscord] %cSkipped plugin %c${plugin.name}`, 'color: red;', '', `color: ${plugin.color}`, `because it was already loaded.`);
@@ -90,14 +64,10 @@ function loadPlugin(plugin) {
 }
 
 process.once("loaded", async () => {
+	while (typeof window.webpackJsonp === 'undefined')
+		await c.sleep(1000); // wait until this is loaded in order to use it for modules
+
 	c.log('Loading v2.0.2...');
-
-    for (let id in plugins) {
-        if (window.ED.config[id] && window.ED.config[id].enabled == false) continue;
-
-        if (plugins[id] && plugins[id].preload && (!window.ED.config[id] || window.ED.config[id] !== false))
-            loadPlugin(plugins[id]);
-    }
 
     let x = setInterval(() => {
         if (window._ws) {
@@ -112,9 +82,6 @@ process.once("loaded", async () => {
             clearInterval(y);
         }
     }, 100);
-
-	while (typeof window.webpackJsonp === 'undefined')
-		await c.sleep(1000); // wait until this is loaded in order to use it for modules
 
 	/* Add helper functions that make plugins easy to create */
 	window.req = webpackJsonp.push([[], {
@@ -197,12 +164,33 @@ process.once("loaded", async () => {
 
     if (window.ED.config.antiTrack !== false)
         window.monkeyPatch(window.findModule('track'), 'track', () => {});
-
-    /* Load plugins */
-	for (let id in plugins) {
+	
+	    //load and validate plugins
+    let pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));
+    let plugins = {};
+    for (let i in pluginFiles) {
+        if (!pluginFiles[i].endsWith('.js')) continue;
+        let p, pName = pluginFiles[i].replace(/\.js$/, '');
+        try {
+            p = require(path.join(process.env.injDir, 'plugins', pName));
+            if (typeof p.name !== 'string' || typeof p.load !== 'function') {
+                throw new Error('Plugin must have a name and load() function.');
+            }
+            plugins[pName] = Object.assign(p, {id: pName});
+        }
+        catch (err) {
+            c.warn(`Failed to load ${pluginFiles[i]}: ${err}\n${err.stack}`, p);
+        }
+    }
+	
+    for (let id in plugins) {
+        if (!plugins[id] || !plugins[id].name || typeof plugins[id].load !== 'function') {
+            c.info(`Skipping invalid plugin: ${id}`); plugins[id] = null; continue;
+        }
+        plugins[id].settings; // this will set default settings in config if necessary
         if (window.ED.config[id] && window.ED.config[id].enabled == false) continue;
-
-        if (plugins[id] && !plugins[id].preload && (!window.ED.config[id] || window.ED.config[id] !== false))
-            loadPlugin(plugins[id]);
+        loadPlugin(plugins[id]);
 	}
+	
+	window.ED.plugins = plugins;
 })

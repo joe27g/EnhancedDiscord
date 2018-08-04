@@ -41,7 +41,8 @@ namespace EnhancedDiscordUI
             UpdateButton.Hide();
             StatusText.Hide();
             StatusLabel.Show();
-            StatusLabel.Text = (operation == "UNINSTALL" ? "Unin" : "In") + "stallation " + (failed ? " failed." : "completed!");
+            StatusLabel.Text = operation == "UPDATE" ? "Update " + (failed ? "failed" : "complete") : (operation == "UNINSTALL" ? "Unin" : "In") + "stallation " + (failed ? " failed." : "completed!");
+            StatusLabel.ForeColor = failed ? Color.Red : Color.Lime;
             StatusLabel2.Show();
             StatusLabel2.Text = reason;
             StatusCloseButton.Show();
@@ -294,7 +295,7 @@ namespace EnhancedDiscordUI
                 DialogResult confirmResult = MessageBox.Show("ED folder already exists. Overwrite it?", "EnhancedDiscord - Confirm Overwrite", MessageBoxButtons.YesNo);
                 if (confirmResult == DialogResult.No)
                 {
-                    endInstallation("Not replacing old ED files.", false); return;
+                    endInstallation("Not replacing old ED files, restart Discord manually.", false); return;
                 }
                 try
                 {
@@ -492,6 +493,161 @@ namespace EnhancedDiscordUI
             {
                 startDetached("open", "./EnhancedDiscord");
             }
+        }
+
+        async private void UpdateButton_Click(object sender, EventArgs e)
+        {
+            operation = "UPDATE";
+            InstallButton.Hide();
+            UninstallButton.Hide();
+            UpdateButton.Hide();
+            StatusText.Show();
+            InstallProgress.Show();
+            InstallProgress.Value = 0;
+       
+            string tempPath = Path.Combine(Path.GetTempPath(), "EnhancedDiscord");
+            if (Directory.Exists(tempPath))
+            {
+                try
+                {
+                    Directory.Delete(tempPath, true);
+                }
+                catch
+                {
+                    StatusText.Text = "Error deleting temp folders.";
+                }
+            }
+            Directory.CreateDirectory(tempPath);
+
+            StatusText.Text = "Downloading package...";
+            string zipPath = Path.Combine(tempPath, "EnhancedDiscord.zip");
+            string zipLink = Properties.Resources.zipLink + Properties.Resources.branch;
+            WebClient wc = new WebClient();
+            try
+            {
+                await wc.DownloadFileTaskAsync(new Uri(zipLink), zipPath);
+            }
+            catch (Exception err)
+            {
+                Debug.Write(err);
+                endInstallation("Failed to download ED files.", true); return;
+            }
+            InstallProgress.Value = 40;
+            StatusText.Text = "Successfully downloaded. Extracting...";
+
+            try
+            {
+                ZipFile.ExtractToDirectory(zipPath, tempPath);
+            }
+            catch (Exception err)
+            {
+                Debug.Write(err);
+                endInstallation("Failed to extract zip file.", true); return;
+            }
+            InstallProgress.Value = 50;
+            StatusText.Text = "Finished extracting zip. Checking core...";
+
+            string extractedPath = Path.Combine(tempPath, "EnhancedDiscord-" + Properties.Resources.branch);
+            string enhancedPath = "./EnhancedDiscord";
+
+            if (!File.Exists(Path.Combine(enhancedPath, "config.json")))
+            {
+                try
+                {
+                    File.WriteAllText(Path.Combine(enhancedPath, "config.json"), "{}");
+                }
+                catch
+                {
+                }
+            }
+
+            string[] garbage = new string[] { "theme.css", "README.md", "plugins.md", ".gitignore", "advanced_installation.md" };
+            foreach (string file in Directory.GetFiles(extractedPath))
+            {
+                string filename = Path.GetFileName(file);
+                if (Array.Exists(garbage, f => f == filename)) continue;
+                string equiv = Path.Combine(enhancedPath, filename);
+                bool filesEqual = false;
+                bool fileExists = File.Exists(equiv);
+                if (fileExists) filesEqual = FilesEqual(file, equiv);
+                try
+                {
+                    if (fileExists && !filesEqual) File.Delete(equiv);
+                    if (!fileExists || !filesEqual) File.Copy(file, equiv);
+                }
+                catch (Exception err)
+                {
+                    Debug.Write(err);
+                    StatusText.Text = "Could not update plugin: " + filename;
+                }
+            }
+            InstallProgress.Value = 70;
+            StatusText.Text = "Core finished. Checking plugins...";
+
+            string pluginPath = Path.Combine(enhancedPath, "plugins");
+            if (!Directory.Exists(pluginPath)) Directory.CreateDirectory(pluginPath);
+            foreach (string file in Directory.GetFiles(Path.Combine(extractedPath, "plugins")))
+            {
+                string filename = Path.GetFileName(file);
+                string equiv = Path.Combine(pluginPath, filename);
+                bool filesEqual = false;
+                bool fileExists = File.Exists(equiv);
+                if (fileExists) filesEqual = FilesEqual(file, equiv);
+                try
+                {
+                    if (fileExists && !filesEqual) File.Delete(equiv);
+                    if (!fileExists || !filesEqual) File.Copy(file, equiv);
+                }
+                catch (Exception err)
+                {
+                    Debug.Write(err);
+                    StatusText.Text = "Could not update plugin: " + filename;
+                }
+            }
+
+            StatusText.Text = "Cleaning up...";
+            if (Directory.Exists(tempPath))
+            {
+                try
+                {
+                    Directory.Delete(tempPath, true);
+                }
+                catch
+                {
+                    StatusText.Text = "Error deleting temp folders.";
+                }
+            }
+            InstallProgress.Value = 90;
+            endInstallation("ED files updated.", false); return;
+        }
+
+        // Adapted from https://stackoverflow.com/questions/7931304/comparing-two-files-in-c-sharp
+        private bool FilesEqual(string filename1, string filename2)
+        {
+            if (filename1 == filename2) return true;
+
+            FileStream fileStream1 = new FileStream(filename1, FileMode.Open, FileAccess.Read);
+            FileStream fileStream2 = new FileStream(filename2, FileMode.Open, FileAccess.Read);
+            if (fileStream1.Length != fileStream2.Length)
+            {
+                fileStream1.Close();
+                fileStream2.Close();
+                return false;
+            }
+
+            int fileByte1;
+            int fileByte2;
+            do
+            {
+                fileByte1 = fileStream1.ReadByte();
+                fileByte2 = fileStream2.ReadByte();
+            }
+            while ((fileByte1 == fileByte2) && (fileByte1 != -1));
+
+            fileStream1.Close();
+            fileStream2.Close();
+
+            return ((fileByte1 - fileByte2) == 0);
         }
     }
 }
