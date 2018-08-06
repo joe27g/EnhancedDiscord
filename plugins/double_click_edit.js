@@ -8,10 +8,10 @@ module.exports = new Plugin({
 
     load: async function() {
         this._listener = function(e) {
-            let messageElem = e.target.closest('.message');
+            let messageElem = e.target.closest('[class*="message-"]');
             if (!messageElem) return;
 
-            let dots = messageElem.querySelector('.btn-option');
+            let dots = messageElem.querySelector('[class^="buttonContainer-"] [class^="button-"]');
             if (dots) dots.click();
 
             let messageOpts = document.querySelectorAll('[class^="theme-dark popouts-"] [role="menu"] [role="menuitem"]');
@@ -42,10 +42,10 @@ module.exports = new Plugin({
         this._listener2 = function(e) {
             if (!module.exports._deletePressed) return;
 
-            let messageElem = e.target.closest('.message');
+            let messageElem = e.target.closest('[class*="message-"]');
             if (!messageElem) return;
 
-            let dots = messageElem.querySelector('.btn-option');
+            let dots = messageElem.querySelector('[class^="buttonContainer-"] [class^="button-"]');
             if (dots) dots.click();
 
             let messageOpts = document.querySelectorAll('[class^="theme-dark popouts-"] [role="menu"] [role="menuitem"]');
