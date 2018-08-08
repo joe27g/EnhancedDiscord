@@ -163,16 +163,18 @@ module.exports = new Plugin({
                             if (window.ED.plugins[id].settingListeners) {
                                 setTimeout(() => { // let shit render
                                         for(let eventObject in window.ED.plugins[id].settingListeners){
+                                            let currentSettingListener = window.ED.plugins[id].settingListeners[eventObject];
                                             //Check if plugin is using the old format
+
                                             if(Array.isArray(window.ED.plugins[id].settingListeners)){
-                                                let elem = settingsPane.querySelector(eventObject.el);
+                                                let elem = settingsPane.querySelector(currentSettingListener.el);
                                                 if (elem)
-                                                    elem.addEventListener(eventObject.type, eventObject.eHandler);
+                                                    elem.addEventListener(currentSettingListener.type, currentSettingListener.eHandler);
                                             } else {
                                                 let elem = settingsPane.querySelector(eventObject);
                                                 if (elem){
                                                     parentThis.warn(`Plugin ${window.ED.plugins[id].name} is using a deprecated plugin format (New format: https://github.com/joe27g/EnhancedDiscord/blob/beta/plugins.md#advanced-plugin-functionality). Ignore this unless you're the plugin dev`)
-                                                    elem.onclick = window.ED.plugins[id].settingListeners[elem];
+                                                    elem.onclick = window.ED.plugins[id].settingListeners[eventObject];
                                                 }
                                             }
                                         }
