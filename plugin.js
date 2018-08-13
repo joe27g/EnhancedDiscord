@@ -1,33 +1,59 @@
-const fs = require('fs');
-
+/**
+ * Plugin Class
+ */
 class Plugin {
-	constructor (opts = {}) {
-		if (!opts.name || typeof opts.load !== 'function')
-			return 'Invalid plugin. Needs a name and a load() function.';
+    /**
+     * Create your plugin, must have a name and load() function
+     * @constructor
+     * @param {object} options - Plugin options
+     */
+    constructor (opts = {}) {
+        if (!opts.name || typeof opts.load !== 'function')
+            return 'Invalid plugin. Needs a name and a load() function.';
 
-		Object.assign(this, opts);
+        Object.assign(this, opts);
         if (!this.color)
             this.color = 'orange';
         if (!this.author)
             this.author = '<unknown>';
-	}
+    }
 
-	load () {}
+    load () {}
 
-	unload () {}
+    unload () {}
 
-  	log (msg) {
-        console.log(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, msg);
+    /**
+     * Send a decorated console.log prefixed with ED and your plugin name
+     * @param {...string} msg - Message to be logged
+     */
+    log (...msg) {
+        console.log(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, ...msg);
     }
-    info (msg) {
-        console.info(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, msg);
+    /**
+     * Send a decorated console.info prefixed with ED and your plugin name
+     * @param {...string} msg - Message to be logged
+     */
+    info (...msg) {
+        console.info(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, ...msg);
     }
-    warn (msg) {
-        console.warn(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, msg);
+    /**
+     * Send a decorated console.warn prefixed with ED and your plugin name
+     * @param {...string} msg - Message to be logged
+     */
+    warn (...msg) {
+        console.warn(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, ...msg);
     }
-    error (msg) {
-        console.error(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, msg);
+    /**
+     * Send a decorated console.error prefixed with ED and your plugin name
+     * @param {...string} msg - Message to be logged
+     */
+    error (...msg) {
+        console.error(`%c[EnhancedDiscord] %c[${this.name}]`, 'color: red;', `color: ${this.color}`, ...msg);
     }
+    /**
+     * Returns a Promise that resolves after ms milliseconds.
+     * @param {number} ms - How long to wait before resolving the promise
+     */
     sleep (ms) {
         return new Promise(resolve => {
             setTimeout(resolve, ms);

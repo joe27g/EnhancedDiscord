@@ -7,7 +7,7 @@ function makePluginToggle(opts = {}) {
     const b = window.ED.classMaps.buttons;
     const d = window.ED.classMaps.description;
 
-    return `<div id="${opts.id}-wrap" class="${a.vertical} ${a.justifyStart} ${a.alignStretch} ${a.noWrap} ${sw.switchItem}" style="flex: 1 1 auto;"><div class="${a.horizontal} ${a.justifyStart} ${a.alignStart} ${a.noWrap}" style="flex: 1 1 auto;"><h3 class="${sw.titleDefault}" style="flex: 1 1 auto;">${opts.title}</h3>${opts.color ? ` <div class="status" style="background-color:${opts.color}; box-shadow:0 0 5px 2px ${opts.color};margin-left: 5px; border-radius: 50%; height: 10px; width: 10px; position: relative; top: 6px; margin-right: 8px;"></div>` : ''}${opts.id == 'silentTyping' || opts.id == 'antiTrack' ? '' : `<button type="button" class="${b.button} ${b.lookFilled} ${b.colorBrand} ed-plugin-reload" style="height:24px;margin-right:10px;"><div class="${b.contents}">Reload</div></button>`}<div id="${opts.id}" class="${cb.switchEnabled} ${cb.valueUnchecked} ${cb.sizeDefault} ${cb.themeDefault}"><input type="checkbox" class="${cb.checkboxEnabled}" value="on"></div></div><div class="${d.description} ${d.modeDefault}" style="flex: 1 1 auto;">${opts.desc}</div><div class="${ED.classMaps.divider} ${sw.dividerDefault}"></div></div>`;
+    return `<div id="${opts.id}-wrap" class="${a.vertical} ${a.justifyStart} ${a.alignStretch} ${a.noWrap} ${sw.switchItem}" style="flex: 1 1 auto;"><div class="${a.horizontal} ${a.justifyStart} ${a.alignStart} ${a.noWrap}" style="flex: 1 1 auto;"><h3 class="${sw.titleDefault}" style="flex: 1 1 auto;">${opts.title}</h3>${opts.color ? ` <div class="status" style="background-color:${opts.color}; box-shadow:0 0 5px 2px ${opts.color};margin-left: 5px; border-radius: 50%; height: 10px; width: 10px; position: relative; top: 6px; margin-right: 8px;"></div>` : ''}${opts.id == 'silentTyping' || opts.id == 'antiTrack' ? '' : `<button type="button" class="${b.button} ${b.lookFilled} ${b.colorBrand} ed-plugin-reload" style="height:24px;margin-right:10px;"><div class="${b.contents}">Reload</div></button>`}<div id="${opts.id}" class="${cb.switchEnabled} ${cb.valueUnchecked} ${cb.sizeDefault} ${cb.themeDefault}"><input type="checkbox" class="${cb.checkboxEnabled}" value="on"></div></div><div class="${d.description} ${d.modeDefault}" style="flex: 1 1 auto;">${opts.desc ? opts.desc : '<i>No Description Provided</i<'}</div><div class="${ED.classMaps.divider} ${sw.dividerDefault}"></div></div>`;
 }
 
 module.exports = new Plugin({
@@ -17,6 +17,7 @@ module.exports = new Plugin({
     color: 'darkred',
 
     load: async function() {
+        let parentThis = this; //Allow use of parent methods in sub functions
 
         while (!findModule('getUserSettingsSections', true) || !findModule('UserSettingsSections', true))
             await this.sleep(1000);
@@ -68,7 +69,8 @@ module.exports = new Plugin({
                 let parent = document.querySelector('.' + tabsM.side);
                 if (!parent)
                     return arguments[0].callOriginalMethod(arguments[0].methodArguments);
-                let anchor = parent.querySelector(`[class="${tabsM.separator}"]:nth-child(${process.platform == 'win32' ? 20 : 18})`);
+                //let anchor = parent.querySelector(`[class="${tabsM.separator}"]:nth-child(${process.platform == 'win32' ? 20 : 18})`);
+                let anchor = parent.querySelectorAll(`[class="${tabsM.separator}"]`)[3];
                 if (!anchor)
                     return arguments[0].callOriginalMethod(arguments[0].methodArguments);
 
@@ -150,7 +152,6 @@ module.exports = new Plugin({
                         if (at && window.ED.config.antiTrack !== false)
                             at.className = at.className.replace(cbM.valueUnchecked, cbM.valueChecked);
                         //console.log(st, at);
-
                         for (let id in window.ED.plugins) {
                             if (!window.ED.plugins[id].config || !window.ED.plugins[id].generateSettings) continue;
 
@@ -159,14 +160,22 @@ module.exports = new Plugin({
                             settingsPane.innerHTML += window.ED.plugins[id].generateSettings();
 
                             settingsPane.innerHTML += `<div class="${div}"></div>`;
-
                             if (window.ED.plugins[id].settingListeners) {
                                 setTimeout(() => { // let shit render
-                                    for (let sel in window.ED.plugins[id].settingListeners) {
-                                        let elem = settingsPane.querySelector(sel);
-                                        if (sel)
-                                            elem.onclick = window.ED.plugins[id].settingListeners[sel];
-                                    }
+                                        for(let eventObject in window.ED.plugins[id].settingListeners){
+                                            //Check if plugin is using the old format
+                                            if(Array.isArray(window.ED.plugins[id].settingListeners)){
+                                                let elem = settingsPane.querySelector(eventObject.el);
+                                                if (elem)
+                                                    elem.addEventListener(eventObject.type, eventObject.eHandler);
+                                            } else {
+                                                let elem = settingsPane.querySelector(eventObject);
+                                                if (elem){
+                                                    parentThis.warn(`Plugin ${window.ED.plugins[id].name} is using a deprecated plugin format (New format: https://github.com/joe27g/EnhancedDiscord/blob/beta/plugins.md#advanced-plugin-functionality). Ignore this unless you're the plugin dev`)
+                                                    elem.onclick = window.ED.plugins[id].settingListeners[elem];
+                                                }
+                                            }
+                                        }
                                 }, 5);
                             }
                         }
