@@ -165,6 +165,9 @@ process.once("loaded", async () => {
     if (window.ED.config.antiTrack !== false)
         window.monkeyPatch(window.findModule('track'), 'track', () => {});
 	
+    while (Object.keys(window.req.c).length < 5000)
+        await c.sleep(1000); // wait until most modules are loaded for plugins
+	
 	    //load and validate plugins
     let pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));
     let plugins = {};
