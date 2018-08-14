@@ -3,15 +3,18 @@ A simple way to load plugins and themes on Discord without token stealing and la
 
 By default, this loads my theme, with some settings applied. More info [on its repo](https://github.com/joe27g/Discord-Theme). To change this, edit `plugins/style.css` or change the theme location in settings.
 
-Extra plugins available at [the plugins repo](https://github.com/joe27g/EnhancedDiscord-Plugins). This will contain weird or niche plugins that should not be preincluded.
-
-**Now with a brand-new graphical installer!**
+You can download more quality plugins from the following repos:
+- [joe27g/EnhancedDiscord-Plugins](https://github.com/joe27g/EnhancedDiscord-Plugins)
+- [rauenzi/EnhancedDiscordPlugins](https://github.com/rauenzi/EnhancedDiscordPlugins)
+- [jakuski/ed_plugins](https://github.com/jakuski/ed_plugins)
 
 ### Installing the easy way:
 
 *Currently, only Windows and Ubuntu 18.04+ are supported for the new installer, due to lack of devices to compile on*
 
 Go to https://enhanceddiscord.com/ and hit the 'Download' button, or if you're lazy, click [here](https://enhanceddiscord.com/EnhancedDiscord.exe).
+
+If you're having errors (especially related to `InteropServices`), you may need to download [.NET Framework 4.7.1](https://www.microsoft.com/en-us/download/details.aspx?id=56116).
 
 ### ~~Installing the old way:~~
 
