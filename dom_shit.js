@@ -67,7 +67,7 @@ process.once("loaded", async () => {
 	while (typeof window.webpackJsonp === 'undefined')
 		await c.sleep(1000); // wait until this is loaded in order to use it for modules
 
-	c.log('Loading v2.0.2...');
+	c.log('Loading v2.1.0...');
 
     let x = setInterval(() => {
         if (window._ws) {
