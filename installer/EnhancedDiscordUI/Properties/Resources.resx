@@ -187,7 +187,4 @@ require.cache[browser_window_path].exports = PatchedBrowserWindow;</value>
   <data name="zipLink" xml:space="preserve">
     <value>https://codeload.github.com/joe27g/EnhancedDiscord/zip/</value>
   </data>
-  <data name="branch" xml:space="preserve">
-    <value>beta</value>
-  </data>
 </root>

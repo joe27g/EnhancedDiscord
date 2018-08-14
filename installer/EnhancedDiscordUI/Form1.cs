@@ -23,6 +23,7 @@ namespace EnhancedDiscordUI
         private Process devProcess;
         private string operation = "INSTALL";
         private string platform;
+        private string branch = "master";
 
         public EDInstaller()
         {
@@ -31,14 +32,17 @@ namespace EnhancedDiscordUI
             {
                 UninstallButton.Enabled = true;
                 UpdateButton.Enabled = true;
+                ReinjectButton.Enabled = true;
             }
         }
         private void endInstallation(string reason, bool failed)
         {
             InstallProgress.Value = 100;
+            BetaRadio.Hide();
             InstallButton.Hide();
             UninstallButton.Hide();
             UpdateButton.Hide();
+            ReinjectButton.Hide();
             StatusText.Hide();
             StatusLabel.Show();
             StatusLabel.Text = operation == "UPDATE" ? "Update " + (failed ? "failed" : "complete") : (operation == "UNINSTALL" ? "Unin" : "In") + "stallation " + (failed ? " failed." : "completed!");
@@ -53,9 +57,15 @@ namespace EnhancedDiscordUI
         }
         private void InstallButton_Click(object sender, EventArgs e)
         {
+            if (BetaRadio.Checked)
+            {
+                branch = "beta";
+            }
+            BetaRadio.Hide();
             InstallButton.Hide();
             UninstallButton.Hide();
             UpdateButton.Hide();
+            ReinjectButton.Hide();
             StatusText.Show();
             InstallProgress.Show();
             StatusText.Text = "Finding Discord processes...";
@@ -153,7 +163,14 @@ namespace EnhancedDiscordUI
                 }
                 return; // stuff continues w/ button events
             }
-            continueInstall(finalProcess);
+            if (operation == "UPDATE")
+            {
+                continueUpdate(finalProcess);
+            }
+            else
+            {
+                continueInstall(finalProcess);
+            }
         }
 
         private void StableButton_Click(object sender, EventArgs e)
@@ -274,10 +291,26 @@ namespace EnhancedDiscordUI
             {
                 endInstallation("Failed to write to injection file.", true); return;
             }
+
+            if (operation == "REINJECT")
+            {
+                try
+                {
+                    proc.Kill();
+                    startDetached(path, null);
+                    endInstallation("Successfully reinjected.", false);
+                }
+                catch
+                {
+                    endInstallation("Failed to restart Discord; do this manually.", false);
+                }
+                return;
+            }
+
             InstallProgress.Value = 40;
             StatusText.Text = "Successfully injected. Downloading ED...";
 
-            string zipLink = Properties.Resources.zipLink + Properties.Resources.branch;
+            string zipLink = Properties.Resources.zipLink + branch;
             WebClient wc = new WebClient();
             try
             {
@@ -290,12 +323,12 @@ namespace EnhancedDiscordUI
             InstallProgress.Value = 60;
             StatusText.Text = "Successfully downloaded. Extracting...";
 
-            if (Directory.Exists("./EnhancedDiscord") || Directory.Exists("./EnhancedDiscord-" + Properties.Resources.branch))
+            if (Directory.Exists("./EnhancedDiscord") || Directory.Exists("./EnhancedDiscord-" + branch))
             {
                 DialogResult confirmResult = MessageBox.Show("ED folder already exists. Overwrite it?", "EnhancedDiscord - Confirm Overwrite", MessageBoxButtons.YesNo);
                 if (confirmResult == DialogResult.No)
                 {
-                    endInstallation("Not replacing old ED files, restart Discord manually.", false); return;
+                    endInstallation("Not replacing old ED files; restart Discord manually.", false); return;
                 }
                 try
                 {
@@ -303,9 +336,9 @@ namespace EnhancedDiscordUI
                     {
                         Directory.Delete("./EnhancedDiscord", true);
                     }
-                    if (Directory.Exists("./EnhancedDiscord-" + Properties.Resources.branch))
+                    if (Directory.Exists("./EnhancedDiscord-" + branch))
                     {
-                        Directory.Delete("./EnhancedDiscord-" + Properties.Resources.branch, true);
+                        Directory.Delete("./EnhancedDiscord-" + branch, true);
                     }
                 }
                 catch
@@ -325,27 +358,31 @@ namespace EnhancedDiscordUI
             StatusText.Text = "Finished extracting zip. Cleaning up...";
             try
             {
-                Directory.Move("./EnhancedDiscord-" + Properties.Resources.branch, "./EnhancedDiscord");
+                Directory.Move("./EnhancedDiscord-" + branch, "./EnhancedDiscord");
             }
             catch
             {
                 endInstallation("Failed to rename extracted folder.", true); return;
             }
 
-            string[] garbage = new string[] { "./EnhancedDiscord/theme.css", "./EnhancedDiscord/README.md", "./EnhancedDiscord/plugins.md", "./ED_master.zip" };
+            string[] garbage = new string[] { "./EnhancedDiscord/README.md", "./EnhancedDiscord/plugins.md", "./EnhancedDiscord/advanced_installation.md", "./EnhancedDiscord/.gitignore", "./ED_master.zip", "./EnhancedDiscord/installer", "./EnhancedDiscord/installer_cmdline" };
 
             foreach (string filePath in garbage)
             {
-                if (File.Exists(filePath))
+                try
                 {
-                    try
+                    if (File.Exists(filePath))
                     {
                         File.Delete(filePath);
                     }
-                    catch
+                    if (Directory.Exists(filePath))
                     {
-                        //StatusText.Text = "Failed to delete " + filePath;
+                        Directory.Delete(filePath, true);
                     }
+                }
+                catch
+                {
+                    // ???
                 }
             }
             InstallProgress.Value = 80;
@@ -374,7 +411,7 @@ namespace EnhancedDiscordUI
             }
             catch
             {
-                StatusText.Text = "Failed to restart Discord. Restart it manually to see changes.";
+                StatusText.Text = "Failed to restart Discord; do this manually.";
             }
             InstallProgress.Value = 100;
             endInstallation("Finished cleaning up.", false);
@@ -420,6 +457,7 @@ namespace EnhancedDiscordUI
                         try
                         {
                             Directory.Delete("./EnhancedDiscord", true);
+                            Directory.Delete("./EnhancedDiscord", false);
                         }
                         catch
                         {
@@ -495,12 +533,26 @@ namespace EnhancedDiscordUI
             }
         }
 
-        async private void UpdateButton_Click(object sender, EventArgs e)
+        private void UpdateButton_Click(object sender, EventArgs e)
         {
             operation = "UPDATE";
+            InstallButton_Click(sender, e);
+        }
+        private void ReinjectButton_Click(object sender, EventArgs e)
+        {
+            operation = "REINJECT";
+            InstallButton_Click(sender, e);
+        }
+
+        async private void continueUpdate(Process proc)
+        {
+            string path = proc.MainModule.FileName;
+            operation = "UPDATE";
+            BetaRadio.Hide();
             InstallButton.Hide();
             UninstallButton.Hide();
             UpdateButton.Hide();
+            ReinjectButton.Hide();
             StatusText.Show();
             InstallProgress.Show();
             InstallProgress.Value = 0;
@@ -521,7 +573,7 @@ namespace EnhancedDiscordUI
 
             StatusText.Text = "Downloading package...";
             string zipPath = Path.Combine(tempPath, "EnhancedDiscord.zip");
-            string zipLink = Properties.Resources.zipLink + Properties.Resources.branch;
+            string zipLink = Properties.Resources.zipLink + branch;
             WebClient wc = new WebClient();
             try
             {
@@ -547,7 +599,7 @@ namespace EnhancedDiscordUI
             InstallProgress.Value = 50;
             StatusText.Text = "Finished extracting zip. Checking core...";
 
-            string extractedPath = Path.Combine(tempPath, "EnhancedDiscord-" + Properties.Resources.branch);
+            string extractedPath = Path.Combine(tempPath, "EnhancedDiscord-" + branch);
             string enhancedPath = "./EnhancedDiscord";
 
             if (!File.Exists(Path.Combine(enhancedPath, "config.json")))
@@ -561,7 +613,7 @@ namespace EnhancedDiscordUI
                 }
             }
 
-            string[] garbage = new string[] { "theme.css", "README.md", "plugins.md", ".gitignore", "advanced_installation.md" };
+            string[] garbage = new string[] { "README.md", "plugins.md", ".gitignore", "advanced_installation.md" };
             foreach (string file in Directory.GetFiles(extractedPath))
             {
                 string filename = Path.GetFileName(file);
@@ -589,6 +641,7 @@ namespace EnhancedDiscordUI
             foreach (string file in Directory.GetFiles(Path.Combine(extractedPath, "plugins")))
             {
                 string filename = Path.GetFileName(file);
+                if (filename == "style.css") continue;
                 string equiv = Path.Combine(pluginPath, filename);
                 bool filesEqual = false;
                 bool fileExists = File.Exists(equiv);

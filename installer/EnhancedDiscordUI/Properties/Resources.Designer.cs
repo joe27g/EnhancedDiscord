@@ -19,7 +19,7 @@ namespace EnhancedDiscordUI.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -57,15 +57,6 @@ namespace EnhancedDiscordUI.Properties {
             }
             set {
                 resourceCulture = value;
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to beta.
-        /// </summary>
-        internal static string branch {
-            get {
-                return ResourceManager.GetString("branch", resourceCulture);
             }
         }
         
@@ -180,7 +171,7 @@ namespace EnhancedDiscordUI.Properties {
         ///
         ///    delete details.responseHeaders[&quot;content-security-policy&quot;];
         ///
-        ///    callback({cancel: false, resp [rest of string was truncated]&quot;;.
+        ///    callback({cancel: false, responseHea [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string injection {
             get {
