@@ -1,6 +1,10 @@
 # EnhancedDiscord
 A simple way to load plugins and themes on Discord without token stealing and lag.
 
+Support server:
+<a href="https://discord.gg/XAvh9tq"><img src="https://discordapp.com/api/guilds/415246389287583755/embed.png" alt="Discord server" /></a>
+(https://discord.gg/XAvh9tq)
+
 By default, this loads my theme, with some settings applied. More info [on its repo](https://github.com/joe27g/Discord-Theme). To change this, edit `plugins/style.css` or change the theme location in settings.
 
 You can download more quality plugins from the following repos:
