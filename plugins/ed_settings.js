@@ -135,7 +135,7 @@ module.exports = new Plugin({
                         }
 
                         document.getElementById("ed-openPluginsFolder").onclick = function () {
-                            const s = DiscordNative.fileManager.showItemInFolder(require("path").join(process.env.injDir,"plugins"))
+                            const s = require("electron").shell.openItem(require("path").join(process.env.injDir, "plugins"))
                             if (s === false) console.error("[EnhancedDiscord] Unable to open external folder.")
                         }
                     }
