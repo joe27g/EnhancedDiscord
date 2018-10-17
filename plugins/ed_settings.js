@@ -198,7 +198,7 @@ module.exports = new Plugin({
                         try {
                             delete require.cache[require.resolve(`./${plugin.id}`)];
                             let newPlugin = require(`./${plugin.id}`);
-                            window.ED.plugins[plugin.id] = newPlugin;
+                            window.ED.plugins[plugin.id] = Object.assign(newPlugin, {id: plugin.id});
                             button.innerHTML = 'Reloaded!';
                         } catch(err) {
                             console.error(err);
