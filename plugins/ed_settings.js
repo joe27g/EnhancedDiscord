@@ -45,7 +45,8 @@ module.exports = new Plugin({
         const cbM = ED.classMaps.checkbox = findModule('checkboxEnabled');
         const buttM = ED.classMaps.buttons = findModule('lookFilled');
         const descM = ED.classMaps.description = findModule('formText');
-
+        const concentCol = findModule('contentColumn');
+        
         // use this function to trigger the loading of the settings tabs. No MutationObservers this way :)
         monkeyPatch( findModule('getUserSettingsSections').default.prototype, 'render', function() {
 
@@ -107,7 +108,7 @@ module.exports = new Plugin({
                 //let settingsPane = document.querySelector('.ui-standard-sidebar-view .content-column > div');
 
                 pluginsTab.onclick = function(e) {
-                    let settingsPane = document.querySelector('.ui-standard-sidebar-view .content-column > div');
+                    let settingsPane = document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn} > div`);
                     let otherTab = document.querySelector('.' + tabsM.item + '.' + tabsM.selected);
                     if (otherTab) {
                         otherTab.className = otherTab.className.replace(tabsM.itemSelected, tabsM.itemDefault);
@@ -132,7 +133,7 @@ module.exports = new Plugin({
                 }
 
                 settingsTab.onclick = function(e) {
-                    let settingsPane = document.querySelector('.ui-standard-sidebar-view .content-column > div');
+                    let settingsPane = document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn} > div`);
                     let otherTab = document.querySelector('.' + tabsM.item + '.' + tabsM.selected);
                     if (otherTab) {
                         otherTab.className = otherTab.className.replace(tabsM.itemSelected, tabsM.itemDefault);
@@ -185,7 +186,7 @@ module.exports = new Plugin({
                     e.stopPropagation(); // prevent from going to parent click handler
                 }
 
-                document.querySelector('.ui-standard-sidebar-view .content-column').onclick = function(e) {
+                document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn}`).onclick = function(e) {
                     let parent = e.target.parentElement;
 
                     if (e.target.className && (e.target.className === buttM.contents || e.target.className.indexOf('ed-plugin-reload') > -1)) {
