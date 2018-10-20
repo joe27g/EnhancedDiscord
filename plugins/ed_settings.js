@@ -107,7 +107,7 @@ module.exports = new Plugin({
                 //let settingsPane = document.querySelector('.ui-standard-sidebar-view .content-column > div');
 
                 pluginsTab.onclick = function(e) {
-                    let settingsPane = document.querySelector('.ui-standard-sidebar-view .content-column > div');
+                    let settingsPane = document.querySelector('[class^="standardSidebarView-"] [class^="contentColumn-"] > div');
                     let otherTab = document.querySelector('.' + tabsM.item + '.' + tabsM.selected);
                     if (otherTab) {
                         otherTab.className = otherTab.className.replace(tabsM.itemSelected, tabsM.itemDefault);
@@ -132,7 +132,7 @@ module.exports = new Plugin({
                 }
 
                 settingsTab.onclick = function(e) {
-                    let settingsPane = document.querySelector('.ui-standard-sidebar-view .content-column > div');
+                    let settingsPane = document.querySelector('[class^="standardSidebarView-"] [class^="contentColumn-"] > div');
                     let otherTab = document.querySelector('.' + tabsM.item + '.' + tabsM.selected);
                     if (otherTab) {
                         otherTab.className = otherTab.className.replace(tabsM.itemSelected, tabsM.itemDefault);
@@ -185,7 +185,7 @@ module.exports = new Plugin({
                     e.stopPropagation(); // prevent from going to parent click handler
                 }
 
-                document.querySelector('.ui-standard-sidebar-view .content-column').onclick = function(e) {
+                document.querySelector('[class^="standardSidebarView-"] [class^="contentColumn-"]').onclick = function(e) {
                     let parent = e.target.parentElement;
 
                     if (e.target.className && (e.target.className === buttM.contents || e.target.className.indexOf('ed-plugin-reload') > -1)) {
