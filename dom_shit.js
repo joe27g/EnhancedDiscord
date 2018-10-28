@@ -169,13 +169,15 @@ process.once("loaded", async () => {
     while (Object.keys(window.req.c).length < 5000)
         await c.sleep(1000); // wait until most modules are loaded for plugins
     
-    await BDManager.setup(currentWindow);
+    if (window.ED.config.bdPlugins)
+        await BDManager.setup(currentWindow);
         
     //load and validate plugins
     let pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));
     let plugins = {};
     for (let i in pluginFiles) {
         if (!pluginFiles[i].endsWith('.js')) continue;
+        if (!window.ED.config.bdPlugins && pluginFiles[i].endsWith(".plugin.js")) continue;
         let p, pName = pluginFiles[i].replace(/\.js$/, '');
         try {
             p = require(path.join(process.env.injDir, 'plugins', pName));

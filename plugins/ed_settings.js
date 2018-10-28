@@ -14,7 +14,7 @@ function makePluginToggle(opts = {}) {
         <h3 class="${sw.titleDefault}" style="flex: 1 1 auto;">${opts.title}</h3>
         ${opts.color ? ` <div class="status" style="background-color:${opts.color}; box-shadow:0 0 5px 2px ${opts.color};margin-left: 5px; border-radius: 50%; height: 10px; width: 10px; position: relative; top: 6px; margin-right: 8px;"></div>` : ''}
         ${opts.showSettingsButton ? settingsButton : ''}
-        ${opts.id == 'silentTyping' || opts.id == 'antiTrack' ? '' : `<button type="button" class="${b.button} ${b.lookFilled} ${b.colorBrand} ed-plugin-reload" style="height:24px;margin-right:10px;"><div class="${b.contents}">Reload</div></button>`}
+        ${opts.id == 'silentTyping' || opts.id == 'antiTrack' || opts.id == 'bdPlugins' ? '' : `<button type="button" class="${b.button} ${b.lookFilled} ${b.colorBrand} ed-plugin-reload" style="height:24px;margin-right:10px;"><div class="${b.contents}">Reload</div></button>`}
         <div id="${opts.id}" class="${cb.switchEnabled} ${cb.valueUnchecked} ${cb.sizeDefault} ${cb.themeDefault}">
             <input type="checkbox" class="${cb.checkboxEnabled}" value="on">
         </div>
@@ -159,6 +159,7 @@ module.exports = new Plugin({
                         settingsPane.innerHTML = `<h2 class="${contentM.h2} ${contentM.defaultColor}">EnhancedDiscord Configuration</h2><div class="${div} ${contentM.marginBottom20}"></div>`;
                         settingsPane.innerHTML += makePluginToggle({id: 'silentTyping', title: 'Silent Typing', desc: "Never appear as typing in any channel."});
                         settingsPane.innerHTML += makePluginToggle({id: 'antiTrack', title: 'Anti-Track', desc: 'Prevent Discord from sending "tracking" data that they may be selling to advertisers or otherwise sharing.'});
+                        settingsPane.innerHTML += makePluginToggle({id: 'bdPlugins', title: 'BD Plugins', desc: "Allows ED to load BD plugins natively."});
 
                         let st = document.getElementById('silentTyping');
                         if (st && window.ED.config.silentTyping == true)
@@ -166,6 +167,9 @@ module.exports = new Plugin({
                         let at = document.getElementById('antiTrack');
                         if (at && window.ED.config.antiTrack !== false)
                             at.className = at.className.replace(cbM.valueUnchecked, cbM.valueChecked);
+                        let bl = document.getElementById('bdPlugins');
+                        if (bl && window.ED.config.bdPlugins == true)
+                            bl.className = bl.className.replace(cbM.valueUnchecked, cbM.valueChecked);
                         //console.log(st, at);
                         for (let id in window.ED.plugins) {
                             if (window.ED.plugins[id].getSettingsPanel && typeof window.ED.plugins[id].getSettingsPanel == 'function') continue;
@@ -205,7 +209,7 @@ module.exports = new Plugin({
                     let parent = e.target.parentElement;
                     if (e.target.className && (parent.className.indexOf('ed-plugin-settings') > -1 || e.target.className.indexOf('ed-plugin-settings') > -1)) {
                         let box = e.target.className === buttM.contents ? parent.nextElementSibling.nextElementSibling : e.target.nextElementSibling.nextElementSibling;
-                        if (!box || !box.id || !window.ED.plugins[box.id] || box.className.indexOf(cbM.valueChecked) == -1) return;
+                        if (!box || !box.id || !window.ED.plugins[box.id] || box.className.indexOf(cbM.valueChecked) == -1 || !window.ED.config.bdPlugins) return;
                         return BDManager.showSettingsModal(window.ED.plugins[box.id]);
                     }
 
@@ -234,7 +238,7 @@ module.exports = new Plugin({
 
                     if (e.target.tagName !== 'INPUT' || e.target.type !== 'checkbox' || !parent || !parent.className || !parent.id) return;
                     let p = window.ED.plugins[parent.id];
-                    if (!p && parent.id !== 'silentTyping' && parent.id !== 'antiTrack') return;
+                    if (!p && parent.id !== 'silentTyping' && parent.id !== 'antiTrack' && parent.id !== 'bdPlugins') return;
                     //console.log('settings for '+p.id, p.settings);
 
                     if (parent.className.indexOf(cbM.valueChecked) > -1) {
@@ -250,10 +254,12 @@ module.exports = new Plugin({
                             if (edc[parent.id] === false || (parent.id == 'silentTyping' && edc[parent.id] === undefined)) return;
                             edc[parent.id] = false;
                             window.ED.config = edc;
-                            let mod = parent.id == 'antiTrack' ? 'track' : 'sendTyping';
-                            //console.log(parent);
-                            if (findModule(mod, true) && findModule(mod, true)[mod] && findModule(mod, true)[mod].__monkeyPatched)
-                                findModule(mod)[mod].unpatch();
+                            if (parent.id !== 'bdPlugins') {
+                                let mod = parent.id == 'antiTrack' ? 'track' : 'sendTyping';
+                                //console.log(parent);
+                                if (findModule(mod, true) && findModule(mod, true)[mod] && findModule(mod, true)[mod].__monkeyPatched)
+                                    findModule(mod)[mod].unpatch();
+                            }
                         }
                         parent.className = parent.className.replace(cbM.valueChecked, cbM.valueUnchecked);
                     } else {
@@ -269,9 +275,11 @@ module.exports = new Plugin({
                             if (edc[parent.id] === true || (parent.id == 'antiTrack' && edc[parent.id] === undefined)) return;
                             edc[parent.id] = true;
                             window.ED.config = edc;
-                            let mod = parent.id == 'antiTrack' ? 'track' : 'sendTyping';
-                            //console.log(parent);
-                            monkeyPatch(findModule(mod), mod, () => {});
+                            if (parent.id !== 'bdPlugins') {
+                                let mod = parent.id == 'antiTrack' ? 'track' : 'sendTyping';
+                                //console.log(parent);
+                                monkeyPatch(findModule(mod), mod, () => {});
+                            }
                         }
                         parent.className = parent.className.replace(cbM.valueUnchecked, cbM.valueChecked);
                     }
