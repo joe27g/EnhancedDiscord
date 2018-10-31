@@ -20,20 +20,34 @@
 
  5. Between the line you just added and the original contents, add the following:
  ```js
- const { BrowserWindow } = require('electron');
+const { BrowserWindow, session } = require('electron');
 const path = require('path');
+
+session.defaultSession.webRequest.onHeadersReceived(function(details, callback) {
+
+    if (!details.responseHeaders["content-security-policy-report-only"] && !details.responseHeaders["content-security-policy"]) return callback({cancel: false});
+    delete details.responseHeaders["content-security-policy-report-only"];
+
+    delete details.responseHeaders["content-security-policy"];
+
+    callback({cancel: false, responseHeaders: details.responseHeaders})
+;
+});
 
 class PatchedBrowserWindow extends BrowserWindow {
     constructor(originalOptions) {
         const options = Object.create(originalOptions);
         options.webPreferences = Object.create(options.webPreferences);
+		
+		const originalPreloadScript = options.webPreferences.preload;
 
         // Make sure Node integration is enabled
         options.webPreferences.nodeIntegration = true;
         options.webPreferences.preload = path.join(process.env.injDir, 'dom_shit.js');
         options.webPreferences.transparency = true;
 
-        return new BrowserWindow(options);
+        super(options);
+        this.__preload = originalPreloadScript;
     }
 }
 
