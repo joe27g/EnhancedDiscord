@@ -27,6 +27,8 @@ namespace EnhancedDiscordUI
 
         public EDInstaller()
         {
+            Logger.MakeDivider();
+            Logger.Log("Starting...");
             InitializeComponent();
             if (Directory.Exists("./EnhancedDiscord"))
             {
@@ -209,6 +211,7 @@ namespace EnhancedDiscordUI
             {
                 release = "discorddevelopment";
             }
+            Logger.Log("Using release " + release);
             StableButton.Hide();
             PTBButton.Hide();
             CanaryButton.Hide();
@@ -216,6 +219,7 @@ namespace EnhancedDiscordUI
 
             StatusText.Text = "Injecting...";
             InstallProgress.Value = 20;
+            Logger.Log(StatusText.Text);
 
             string dLocation = Path.GetDirectoryName(path);
             platform = "";
@@ -231,7 +235,9 @@ namespace EnhancedDiscordUI
             {
                 platform = "Mac";
             }
+            
             StatusText.Text = "Detected platform: " + platform + " | Discord release: " + release;
+            Logger.Log(StatusText.Text);
 
             string basePath;
             string appVersion = dLocation.Substring(dLocation.IndexOf("app-") + 4);
@@ -262,6 +268,7 @@ namespace EnhancedDiscordUI
 
             if (targetPath == "" || !File.Exists(targetPath))
             {
+                Logger.Error("Could not fine injection file with basepath " + basePath);
                 endInstallation("Could not find injection file.", true); return;
             }
 
@@ -275,6 +282,7 @@ namespace EnhancedDiscordUI
             if (currentContents != "module.exports = require('./core.asar');")
             {
                 StatusText.Text = "EnhancedDiscord was already injected. Reinjecting...";
+                Logger.Log(StatusText.Text);
             }
             InstallProgress.Value = 30;
 
@@ -287,8 +295,9 @@ namespace EnhancedDiscordUI
             {
                 File.WriteAllText(targetPath, newContents);
             }
-            catch
+            catch (Exception e)
             {
+                Logger.Error("Failed to write to injection file. " + e.Message);
                 endInstallation("Failed to write to injection file.", true); return;
             }
 
@@ -300,8 +309,9 @@ namespace EnhancedDiscordUI
                     startDetached(path, null);
                     endInstallation("Successfully reinjected.", false);
                 }
-                catch
+                catch (Exception e)
                 {
+                    Logger.Error("Failed to restart Discord; do this manually. " + e.Message);
                     endInstallation("Failed to restart Discord; do this manually.", false);
                 }
                 return;
@@ -309,25 +319,30 @@ namespace EnhancedDiscordUI
 
             InstallProgress.Value = 40;
             StatusText.Text = "Successfully injected. Downloading ED...";
+            Logger.Log(StatusText.Text);
 
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
             string zipLink = Properties.Resources.zipLink + branch;
             WebClient wc = new WebClient();
             try
             {
                 await wc.DownloadFileTaskAsync(new Uri(zipLink), "./ED_master.zip");
             }
-            catch
+            catch (Exception e)
             {
+                Logger.Error("Failed to download ED files. " + e.Message);
                 endInstallation("Failed to download ED files.", true); return;
             }
             InstallProgress.Value = 60;
             StatusText.Text = "Successfully downloaded. Extracting...";
+            Logger.Log(StatusText.Text);
 
             if (Directory.Exists("./EnhancedDiscord") || Directory.Exists("./EnhancedDiscord-" + branch))
             {
                 DialogResult confirmResult = MessageBox.Show("ED folder already exists. Overwrite it?", "EnhancedDiscord - Confirm Overwrite", MessageBoxButtons.YesNo);
                 if (confirmResult == DialogResult.No)
                 {
+                    Logger.Error("Not replacing old ED files; restart Discord manually.");
                     endInstallation("Not replacing old ED files; restart Discord manually.", false); return;
                 }
                 try
@@ -341,27 +356,31 @@ namespace EnhancedDiscordUI
                         Directory.Delete("./EnhancedDiscord-" + branch, true);
                     }
                 }
-                catch
+                catch (Exception e)
                 {
                     StatusText.Text = "Error deleting old folders.";
+                    Logger.Error(StatusText.Text + " " + e.Message);
                 }
             }
             try
             {
                 ZipFile.ExtractToDirectory("./ED_master.zip", "./");
             }
-            catch
+            catch (Exception e)
             {
+                Logger.Error("Failed to extract zip file. " + e.Message);
                 endInstallation("Failed to extract zip file.", true); return;
             }
             InstallProgress.Value = 70;
             StatusText.Text = "Finished extracting zip. Cleaning up...";
+            Logger.Log(StatusText.Text);
             try
             {
                 Directory.Move("./EnhancedDiscord-" + branch, "./EnhancedDiscord");
             }
-            catch
+            catch (Exception e)
             {
+                Logger.Error("Failed to rename extracted folder. " + e.Message);
                 endInstallation("Failed to rename extracted folder.", true); return;
             }
 
@@ -380,13 +399,14 @@ namespace EnhancedDiscordUI
                         Directory.Delete(filePath, true);
                     }
                 }
-                catch
+                catch (Exception e)
                 {
-                    // ???
+                    Logger.Error("Error during cleanup. " + e.Message);
                 }
             }
             InstallProgress.Value = 80;
             StatusText.Text = "Finished cleaning up. Creating config.json...";
+            Logger.Log(StatusText.Text);
 
             bool configSuccess = true;
             if (!File.Exists("./EnhancedDiscord/config.json"))
@@ -395,23 +415,28 @@ namespace EnhancedDiscordUI
                 {
                     File.WriteAllText("./EnhancedDiscord/config.json", "{}");
                 }
-                catch
+                catch (Exception e)
                 {
+                    Logger.Error("Failed to write config.json. " + e.Message);
                     configSuccess = false;
                     //StatusText.Text = "Failed to create config.json.";
+
                 }
             }
 
             InstallProgress.Value = 90;
             StatusText.Text = (configSuccess ? File.Exists("./EnhancedDiscord/config.json") ? "Found" : "Created" : "Failed to create") + " config.json. Relaunching Discord...";
+            if (configSuccess) Logger.Log(StatusText.Text);
+            else Logger.Error(StatusText.Text);
             try
             {
                 proc.Kill();
                 startDetached(path, null);
             }
-            catch
+            catch (Exception e)
             {
                 StatusText.Text = "Failed to restart Discord; do this manually.";
+                Logger.Error(StatusText.Text + " " + e.Message);
             }
             InstallProgress.Value = 100;
             endInstallation("Finished cleaning up.", false);
@@ -422,19 +447,22 @@ namespace EnhancedDiscordUI
         {
             StatusText.Text = "Uninstalling...";
             InstallProgress.Value = 30;
+            Logger.Log(StatusText.Text);
 
             string path = proc.MainModule.FileName;
             try
             {
                 File.WriteAllText(targetPath, "module.exports = require('./core.asar');");
             }
-            catch
+            catch (Exception e)
             {
+                Logger.Error("Failed to write to injection file. " + e.Message);
                 endInstallation("Failed to write to injection file.", true); return;
             }
 
             StatusText.Text = "Successfully uninjected. Deleting old files...";
             InstallProgress.Value = 60;
+            Logger.Log(StatusText.Text);
 
             if (Directory.Exists("./EnhancedDiscord"))
             {
@@ -443,14 +471,16 @@ namespace EnhancedDiscordUI
                 {
                     bool success = true;
                     StatusText.Text = "Killing Discord process...";
+                    Logger.Log(StatusText.Text);
                     try
                     {
                         proc.Kill();
                     }
-                    catch
+                    catch (Exception e)
                     {
                         success = false;
                         StatusText.Text = "Failed to kill Discord process. Aborted deletion of ED directory.";
+                        Logger.Error(StatusText.Text + " " + e.Message);
                     }
                     if (success)
                     {
@@ -459,16 +489,18 @@ namespace EnhancedDiscordUI
                             Directory.Delete("./EnhancedDiscord", true);
                             Directory.Delete("./EnhancedDiscord", false);
                         }
-                        catch
+                        catch (Exception e)
                         {
                             StatusText.Text = "Failed to delete EnhancedDiscord directory.";
+                            Logger.Error(StatusText.Text + " " + e.Message);
                         }
                         try
                         {
                             startDetached(path, null);
                         }
-                        catch
+                        catch (Exception e)
                         {
+                            Logger.Error("Uninjected successfully. Failed to restart Discord; do this manually. " + e.Message);
                             endInstallation("Uninjected successfully. Failed to restart Discord; do this manually.", false); return;
                         }
                     }
@@ -480,8 +512,9 @@ namespace EnhancedDiscordUI
                         proc.Kill();
                         startDetached(path, null);
                     }
-                    catch
+                    catch (Exception e)
                     {
+                        Logger.Error("Uninjected successfully. Failed to restart Discord; do this manually. " + e.Message);
                         endInstallation("Uninjected successfully. Failed to restart Discord; do this manually.", false); return;
                     }
                 }
@@ -493,11 +526,13 @@ namespace EnhancedDiscordUI
                     proc.Kill();
                     startDetached(path, null);
                 }
-                catch
+                catch (Exception e)
                 {
+                    Logger.Error("Uninjected successfully. Failed to restart Discord; do this manually. " + e.Message);
                     endInstallation("Uninjected successfully. Failed to restart Discord; do this manually.", false); return;
                 }
             }
+            Logger.Log("Uninjected and cleaned up successfully.");
             endInstallation("Uninjected and cleaned up successfully.", false); return;
         }
 
@@ -564,40 +599,45 @@ namespace EnhancedDiscordUI
                 {
                     Directory.Delete(tempPath, true);
                 }
-                catch
+                catch (Exception e)
                 {
                     StatusText.Text = "Error deleting temp folders.";
+                    Logger.Log(StatusText.Text + " " + e.Message);
                 }
             }
             Directory.CreateDirectory(tempPath);
 
             StatusText.Text = "Downloading package...";
+            Logger.Log(StatusText.Text);
             string zipPath = Path.Combine(tempPath, "EnhancedDiscord.zip");
             string zipLink = Properties.Resources.zipLink + branch;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
             WebClient wc = new WebClient();
             try
             {
                 await wc.DownloadFileTaskAsync(new Uri(zipLink), zipPath);
             }
-            catch (Exception err)
+            catch (Exception e)
             {
-                Debug.Write(err);
+                Logger.Error("Failed to download ED files. " + e.Message);
                 endInstallation("Failed to download ED files.", true); return;
             }
             InstallProgress.Value = 40;
             StatusText.Text = "Successfully downloaded. Extracting...";
+            Logger.Log(StatusText.Text);
 
             try
             {
                 ZipFile.ExtractToDirectory(zipPath, tempPath);
             }
-            catch (Exception err)
+            catch (Exception e)
             {
-                Debug.Write(err);
+                Logger.Error("Failed to extract zip file. " + e.Message);
                 endInstallation("Failed to extract zip file.", true); return;
             }
             InstallProgress.Value = 50;
             StatusText.Text = "Finished extracting zip. Checking core...";
+            Logger.Log(StatusText.Text);
 
             string extractedPath = Path.Combine(tempPath, "EnhancedDiscord-" + branch);
             string enhancedPath = "./EnhancedDiscord";
@@ -608,8 +648,9 @@ namespace EnhancedDiscordUI
                 {
                     File.WriteAllText(Path.Combine(enhancedPath, "config.json"), "{}");
                 }
-                catch
+                catch (Exception e)
                 {
+                    Logger.Error("Failed to write config.json. " + e.Message);
                 }
             }
 
@@ -627,14 +668,15 @@ namespace EnhancedDiscordUI
                     if (fileExists && !filesEqual) File.Delete(equiv);
                     if (!fileExists || !filesEqual) File.Copy(file, equiv);
                 }
-                catch (Exception err)
+                catch (Exception e)
                 {
-                    Debug.Write(err);
                     StatusText.Text = "Could not update plugin: " + filename;
+                    Logger.Log(StatusText.Text + " " + e.Message);
                 }
             }
             InstallProgress.Value = 70;
             StatusText.Text = "Core finished. Checking plugins...";
+            Logger.Log(StatusText.Text);
 
             string pluginPath = Path.Combine(enhancedPath, "plugins");
             if (!Directory.Exists(pluginPath)) Directory.CreateDirectory(pluginPath);
@@ -651,23 +693,25 @@ namespace EnhancedDiscordUI
                     if (fileExists && !filesEqual) File.Delete(equiv);
                     if (!fileExists || !filesEqual) File.Copy(file, equiv);
                 }
-                catch (Exception err)
+                catch (Exception e)
                 {
-                    Debug.Write(err);
                     StatusText.Text = "Could not update plugin: " + filename;
+                    Logger.Log(StatusText.Text + " " + e.Message);
                 }
             }
 
             StatusText.Text = "Cleaning up...";
+            Logger.Log(StatusText.Text);
             if (Directory.Exists(tempPath))
             {
                 try
                 {
                     Directory.Delete(tempPath, true);
                 }
-                catch
+                catch (Exception e)
                 {
                     StatusText.Text = "Error deleting temp folders.";
+                    Logger.Log(StatusText.Text + " " + e.Message);
                 }
             }
             InstallProgress.Value = 90;
