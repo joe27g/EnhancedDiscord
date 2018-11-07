@@ -232,7 +232,8 @@ window.EDApi = window.BdApi = class EDApi {
 
     static getPlugin(name) {
         const plugin = Object.values(window.ED.plugins).find(p => p.name == name);
-        return plugin || null;
+        if (!plugin) return null;
+        return plugin.bdplugin ? plugin.bdplugin : plugin;
     }
 
     static alert(title, body) {
