@@ -19,7 +19,7 @@ namespace EnhancedDiscordUI.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -161,14 +161,17 @@ namespace EnhancedDiscordUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to const electron = require(&apos;electron&apos;);
+        ///   Looks up a localized string similar to const { BrowserWindow, session } = require(&apos;electron&apos;);
         ///const path = require(&apos;path&apos;);
         ///
-        ///electron.session.defaultSession.webRequest.onHeadersReceived(function(details, callback) {
+        ///session.defaultSession.webRequest.onHeadersReceived(function(details, callback) {
+        ///
         ///    if (!details.responseHeaders[&quot;content-security-policy-report-only&quot;] &amp;&amp; !details.responseHeaders[&quot;content-security-policy&quot;]) return callback({cancel: false});
         ///    delete details.responseHeaders[&quot;content-security-policy-report-only&quot;];
+        ///
         ///    delete details.responseHeaders[&quot;content-security-policy&quot;];
-        ///    callback({cancel: false, responseHeaders: [rest of string was truncated]&quot;;.
+        ///
+        ///    callback({cancel: false, responseHea [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string injection {
             get {
