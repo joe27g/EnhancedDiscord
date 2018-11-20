@@ -17,7 +17,9 @@
  process.env.injDir = '<path>';
  ```
  where `<path>` is the location of the ED folder.
-
+ 
+ Make sure to escape paths, for example `C:\Users\<Username>\Documents\EnhancedDiscord\EnhancedDiscord` should be `C:\\Users\\<Username>\\Documents\\EnhancedDiscord\\EnhancedDiscord`
+ 
  5. Between the line you just added and the original contents, add the following:
  ```js
 const { BrowserWindow, session } = require('electron');
