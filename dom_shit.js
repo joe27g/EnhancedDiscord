@@ -156,7 +156,7 @@ process.once("loaded", async () => {
         return true;
     };
 
-    while (!window.findModule('sendTyping', true) || !window.findModule('track', true))
+    while (!window.findModule('sendTyping', true) || !window.findModule('track', true) || !window.findModule('hideToken', true))
         await c.sleep(1000); // wait until essential modules are loaded
 
     if (window.ED.config.silentTyping)
@@ -167,6 +167,8 @@ process.once("loaded", async () => {
 	
     while (Object.keys(window.req.c).length < 5000)
         await c.sleep(1000); // wait until most modules are loaded for plugins
+    
+    window.monkeyPatch(window.findModule('hideToken'), 'hideToken', () => {});
 	
 	    //load and validate plugins
     let pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));
