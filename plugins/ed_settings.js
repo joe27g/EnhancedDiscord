@@ -117,7 +117,13 @@ module.exports = new Plugin({
                     this.className = this.className.replace(tabsM.itemDefault, tabsM.itemSelected);
 
                     if (settingsPane) {
-                        settingsPane.innerHTML = `<h2 class="${contentM.h2} ${contentM.defaultColor}">EnhancedDiscord Plugins</h2><div class="${div} ${contentM.marginBottom20}"></div>`;
+                        // ED Header
+                        settingsPane.innerHTML = `<h2 class="${contentM.h2} ${contentM.defaultColor} ${contentM.marginBottom8}">EnhancedDiscord Plugins</h2>`;
+                        // Open Plugins Folder Button
+                        settingsPane.innerHTML += `<button id="ed-openPluginsFolder" class="${buttM.button} ${buttM.lookFilled} ${buttM.colorGreen} ${buttM.sizeSmall} ${buttM.grow}"><div class="${buttM.contents}">Open Plugins Directory</div></button>`;
+                        // Divider
+                        settingsPane.innerHTML += `<div class="${div} ${contentM.marginBottom20}"></div>`
+                        
                         for (let id in window.ED.plugins) {
                             //if (id == 'ed_settings') continue;
 
@@ -127,6 +133,11 @@ module.exports = new Plugin({
                                 if (cb && cb.className)
                                     cb.className = cb.className.replace(cbM.valueUnchecked, cbM.valueChecked);
                             }
+                        }
+
+                        document.getElementById("ed-openPluginsFolder").onclick = function () {
+                            const s = require("electron").shell.openItem(require("path").join(process.env.injDir, "plugins"))
+                            if (s === false) console.error("[EnhancedDiscord] Unable to open external folder.")
                         }
                     }
                     e.stopPropagation(); // prevent from going to parent click handler
