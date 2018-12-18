@@ -7,9 +7,6 @@ module.exports = new Plugin({
     color: 'indigo',
 
     load: async function() {
-        while (!window.findModule('getGuilds', true) || !window.findModule('friendsOnline', true))
-            await this.sleep(1000);
-
         const friendsClass = window.findModule('friendsOnline', true).friendsOnline;
         window.monkeyPatch(window.findModule('getGuilds'), 'getGuilds', function(b) {
             let og = b.callOriginalMethod(b.methodArguments);
