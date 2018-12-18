@@ -12,9 +12,6 @@ module.exports = new Plugin({
         if (!window.ED._hiddenChans)
             window.ED._hiddenChans = [];
 
-        while (!findModule('getChannels', true) || !findModule('computePermissions', true) || !findModule('getCurrentUser', true) || !findModule('getGuilds', true) || !findModule('hasUnread', true))
-            await this.sleep(1000);
-
         let gcu = findModule('getCurrentUser').getCurrentUser, gc = findModule('getChannels').getChannels, gg = findModule('getGuilds').getGuilds;
 
         function disButt() { // disable perm buttons cause u can't use them :P

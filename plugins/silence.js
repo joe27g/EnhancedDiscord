@@ -7,20 +7,14 @@ module.exports = new Plugin({
     color: '#7289da',
 
     load: async function() {
+        const gg = findModules('getChannelId')[2], bs = findModule('Messages').Messages;
 
-        while (!findModule('sendBotMessage', true) || !findModule('Messages', true) || !findModule('getCurrentUser', true))
-            await this.sleep(1000);
-
-        let me = findModule('getCurrentUser').getCurrentUser();
-        if (me && me.premium) return; //user has nitro
-
-        let bs = findModule('Messages').Messages;
-
-        window.monkeyPatch(findModule('sendBotMessage'), 'sendBotMessage', function () {
-            let message = arguments[0].methodArguments[1];
+        window.monkeyPatch(findModule('sendBotMessage'), 'sendBotMessage', function (b) {
+            if (gg.getGuildId() !== null) return; // don't send Clyde messages when looking at a server
+            const message = b.methodArguments[1];
             if (message == bs.INVALID_ANIMATED_EMOJI_BODY_UPGRADE || message == bs.INVALID_ANIMATED_EMOJI_BODY || message == bs.INVALID_EXTERNAL_EMOJI_BODY_UPGRADE || message == bs.INVALID_EXTERNAL_EMOJI_BODY) return;
-            return arguments[0].callOriginalMethod(arguments[0].methodArguments);
-        })
+            return b.callOriginalMethod(b.methodArguments);
+        });
     },
     unload: function() {
         window.findModule('sendBotMessage').sendBotMessage.unpatch();

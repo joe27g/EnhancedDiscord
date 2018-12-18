@@ -33,7 +33,7 @@ let c = {
     }
 }
 // config util
-window.ED = {plugins: {}};
+window.ED = { plugins: {}, version: '2.2.0' };
 Object.defineProperty(window.ED, 'config', {
     get: function() {
         return require('./config.json') || {};
@@ -63,25 +63,14 @@ function loadPlugin(plugin) {
     }
 }
 
+window.ED.localStorage = window.localStorage;
+
 process.once("loaded", async () => {
+    c.log(`Loading v${window.ED.version}...`);
 	while (typeof window.webpackJsonp === 'undefined')
 		await c.sleep(1000); // wait until this is loaded in order to use it for modules
 
-	c.log('Loading v2.1.0...');
-
-    let x = setInterval(() => {
-        if (window._ws) {
-            window.ED.webSocket = window._ws;
-            clearInterval(x);
-        }
-    }, 100);
-
-    let y = setInterval(() => {
-        if (window.localStorage) {
-            window.ED.localStorage = window.localStorage;
-            clearInterval(y);
-        }
-    }, 100);
+    window.ED.webSocket = window._ws;
 
 	/* Add helper functions that make plugins easy to create */
 	window.req = webpackJsonp.push([[], {
@@ -164,10 +153,10 @@ process.once("loaded", async () => {
 
     if (window.ED.config.antiTrack !== false)
         window.monkeyPatch(window.findModule('track'), 'track', () => {});
-	
+
     while (Object.keys(window.req.c).length < 5000)
         await c.sleep(1000); // wait until most modules are loaded for plugins
-	
+
 	    //load and validate plugins
     let pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));
     let plugins = {};
@@ -185,7 +174,7 @@ process.once("loaded", async () => {
             c.warn(`Failed to load ${pluginFiles[i]}: ${err}\n${err.stack}`, p);
         }
     }
-	
+
     for (let id in plugins) {
         if (!plugins[id] || !plugins[id].name || typeof plugins[id].load !== 'function') {
             c.info(`Skipping invalid plugin: ${id}`); plugins[id] = null; continue;
@@ -194,6 +183,19 @@ process.once("loaded", async () => {
         if (window.ED.config[id] && window.ED.config[id].enabled == false) continue;
         loadPlugin(plugins[id]);
 	}
-	
+
 	window.ED.plugins = plugins;
+
+    const ht = window.findModule('hideToken'), cw = findModule('consoleWarning');
+    // prevent client from removing token from localstorage when dev tools is opened, or reverting your token if you change it
+    monkeyPatch(ht, 'hideToken', () => {});
+    monkeyPatch(ht, 'showToken', () => {});
+    // change the console warning to be more fun
+    monkeyPatch(cw, 'consoleWarning', () => {
+        console.log("%cHold Up!", "color: #7289DA; -webkit-text-stroke: 2px black; font-size: 72px; font-weight: bold;");
+        console.log("%cIf you're reading this, you're probably smarter than most Discord developers.", "font-size: 16px;");
+        console.log("%cPasting anything in here could actually improve the Discord client.", "font-size: 18px; font-weight: bold; color: red;");
+        console.log("%cUnless you understand exactly what you're doing, keep this window open to browse our bad code.", "font-size: 16px;");
+        console.log("%cIf you don't understand exactly what you're doing, you should come work with us: https://discordapp.com/jobs", "font-size: 16px;");
+    });
 })

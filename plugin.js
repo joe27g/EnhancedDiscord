@@ -22,6 +22,15 @@ class Plugin {
 
     unload () {}
 
+    reload () {
+        this.unload();
+        delete require.cache[require.resolve(`./plugins/${this.id}`)];
+        let newPlugin = require(`./${this.id}`);
+        window.ED.plugins[this.id] = newPlugin;
+        newPlugin.id = this.id;
+        this.load();
+    }
+
     /**
      * Send a decorated console.log prefixed with ED and your plugin name
      * @param {...string} msg - Message to be logged
