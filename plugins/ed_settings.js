@@ -33,21 +33,6 @@ module.exports = new Plugin({
     load: async function() {
         let parentThis = this; //Allow use of parent methods in sub functions
 
-        while (!findModule('getUserSettingsSections', true) || !findModule('UserSettingsSections', true))
-            await this.sleep(1000);
-
-        /*let constr = findModule('getUserSettingsSections').getUserSettingsSections()[0].element.prototype.constructor;
-
-        monkeyPatch(findModule('getUserSettingsSections'), 'getUserSettingsSections', function () {
-            let currentSections = arguments[0].callOriginalMethod(arguments[0].methodArguments);
-            currentSections.push({section: "ENHANCED_DISCORD", label: "EnhancedDiscord", color: '#0000bb'});
-            return currentSections;
-        });
-
-        findModule('UserSettingsSections').UserSettingsSections.ENHANCED_DISCORD = 'ENHANCED_DISCORD';*/
-
-        // get proper this object to call with
-        //let count = 0;
         if (!window.ED.classMaps) {
             window.ED.classMaps = {};
         }
@@ -60,23 +45,9 @@ module.exports = new Plugin({
         const buttM = ED.classMaps.buttons = findModule('lookFilled');
         const descM = ED.classMaps.description = findModule('formText');
         const concentCol = findModule('contentColumn');
-        
+
         // use this function to trigger the loading of the settings tabs. No MutationObservers this way :)
         monkeyPatch( findModule('getUserSettingsSections').default.prototype, 'render', function() {
-
-            /*console.log('before:', arguments[0].thisObject);
-            if (arguments[0].thisObject.state.section == 'ACCOUNT') {
-                count++;
-                if (count < 2) {
-                    console.log('patching it | count =', count);
-                    arguments[0].thisObject.state.section = 'DEVELOPER_OPTIONS'; //'ENHANCED_DISCORD';
-                } else {
-                    //arguments[0].thisObject.state.section = 'ACCOUNT';
-                }
-            }
-            console.log('after:', arguments[0].thisObject.state);
-            findModule('cloneElement').cloneElement(arguments[0].thisObject);*/
-            //console.log('settings opened - doing tab work');
 
             let tab = document.getElementsByClassName('ed-settings');
             //console.log(tab);
@@ -131,7 +102,13 @@ module.exports = new Plugin({
                     this.className = this.className.replace(tabsM.itemDefault, tabsM.itemSelected);
 
                     if (settingsPane) {
-                        settingsPane.innerHTML = `<h2 class="${contentM.h2} ${contentM.defaultColor}">EnhancedDiscord Plugins</h2><div class="${div} ${contentM.marginBottom20}"></div>`;
+                        // ED Header
+                        settingsPane.innerHTML = `<h2 class="${contentM.h2} ${contentM.defaultColor} ${contentM.marginBottom8}">EnhancedDiscord Plugins</h2>`;
+                        // Open Plugins Folder Button
+                        settingsPane.innerHTML += `<button id="ed-openPluginsFolder" class="${buttM.button} ${buttM.lookFilled} ${buttM.colorGreen} ${buttM.sizeSmall} ${buttM.grow}"><div class="${buttM.contents}">Open Plugins Directory</div></button>`;
+                        // Divider
+                        settingsPane.innerHTML += `<div class="${div} ${contentM.marginBottom20}"></div>`
+
                         for (let id in window.ED.plugins) {
                             //if (id == 'ed_settings') continue;
 
@@ -141,6 +118,11 @@ module.exports = new Plugin({
                                 if (cb && cb.className)
                                     cb.className = cb.className.replace(cbM.valueUnchecked, cbM.valueChecked);
                             }
+                        }
+
+                        document.getElementById("ed-openPluginsFolder").onclick = function () {
+                            const s = require("electron").shell.openItem(require("path").join(process.env.injDir, "plugins"))
+                            if (s === false) console.error("[EnhancedDiscord] Unable to open external folder.")
                         }
                     }
                     e.stopPropagation(); // prevent from going to parent click handler
@@ -219,17 +201,13 @@ module.exports = new Plugin({
                         //console.log(plugin);
                         if (!plugin || !plugin.id || !window.ED.plugins[plugin.id] || plugin.className.indexOf(cbM.valueChecked) == -1) return;
                         button.innerHTML = 'Reloading...';
-                        window.ED.plugins[plugin.id].unload();
                         try {
-                            delete require.cache[require.resolve(`./${plugin.id}`)];
-                            let newPlugin = require(`./${plugin.id}`);
-                            window.ED.plugins[plugin.id] = newPlugin;
+                            window.ED.plugins[plugin.id].reload();
                             button.innerHTML = 'Reloaded!';
                         } catch(err) {
                             console.error(err);
                             button.innerHTML = `Failed to reload (${err.name} - see console.)`;
                         }
-                        window.ED.plugins[plugin.id].load();
                         setTimeout(() => {
                             try { button.innerHTML = 'Reload'; } catch(err){}
                         }, 3000);

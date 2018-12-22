@@ -42,10 +42,7 @@ module.exports = new Plugin({
     color: '#ffe000',
 
     load: async function() {
-        while (!findModule('dispatch', true))
-            await this.sleep(1000);
-
-        let d = findModule('dispatch');
+        const d = findModule('dispatch');
 
         monkeyPatch(d, 'dispatch', function(b) {
             let og = b.callOriginalMethod(b.methodArguments);

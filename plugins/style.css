@@ -19,17 +19,6 @@
     --unread-color: #f00; /* color of unread/selected server indicators. */
 }
 
-/* tags */
-.avatar-large[style*="246107833295175681"]+.comment .username-wrapper:after {
-    content: 'Dumbass'; /* Joe */
-}
-.avatar-large[style*="300800171988484096"]+.comment .username-wrapper:after {
-    content: 'secretly sentient'; /* Bender */
-}
-.avatar-large[style*="300800171988484096"]+.comment .botTag-1OwMgs {
-    display: none;
-}
-
 /* nitrofag badge */
 .profileBadgePremium-3kZ9Qj, .topSectionNormal-2-vo2m .profileBadgePremium-3kZ9Qj,
 .profileBadgePremium-3kZ9Qj, .topSectionPlaying-1J5E4n .profileBadgePremium-3kZ9Qj {
