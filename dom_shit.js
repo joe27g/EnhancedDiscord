@@ -217,19 +217,31 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static injectCSS(id, css) {
-        $("head").append($("<style>", {id: this.escapeID(id), html: css}));
+        const style = document.createElement("style");
+		style.id = this.escapeID(id);
+		style.innerHTML = css;
+		document.head.append(style);
     }
 
     static clearCSS(id) {
-        $("#" + this.escapeID(id)).remove();
+		const element = document.getElementById(this.escapeID(id));
+		if (element) element.remove();
     }
 
     static linkJS(id, url) {
-        $("head").append($("<script>", {id: this.escapeID(id), src: url, type: "text/javascript"}));
+        return new Promise(resolve => {
+			const script = document.createElement("script");
+			script.id = this.escapeID(id);
+			script.src = url;
+			script.type = "text/javascript";
+			script.onload = resolve;
+			document.head.append(script);
+		});
     }
 
     static unlinkJS(id) {
-        $("#" + this.escapeID(id)).remove();
+        const element = document.getElementById(this.escapeID(id));
+		if (element) element.remove();
     }
 
     static getPlugin(name) {
@@ -268,7 +280,7 @@ window.EDApi = window.BdApi = class EDApi {
 
     static getInternalInstance(node) {
         if (!(node instanceof window.jQuery) && !(node instanceof Element)) return undefined;
-        if (node instanceof jQuery) node = node[0];
+        if (node instanceof window.jQuery) node = node[0];
         return node[Object.keys(node).find(k => k.startsWith("__reactInternalInstance"))];
     }
 
