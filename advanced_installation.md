@@ -22,22 +22,19 @@
  
  5. Between the line you just added and the original contents, add the following:
  ```js
-const { BrowserWindow, session } = require('electron');
+const electron = require('electron');
 const path = require('path');
 
-session.defaultSession.webRequest.onHeadersReceived(function(details, callback) {
-
+electron.session.defaultSession.webRequest.onHeadersReceived(function(details, callback) {
     if (!details.responseHeaders["content-security-policy-report-only"] && !details.responseHeaders["content-security-policy"]) return callback({cancel: false});
     delete details.responseHeaders["content-security-policy-report-only"];
-
     delete details.responseHeaders["content-security-policy"];
-
-    callback({cancel: false, responseHeaders: details.responseHeaders})
-;
+    callback({cancel: false, responseHeaders: details.responseHeaders});
 });
 
-class PatchedBrowserWindow extends BrowserWindow {
+class BrowserWindow extends electron.BrowserWindow {
     constructor(originalOptions) {
+		if (!originalOptions || !originalOptions.webPreferences|| !originalOptions.title) return super(originalOptions);
         const options = Object.create(originalOptions);
         options.webPreferences = Object.create(options.webPreferences);
 		
@@ -54,8 +51,11 @@ class PatchedBrowserWindow extends BrowserWindow {
 }
 
 const electron_path = require.resolve('electron');
+Object.assign(BrowserWindow, electron.BrowserWindow); // Assigns the new chrome-specific ones
+const newElectron = Object.assign({}, electron, {BrowserWindow});
+require.cache[electron_path].exports = newElectron;
 const browser_window_path = require.resolve(path.resolve(electron_path, '..', '..', 'browser-window.js'));
-require.cache[browser_window_path].exports = PatchedBrowserWindow;
+require.cache[browser_window_path].exports = BrowserWindow;
 ```
 
 6. Create `config.json` in your ED folder and set its contents to `{}`.
