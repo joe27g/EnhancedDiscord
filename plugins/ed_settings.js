@@ -54,11 +54,11 @@ module.exports = new Plugin({
             if (!tab || tab.length < 1) {
                 let parent = document.querySelector('.' + tabsM.side);
                 if (!parent) {
-                    setTimeout(() => {console.log(arguments[0]); arguments[0].thisObject.forceUpdate();}, 100);
+                    setTimeout(() => {arguments[0].thisObject.forceUpdate();}, 100);
                     return arguments[0].callOriginalMethod(arguments[0].methodArguments);
                 }
                 //let anchor = parent.querySelector(`[class="${tabsM.separator}"]:nth-child(${process.platform == 'win32' ? 20 : 18})`);
-                let anchor = parent.querySelectorAll(`[class="${tabsM.separator}"]`)[3];
+                let anchor = parent.querySelectorAll(`.${tabsM.separator}`)[3];
                 if (!anchor)
                     return arguments[0].callOriginalMethod(arguments[0].methodArguments);
 
@@ -83,7 +83,7 @@ module.exports = new Plugin({
 
                 parent.onclick = function(e) {
                     if (!e.target.className || e.target.className.indexOf(tabsM.itemDefault) == -1) return;
-                    console.log(e.target);
+                    //console.log(e.target);
 
                     for (let i in tab) {
                         tab[i].className = (tab[i].className || '')
