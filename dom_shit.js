@@ -156,12 +156,16 @@ process.once("loaded", async () => {
 
     while (Object.keys(window.req.c).length < 5000)
         await c.sleep(1000); // wait until most modules are loaded for plugins
+    
+    if (window.ED.config.bdPlugins)
+        await require('./bd_shit').setup(currentWindow);
 
-	    //load and validate plugins
+	//load and validate plugins
     let pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));
     let plugins = {};
     for (let i in pluginFiles) {
         if (!pluginFiles[i].endsWith('.js')) continue;
+        if (!window.ED.config.bdPlugins && pluginFiles[i].endsWith(".plugin.js")) continue;
         let p, pName = pluginFiles[i].replace(/\.js$/, '');
         try {
             p = require(path.join(process.env.injDir, 'plugins', pName));
@@ -199,3 +203,203 @@ process.once("loaded", async () => {
         console.log("%cIf you don't understand exactly what you're doing, you should come work with us: https://discordapp.com/jobs", "font-size: 16px;");
     });
 })
+
+
+
+/* BD/ED joint api */
+window.EDApi = window.BdApi = class EDApi {
+    static get React() { return this.findModuleByProps('createElement'); }
+    static get ReactDOM() { return this.findModuleByProps('findDOMNode'); }
+
+    static escapeID(id) {
+        return id.replace(/^[^a-z]+|[^\w-]+/gi, "");
+    }
+
+    static injectCSS(id, css) {
+        const style = document.createElement("style");
+		style.id = this.escapeID(id);
+		style.innerHTML = css;
+		document.head.append(style);
+    }
+
+    static clearCSS(id) {
+		const element = document.getElementById(this.escapeID(id));
+		if (element) element.remove();
+    }
+
+    static linkJS(id, url) {
+        return new Promise(resolve => {
+			const script = document.createElement("script");
+			script.id = this.escapeID(id);
+			script.src = url;
+			script.type = "text/javascript";
+			script.onload = resolve;
+			document.head.append(script);
+		});
+    }
+
+    static unlinkJS(id) {
+        const element = document.getElementById(this.escapeID(id));
+		if (element) element.remove();
+    }
+
+    static getPlugin(name) {
+        const plugin = Object.values(window.ED.plugins).find(p => p.name == name);
+        if (!plugin) return null;
+        return plugin.bdplugin ? plugin.bdplugin : plugin;
+    }
+
+    static alert(title, body) {
+        const ModalStack = EDApi.findModuleByProps("push", "update", "pop", "popWithKey");
+        const AlertModal = EDApi.findModule(m => m.prototype && m.prototype.handleCancel && m.prototype.handleSubmit && m.prototype.handleMinorConfirm);
+        if (!ModalStack || !AlertModal) return window.alert(body);
+        ModalStack.push(function(props) {
+            return EDApi.React.createElement(AlertModal, Object.assign({title, body}, props));
+        });
+    }
+
+    static loadData(pluginName, key) {
+        if (!window.ED.config[pluginName]) window.ED.config[pluginName] = {};
+        return window.ED.config[pluginName][key];
+    }
+
+    static saveData(pluginName, key, data) {
+        if (!window.ED.config[pluginName]) window.ED.config[pluginName] = {};
+        window.ED.config[pluginName][key] = data;
+        window.ED.config = window.ED.config;
+    }
+
+    static getData(pluginName, key) {
+        return EDApi.loadData(pluginName, key);
+    }
+
+    static setData(pluginName, key, data) {
+        EDApi.saveData(pluginName, key, data);
+    }
+
+    static getInternalInstance(node) {
+        if (!(node instanceof window.jQuery) && !(node instanceof Element)) return undefined;
+        if (node instanceof window.jQuery) node = node[0];
+        return node[Object.keys(node).find(k => k.startsWith("__reactInternalInstance"))];
+    }
+
+    static showToast(content, options = {}) {
+        if (!document.querySelector(".toasts")) {
+            let toastWrapper = document.createElement("div");
+            toastWrapper.classList.add("toasts");
+            let boundingElement = document.querySelector(".chat-3bRxxu form, #friends, .noChannel-Z1DQK7, .activityFeed-28jde9");
+            toastWrapper.style.setProperty("left", boundingElement ? boundingElement.getBoundingClientRect().left + "px" : "0px");
+            toastWrapper.style.setProperty("width", boundingElement ? boundingElement.offsetWidth + "px" : "100%");
+            toastWrapper.style.setProperty("bottom", (document.querySelector(".chat-3bRxxu form") ? document.querySelector(".chat-3bRxxu form").offsetHeight : 80) + "px");
+            document.querySelector(".app").appendChild(toastWrapper);
+        }
+        const {type = "", icon = true, timeout = 3000} = options;
+        let toastElem = document.createElement("div");
+        toastElem.classList.add("toast");
+        if (type) toastElem.classList.add("toast-" + type);
+        if (type && icon) toastElem.classList.add("icon");
+        toastElem.innerText = content;
+        document.querySelector(".toasts").appendChild(toastElem);
+        setTimeout(() => {
+            toastElem.classList.add("closing");
+            setTimeout(() => {
+                toastElem.remove();
+                if (!document.querySelectorAll(".toasts .toast").length) document.querySelector(".toasts").remove();
+            }, 300);
+        }, timeout);
+    }
+
+    static findModule(filter, silent = true) {
+        for (let i in req.c) {
+            if (req.c.hasOwnProperty(i)) {
+                let m = req.c[i].exports;
+                if (m && m.__esModule && m.default && filter(m.default)) return m.default;
+                if (m && filter(m))	return m;
+            }
+        }
+        if (!silent) c.warn(`Could not find module ${module}.`, {name: 'Modules', color: 'black'})
+        return null;
+    }
+
+    static findAllModules(filter) {
+        const modules = [];
+        for (let i in req.c) {
+            if (req.c.hasOwnProperty(i)) {
+                let m = req.c[i].exports;
+                if (m && m.__esModule && m.default && filter(m.default)) modules.push(m.default);
+                else if (m && filter(m)) modules.push(m);
+            }
+        }
+        return modules;
+    }
+
+    static findModuleByProps(...props) {
+        return EDApi.findModule(module => props.every(prop => module[prop] !== undefined));
+    }
+
+    static findModuleByDisplayName(name) {
+        return EDApi.findModule(module => module.displayName === name);
+    }
+    
+    static monkeyPatch(what, methodName, options) {
+        const {before, after, instead, once = false, silent = false, force = false} = options;
+        const displayName = options.displayName || what.displayName || what.name || what.constructor.displayName || what.constructor.name;
+        if (!silent) console.log("patch", methodName, "of", displayName); // eslint-disable-line no-console
+        if (!what[methodName]) {
+            if (force) what[methodName] = function() {};
+            else return console.error(methodName, "does not exist for", displayName); // eslint-disable-line no-console
+        }
+        const origMethod = what[methodName];
+        const cancel = () => {
+            if (!silent) console.log("unpatch", methodName, "of", displayName); // eslint-disable-line no-console
+            what[methodName] = origMethod;
+        };
+        what[methodName] = function() {
+            const data = {
+                thisObject: this,
+                methodArguments: arguments,
+                cancelPatch: cancel,
+                originalMethod: origMethod,
+                callOriginalMethod: () => data.returnValue = data.originalMethod.apply(data.thisObject, data.methodArguments)
+            };
+            if (instead) {
+                const tempRet = EDApi.suppressErrors(instead, "`instead` callback of " + what[methodName].displayName)(data);
+                if (tempRet !== undefined) data.returnValue = tempRet;
+            }
+            else {
+                if (before) EDApi.suppressErrors(before, "`before` callback of " + what[methodName].displayName)(data);
+                data.callOriginalMethod();
+                if (after) EDApi.suppressErrors(after, "`after` callback of " + what[methodName].displayName)(data);
+            }
+            if (once) cancel();
+            return data.returnValue;
+        };
+        what[methodName].__monkeyPatched = true;
+        what[methodName].displayName = "patched " + (what[methodName].displayName || methodName);
+        return cancel;
+    }
+
+    static testJSON(data) {
+        try {
+            JSON.parse(data);
+            return true;
+        }
+        catch (err) {
+            return false;
+        }
+    }
+
+    static suppressErrors(method, description) {
+        return (...params) => {
+            try { return method(...params);	}
+            catch (e) { console.error("Error occurred in " + description, e); }
+        };
+    }
+
+    static formatString(string, values) {
+        for (let val in values) {
+            string = string.replace(new RegExp(`\\{\\{${val}\\}\\}`, 'g'), values[val]);
+        }
+        return string;
+    };
+};

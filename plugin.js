@@ -25,7 +25,7 @@ class Plugin {
     reload () {
         this.unload();
         delete require.cache[require.resolve(`./plugins/${this.id}`)];
-        let newPlugin = require(`./${this.id}`);
+        const newPlugin = require(`./plugins/${this.id}`);
         window.ED.plugins[this.id] = newPlugin;
         newPlugin.id = this.id;
         this.load();
