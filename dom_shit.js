@@ -1,7 +1,6 @@
 const path = window.require('path');
 const fs = window.require('fs');
 const electron = window.require('electron');
-const BDManager = require('./bd_shit');
 const currentWindow = electron.remote.getCurrentWindow();
 if (currentWindow.__preload) require(currentWindow.__preload);
 
@@ -159,7 +158,7 @@ process.once("loaded", async () => {
         await c.sleep(1000); // wait until most modules are loaded for plugins
     
     if (window.ED.config.bdPlugins)
-        await BDManager.setup(currentWindow);
+        await require('./bd_shit').setup(currentWindow);
 
 	//load and validate plugins
     let pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));

@@ -1,5 +1,4 @@
 const Plugin = require('../plugin');
-const BDManager = require('../bd_shit');
 
 function makePluginToggle(opts = {}) {
     const a = window.ED.classMaps.alignment;
@@ -194,7 +193,7 @@ module.exports = new Plugin({
                     if (e.target.className && (parent.className.indexOf('ed-plugin-settings') > -1 || e.target.className.indexOf('ed-plugin-settings') > -1)) {
                         let box = e.target.className === buttM.contents ? parent.nextElementSibling.nextElementSibling : e.target.nextElementSibling.nextElementSibling;
                         if (!box || !box.id || !window.ED.plugins[box.id] || box.className.indexOf(cbM.valueChecked) == -1 || !window.ED.config.bdPlugins) return;
-                        return BDManager.showSettingsModal(window.ED.plugins[box.id]);
+                        return require('../bd_shit').showSettingsModal(window.ED.plugins[box.id]);
                     }
 
                     if (e.target.className && (parent.className.indexOf('ed-plugin-reload') > -1 || e.target.className.indexOf('ed-plugin-reload') > -1)) {
