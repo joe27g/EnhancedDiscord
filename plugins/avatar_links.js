@@ -49,8 +49,11 @@ module.exports = new Plugin({
             if (b.methodArguments[0] && b.methodArguments[0].type == 'CONTEXT_MENU_OPEN') {
                 let elem = b.methodArguments[0].contextMenu.target;
                 //console.log(elem);
-                if (elem && elem.tagName == 'STRONG' && elem.parentElement.className && elem.parentElement.className == 'activityText-258pdj') {
+                if (elem && elem.tagName == 'STRONG' && elem.parentElement.className && elem.parentElement.className == 'activityText-OW8WYb') {
                     elem.className = 'strongTempClass';
+                }
+                if (elem && elem.tagName == 'STRONG' && elem.parentElement.className && elem.parentElement.className == 'activityText-sLG0UL') {
+                    elem.className = 'strongTempClass2';
                 }
                 else if (elem && elem.tagName == 'path' && elem.parentElement.parentElement.getAttribute("class") && elem.parentElement.parentElement.getAttribute("class").indexOf('ownerIcon-uZ6mE7') > -1){
                     elem.setAttribute('class', 'pathTempClass');
@@ -62,22 +65,24 @@ module.exports = new Plugin({
                 let cn = elem ? elem.getAttribute("class") : null;
                 if (!elem || !cn || typeof cn !== 'string') return og;
 
-                let isGuild = (elem.tagName == 'DIV' && cn.indexOf('guild-icon') > -1);
+                let isGuild = (elem.tagName == 'DIV' && cn.indexOf('guildIcon-CT-ZDq') > -1);
 
                 let imageElem;
-                if (cn.indexOf('avatar-large') > -1 || cn.indexOf('image-33JSyf') > -1 || isGuild || cn.startsWith('avatar-small')) {
+                if (cn.indexOf('large-3ChYtB') > -1 || cn.indexOf('image-33JSyf') > -1 || isGuild || cn.startsWith('inner-1W0Bkn')) {
                     imageElem = elem;
-                } else if (cn.indexOf('avatar-16XVId') > -1 || cn == 'dmTempClass') {
-                    imageElem = elem.firstElementChild;
-                } else if (cn.indexOf('status-oxiHuE') > -1 || cn == 'channel-name') {
+                } else if (cn.indexOf('status-oxiHuE') > -1) {
                     imageElem = elem.previousElementSibling;
-                } else if (elem.tagName == 'BUTTON' && cn == 'close') {
-                    imageElem = elem.parentElement.firstElementChild;
-                } else if (cn == 'avatarWrapper-3B0ndJ') {
+                } else if (cn.indexOf('avatar-16XVId') > -1 || cn.indexOf('small-5Os1Bb') > -1 || cn == 'dmTempClass') {
+                    imageElem = elem.firstElementChild;
+                } else if ((cn == 'name-2WpE7M' && elem.parentElement.className !== 'nameWrapper-10v56U') || cn == 'headerCozyMeta-rdohGq') {
+                    imageElem = elem.previousElementSibling.firstElementChild;
+                } else if ((elem.tagName == 'BUTTON' && cn == 'close-3hZ5Ni') || cn == 'nameWithActivity-1ceSyU' || cn.indexOf('activity-525YDR') > -1 || (cn == 'name-2WpE7M' && elem.parentElement.className == 'nameWrapper-10v56U')) {
+                    imageElem = elem.parentElement.previousElementSibling.firstElementChild;
+                } else if (cn == 'avatarWrapper-3B0ndJ' || cn == 'headerCozy-2N9HOL' || cn == 'guildInner-3DSoA4') {
                     imageElem = elem.firstElementChild.firstElementChild;
-                } else if (cn == 'content-OzHfo4') {
+                } else if (cn == 'content-OzHfo4' || cn.indexOf('channel-2QD9_O') > -1) {
                     imageElem = elem.firstElementChild.firstElementChild.firstElementChild;
-                } else if (cn.indexOf('member-3W1lQa') > -1) {
+                } else if (cn.indexOf('member-3W1lQa') > -1 || cn == 'guild-1EfMGQ') {
                     imageElem = elem.firstElementChild.firstElementChild.firstElementChild.firstElementChild;
                 } else if (cn == 'memberInner-2CPc3V') {
                     imageElem = elem.parentElement.firstElementChild.firstElementChild.firstElementChild;
@@ -87,14 +92,14 @@ module.exports = new Plugin({
                     imageElem = elem.parentElement.parentElement.parentElement.firstElementChild.firstElementChild.firstElementChild;
                 } else if (cn == 'pathTempClass') {
                     imageElem = elem.parentElement.parentElement.parentElement.parentElement.parentElement.firstElementChild.firstElementChild.firstElementChild;
-                } else if (cn == 'activityText-sLG0UL') {
-                    imageElem = elem.parentElement.parentElement.parentElement.parentElement.firstElementChild.firstElementChild.firstElementChild.firstElementChild;
-                } else if (cn == 'username-wrapper') {
-                    imageElem = elem.parentElement.parentElement.parentElement.parentElement.parentElement.firstElementChild;
-                } else if (cn == 'user-name') {
-                    imageElem = elem.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.firstElementChild;
+                } else if (cn == 'activityText-OW8WYb' || cn == 'username-_4ZSMR' || cn == 'activityIcon-1mtTk4') {
+                    imageElem = elem.parentElement.parentElement.previousElementSibling.firstElementChild;
                 } else if (cn == 'strongTempClass') {
-                    imageElem = elem.parentElement.parentElement.parentElement.parentElement.parentElement.firstElementChild.firstElementChild.firstElementChild.firstElementChild;
+                    imageElem = elem.parentElement.parentElement.parentElement.previousElementSibling.firstElementChild;
+                } else if (cn == 'activityText-sLG0UL' || cn == 'activityIcon-S3CciC' || cn.indexOf('botTagRegular-2HEhHi') > -1) {
+                    imageElem = elem.parentElement.parentElement.previousElementSibling.firstElementChild.firstElementChild;
+                } else if (cn == 'strongTempClass2') {
+                    imageElem = elem.parentElement.parentElement.parentElement.previousElementSibling.firstElementChild.firstElementChild;
                 }
                 //console.log(imageElem);
                 if (!imageElem || !imageElem.style || !imageElem.style['background-image']) return og;
