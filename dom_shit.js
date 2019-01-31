@@ -33,7 +33,7 @@ let c = {
     }
 }
 // config util
-window.ED = { plugins: {}, version: '2.3.0' };
+window.ED = { plugins: {}, version: '2.3.1' };
 Object.defineProperty(window.ED, 'config', {
     get: function() {
         return require('./config.json') || {};
