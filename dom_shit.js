@@ -291,7 +291,7 @@ window.EDApi = window.BdApi = class EDApi {
             toastWrapper.style.setProperty("left", boundingElement ? boundingElement.getBoundingClientRect().left + "px" : "0px");
             toastWrapper.style.setProperty("width", boundingElement ? boundingElement.offsetWidth + "px" : "100%");
             toastWrapper.style.setProperty("bottom", (document.querySelector(".chat-3bRxxu form") ? document.querySelector(".chat-3bRxxu form").offsetHeight : 80) + "px");
-            document.querySelector(".app").appendChild(toastWrapper);
+            document.querySelector("." + findModule('app').app).appendChild(toastWrapper);
         }
         const {type = "", icon = true, timeout = 3000} = options;
         let toastElem = document.createElement("div");
