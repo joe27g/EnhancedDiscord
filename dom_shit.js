@@ -4,6 +4,9 @@ const electron = window.require('electron');
 const currentWindow = electron.remote.getCurrentWindow();
 if (currentWindow.__preload) require(currentWindow.__preload);
 
+//Get inject directory
+if (!process.env.injDir) process.env.injDir = __dirname;
+
 //set up global functions
 let c = {
     log: function(msg, plugin) {
