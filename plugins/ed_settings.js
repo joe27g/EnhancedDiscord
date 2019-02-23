@@ -156,7 +156,7 @@ module.exports = new Plugin({
                         //console.log(st, at);
                         for (let id in window.ED.plugins) {
                             if (window.ED.plugins[id].getSettingsPanel && typeof window.ED.plugins[id].getSettingsPanel == 'function') continue;
-                            if (!window.ED.plugins[id].config || !window.ED.plugins[id].generateSettings) continue;
+                            if (!window.ED.plugins[id].config || window.ED.config[id].enabled === false || !window.ED.plugins[id].generateSettings) continue;
 
                             settingsPane.innerHTML += `<h2 class="${contentM.h2} ${contentM.defaultColor}">${window.ED.plugins[id].name}</h2>`;
 
@@ -190,13 +190,13 @@ module.exports = new Plugin({
 
                 document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn}`).onclick = function(e) {
                     let parent = e.target.parentElement;
-                    if (e.target.className && (parent.className.indexOf('ed-plugin-settings') > -1 || e.target.className.indexOf('ed-plugin-settings') > -1)) {
+                    if (e.target.className && ((parent.className.indexOf && parent.className.indexOf('ed-plugin-settings') > -1) || (e.target.className.indexOf && e.target.className.indexOf('ed-plugin-settings') > -1))) {
                         let box = e.target.className === buttM.contents ? parent.nextElementSibling.nextElementSibling : e.target.nextElementSibling.nextElementSibling;
                         if (!box || !box.id || !window.ED.plugins[box.id] || box.className.indexOf(cbM.valueChecked) == -1 || !window.ED.config.bdPlugins) return;
                         return require('../bd_shit').showSettingsModal(window.ED.plugins[box.id]);
                     }
 
-                    if (e.target.className && (parent.className.indexOf('ed-plugin-reload') > -1 || e.target.className.indexOf('ed-plugin-reload') > -1)) {
+                    if (e.target.className && ((parent.className.indexOf && parent.className.indexOf('ed-plugin-reload') > -1) || (e.target.className.indexOf && e.target.className.indexOf('ed-plugin-reload') > -1))) {
                         let button = e.target.className === buttM.contents ? e.target : e.target.firstElementChild;
                         let plugin = e.target.className === buttM.contents ? e.target.parentElement.nextElementSibling : e.target.nextElementSibling;
                         //console.log(plugin);
