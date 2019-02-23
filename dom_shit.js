@@ -5,7 +5,7 @@ const currentWindow = electron.remote.getCurrentWindow();
 if (currentWindow.__preload) require(currentWindow.__preload);
 
 //Get inject directory
-process.env.injDir = __dirname;
+if (!process.env.injDir) process.env.injDir = __dirname;
 
 //set up global functions
 let c = {
