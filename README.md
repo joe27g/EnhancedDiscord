@@ -20,6 +20,8 @@ Go to https://enhanceddiscord.com/ and hit the 'Download' button, or if you're l
 
 If you're having errors (especially related to `InteropServices`), you may need to download [.NET Framework 4.7.1](https://www.microsoft.com/en-us/download/details.aspx?id=56116).
 
+If you're on Linux or MacOS consider using [this install script](https://github.com/Cr3atable/LinuxED) that is specifically made for Unix.  
+LinuxED is unaffiliated with EnhancedDiscord so please do not request support for this script in an issue.
 ### ~~Installing the old way:~~
 
 ~~You can also use the console installer (no GUI.)~~
@@ -45,5 +47,3 @@ To create your own plugin, check out [the plugin readme](/plugins.md).
 ### Contributing
 
 Feel free to make pull requests or make your own plugins repository. If you do make your own plugins, request the 'Plugin Developer' role in the support server so you can announce your releases!
-
-If you would like to contribute to making ED cross-platform, download [Mono](http://www.mono-project.com/download/stable/) for Mac or Linux and compile the installer(s). I don't have a Linux machine with a GUI or a Mac, so I am unable to compile and test these.
