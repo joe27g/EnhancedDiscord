@@ -82,12 +82,10 @@ module.exports = new Plugin({
                 settingsTab.parentNode.insertBefore(sep, settingsTab.nextSibling);
 
                 parent.onclick = function(e) {
-                    if (!e.target.className || e.target.className.indexOf(tabsM.itemDefault) == -1) return;
-                    //console.log(e.target);
+                    if (!e.target.className || (e.target.className === tabsM.itemDefault || e.target.className.indexOf(tabsM.itemDefault) > -1)) return;
 
                     for (let i in tab) {
                         tab[i].className = (tab[i].className || '')
-                            //.replace(tabsM.selected, tabsM.notSelected)
                             .replace(tabsM.itemSelected, tabsM.itemDefault)
                     };
                 }
