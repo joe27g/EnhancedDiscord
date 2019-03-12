@@ -3,7 +3,7 @@
 /* theme settings */
 :root {
     /* background for the entire window. Almost everything is transparent to this image. */
-    --bg: url(https://wallpaper.wiki/wp-content/uploads/2017/06/Beautiful-Mountain-in-Night-Wallpapers-HD-Pictures.jpg);
+    --bg: url(https://i.imgur.com/SJkkVGI.png);
     --bg-overlay: rgba(0, 0, 0, 0.8); /* overlay for the background. Generally, this should darken the picture to make text more readable. */
     --accent-color: #900; /* color of buttons, misc. text, etc. */
     --mention-color: #f00; /* color of mention text */
@@ -23,4 +23,31 @@
 .profileBadgePremium-3kZ9Qj, .topSectionNormal-2-vo2m .profileBadgePremium-3kZ9Qj,
 .profileBadgePremium-3kZ9Qj, .topSectionPlaying-1J5E4n .profileBadgePremium-3kZ9Qj {
     background-image: url(https://discordapp.com/assets/9c252d28ca4980d65054a0258052983b.svg);
+}
+
+/* unread indicators */
+.theme-dark .unread-2OHH1w:not(.selected-nT-gM3):before {
+    background: transparent;
+    opacity: 0.5;
+    height: 50px;
+    width: 50px;
+    left: 0px;
+    bottom: 0px;
+    top: 0px;
+    margin-top: 0;
+    border-radius: 50%;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    /* box-shadow: 16px -16px 10px -14px #f00; */
+    /* background: -webkit-radial-gradient(transparent 15px, #f00 25px, transparent 40px); */
+    box-shadow: inset 0 0 12px 2px var(--unread-color);
+}
+.theme-dark .selected-nT-gM3:before {
+    background: var(--unread-color);
+}
+.theme-dark .unread-2OHH1w:hover::before {
+    border-radius: 15px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    transition: border-radius 150ms;
 }
