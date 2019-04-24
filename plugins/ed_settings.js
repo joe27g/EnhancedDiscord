@@ -35,7 +35,7 @@ module.exports = new Plugin({
         if (!window.ED.classMaps) {
             window.ED.classMaps = {};
         }
-        const tabsM = findModule('itemSelected');
+        const tabsM = findModule('themed');
         const contentM = ED.classMaps.headers = findModule('defaultMarginh2');
         const div = ED.classMaps.divider = findModules('divider')[1].divider;
         const swiM = ED.classMaps.switchItem = findModule('switchItem');
@@ -57,7 +57,6 @@ module.exports = new Plugin({
                     setTimeout(() => {mod.render();}, 100);
                     return arguments[0].callOriginalMethod(arguments[0].methodArguments);
                 }
-                //let anchor = parent.querySelector(`[class="${tabsM.separator}"]:nth-child(${process.platform == 'win32' ? 20 : 18})`);
                 let anchor = parent.querySelectorAll(`.${tabsM.separator}`)[3];
                 if (!anchor)
                     return arguments[0].callOriginalMethod(arguments[0].methodArguments);
@@ -68,12 +67,13 @@ module.exports = new Plugin({
                 anchor.parentNode.insertBefore(header, anchor.nextSibling);
 
                 let pluginsTab = document.createElement('div');
-                pluginsTab.className = tabsM.itemDefault + ' ed-settings';
+                let tabClass = `${tabsM.item} ${tabsM.themed} ed-settings`;
+                pluginsTab.className = tabClass;
                 pluginsTab.innerHTML = 'Plugins';
                 header.parentNode.insertBefore(pluginsTab, header.nextSibling);
 
                 let settingsTab = document.createElement('div');
-                settingsTab.className = tabsM.itemDefault + ' ed-settings';
+                settingsTab.className = tabClass;
                 settingsTab.innerHTML = 'Settings';
                 pluginsTab.parentNode.insertBefore(settingsTab, pluginsTab.nextSibling);
 
@@ -82,26 +82,21 @@ module.exports = new Plugin({
                 settingsTab.parentNode.insertBefore(sep, settingsTab.nextSibling);
 
                 parent.onclick = function(e) {
-                    if (!e.target.className || e.target.className.indexOf(tabsM.itemDefault) == -1) return;
-                    //console.log(e.target);
+                    if (!e.target.className || e.target.className.indexOf(tabsM.item) == -1) return;
 
                     for (let i in tab) {
                         tab[i].className = (tab[i].className || '')
-                            //.replace(tabsM.selected, tabsM.notSelected)
-                            .replace(tabsM.itemSelected, tabsM.itemDefault)
+                            .replace(tabsM.selected, '')
                     };
                 }
-
-                //let settingsPane = document.querySelector('.ui-standard-sidebar-view .content-column > div');
 
                 pluginsTab.onclick = function(e) {
                     let settingsPane = document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn} > div`);
                     let otherTab = document.querySelector('.' + tabsM.item + '.' + tabsM.selected);
                     if (otherTab) {
-                        otherTab.className = otherTab.className.replace(tabsM.itemSelected, tabsM.itemDefault);
+                        otherTab.className = otherTab.className.replace(tabsM.selected, '');
                     }
-                    //console.log(otherTab);
-                    this.className = this.className.replace(tabsM.itemDefault, tabsM.itemSelected);
+                    this.className += ` ${tabsM.selected}`;
 
                     if (settingsPane) {
                         // ED Header
@@ -134,10 +129,9 @@ module.exports = new Plugin({
                     let settingsPane = document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn} > div`);
                     let otherTab = document.querySelector('.' + tabsM.item + '.' + tabsM.selected);
                     if (otherTab) {
-                        otherTab.className = otherTab.className.replace(tabsM.itemSelected, tabsM.itemDefault);
+                        otherTab.className = otherTab.className.replace(tabsM.selected, '');
                     }
-                    //console.log(otherTab);
-                    this.className = this.className.replace(tabsM.itemDefault, tabsM.itemSelected);
+                    this.className += ` ${tabsM.selected}`;
 
                     if (settingsPane) {
                         settingsPane.innerHTML = `<h2 class="${contentM.h2} ${contentM.defaultColor}">EnhancedDiscord Configuration</h2><div class="${div} ${contentM.marginBottom20}"></div>`;
