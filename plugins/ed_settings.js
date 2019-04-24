@@ -86,7 +86,7 @@ module.exports = new Plugin({
 
                     for (let i in tab) {
                         tab[i].className = (tab[i].className || '')
-                            .replace(tabsM.selected, '')
+                            .replace(" " + tabsM.selected, '')
                     };
                 }
 
@@ -94,7 +94,7 @@ module.exports = new Plugin({
                     let settingsPane = document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn} > div`);
                     let otherTab = document.querySelector('.' + tabsM.item + '.' + tabsM.selected);
                     if (otherTab) {
-                        otherTab.className = otherTab.className.replace(tabsM.selected, '');
+                        otherTab.className = otherTab.className.replace(" " + tabsM.selected, '');
                     }
                     this.className += ` ${tabsM.selected}`;
 
@@ -129,7 +129,7 @@ module.exports = new Plugin({
                     let settingsPane = document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn} > div`);
                     let otherTab = document.querySelector('.' + tabsM.item + '.' + tabsM.selected);
                     if (otherTab) {
-                        otherTab.className = otherTab.className.replace(tabsM.selected, '');
+                        otherTab.className = otherTab.className.replace(" " + tabsM.selected, '');
                     }
                     this.className += ` ${tabsM.selected}`;
 
