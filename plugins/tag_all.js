@@ -27,6 +27,7 @@ module.exports = new Plugin({
 
             let roles = unMen.map(r => r.name.toLowerCase().replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
             for (let i in roles) {
+            	if (!roles[i]) continue; // empty role names
                 try {
                     text = text.replace( new RegExp('@'+roles[i]+'([^#])', 'gi'), `<@&${unMen[i].id}>$1`);
                 } catch(err) {}
