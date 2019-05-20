@@ -1,9 +1,13 @@
 # EnhancedDiscord
-A simple way to load plugins and themes on Discord without token stealing and lag.
+A lightweight client mod designed to enhance your Discord experience without slowing down your PC.
 
 Support server:
 <a href="https://discord.gg/XAvh9tq"><img src="https://discordapp.com/api/guilds/415246389287583755/embed.png" alt="Discord server" /></a>
 (https://discord.gg/XAvh9tq)
+
+#### DISCLAIMER!
+> **Using EnhancedDiscord, or any other client mod, is against [Discord's Terms of Service](https://discordapp.com/terms). Use it at your own risk.**
+> *It's very unlikely any action will be taken against you, but we take no responsibility if anything happens.*
 
 By default, this loads my theme, with some settings applied. More info [on its repo](https://github.com/joe27g/Discord-Theme). To change this, edit `plugins/style.css` or change the theme location in settings.
 
@@ -11,6 +15,9 @@ You can download more quality plugins from the following repos:
 - [joe27g/EnhancedDiscord-Plugins](https://github.com/joe27g/EnhancedDiscord-Plugins)
 - [rauenzi/EnhancedDiscordPlugins](https://github.com/rauenzi/EnhancedDiscordPlugins)
 - [jakuski/ed_plugins](https://github.com/jakuski/ed_plugins)
+
+If you enable "BD Plugins" in the EnhancedDiscord settings, you can also load BetterDiscord plugins. See the #faq in the support server for more details.
+*Note: some BD plugins are notorious for being laggy. In general, the fewer plugins you have, the faster your client will be.*
 
 ### Installing the easy way:
 
@@ -22,19 +29,11 @@ If you're having errors (especially related to `InteropServices`), you may need 
 
 If you're on Linux or MacOS consider using [this install script](https://github.com/Cr3atable/LinuxED) that is specifically made for Unix.  
 LinuxED is unaffiliated with EnhancedDiscord so please do not request support for this script in an issue.
-### ~~Installing the old way:~~
-
-~~You can also use the console installer (no GUI.)~~
-
-~~*Currently, only Windows is supported for this installer as well.*~~
-
-~~Download: https://enhanceddiscord.com/ED_cmdline_BETA.exe~~
-
-*(this installer is outdated and will most likely not work.)*
 
 ### Installing the hard way:
 
-See the [advanced installation guide](/advanced_installation.md).
+If the installer doesn't work for you, and you choose not to use LinuxED, you can also install it manually in just a few minutes.
+To do so, see the [advanced installation guide](/advanced_installation.md).
 
 ### Explanation of files:
 
