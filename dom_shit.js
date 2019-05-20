@@ -148,11 +148,11 @@ process.once("loaded", async () => {
         return true;
     };
 
-    while (!window.findModule('sendTyping', true) || !window.findModule('track', true))
+    while (!window.findModule('isTyping', true) || !window.findModule('track', true))
         await c.sleep(1000); // wait until essential modules are loaded
 
     if (window.ED.config.silentTyping)
-        window.monkeyPatch(window.findModule('sendTyping'), 'sendTyping', () => {});
+        window.monkeyPatch(window.findModule('isTyping'), 'isTyping', () => {});
 
     if (window.ED.config.antiTrack !== false)
         window.monkeyPatch(window.findModule('track'), 'track', () => {});
