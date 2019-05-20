@@ -229,7 +229,7 @@ module.exports = new Plugin({
                             edc[parent.id] = false;
                             window.ED.config = edc;
                             if (parent.id !== 'bdPlugins') {
-                                let mod = parent.id == 'antiTrack' ? 'track' : 'isTyping';
+                                let mod = parent.id == 'antiTrack' ? 'track' : 'startTyping';
                                 //console.log(parent);
                                 if (findModule(mod, true) && findModule(mod, true)[mod] && findModule(mod, true)[mod].__monkeyPatched)
                                     findModule(mod)[mod].unpatch();
@@ -250,7 +250,7 @@ module.exports = new Plugin({
                             edc[parent.id] = true;
                             window.ED.config = edc;
                             if (parent.id !== 'bdPlugins') {
-                                let mod = parent.id == 'antiTrack' ? 'track' : 'isTyping';
+                                let mod = parent.id == 'antiTrack' ? 'track' : 'startTyping';
                                 //console.log(parent);
                                 monkeyPatch(findModule(mod), mod, () => {});
                             }
