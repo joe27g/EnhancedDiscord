@@ -7,7 +7,20 @@ module.exports = new Plugin({
     color: 'indigo',
 
     load: async function() {
-        const friendsClass = window.findModule('friendsOnline').friendsOnline;
+		const guildClasses = window.findModule('friendsOnline');
+		const blobClass = window.findModule('homeIcon').blob;
+
+		// Essentially check for the home button to show up within 5 seconds
+		let failures = 0;
+		while (!document.querySelector(`.${blobClass}`)) {
+			failures = failures + 1;
+			if (failures >= 20) { // Button class may have changed
+				this.error("guild_count could not find the home button, going to try adding the count anyways."); 
+				break;
+			}
+			await new Promise(r => { setTimeout(r, 250);});
+		}
+		
         window.monkeyPatch(window.findModule('getGuilds'), 'getGuilds', function(b) {
             let og = b.callOriginalMethod(b.methodArguments);
 
@@ -16,13 +29,13 @@ module.exports = new Plugin({
                 guildCount.innerHTML = Object.keys(og).length + ' Servers';
                 return og;
             }
-            let friendCount = document.querySelector(`.${friendsClass}`);
-            if (friendCount) {
+            let separator = document.querySelector(`.${guildClasses.guildSeparator}`);
+            if (separator) {
                 guildCount = document.createElement('div');
-                guildCount.className = friendsClass;
+                guildCount.className = `${guildClasses.friendsOnline} ${guildClasses.listItem}`;
                 guildCount.innerHTML = Object.keys(og).length + ' Servers';
                 guildCount.id = 'ed_guild_count';
-                try { friendCount.parentElement.insertBefore(guildCount, friendCount.nextSibling); } catch(err) { module.exports.error(err); }
+                try { separator.parentElement.insertAdjacentElement('beforebegin', guildCount); } catch(err) { this.error(err); }
             }
             return og;
         })
