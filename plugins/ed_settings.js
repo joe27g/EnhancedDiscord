@@ -46,15 +46,14 @@ module.exports = new Plugin({
         const concentCol = findModule('contentColumn');
 
         // use this function to trigger the loading of the settings tabs. No MutationObservers this way :)
-        const mod = findModule('getUserSettingsSections').default;
-        monkeyPatch(mod, 'render', function() {
+        monkeyPatch( findModule('getUserSettingsSections').default.prototype, 'render', function() {
 
             let tab = document.getElementsByClassName('ed-settings');
             //console.log(tab);
             if (!tab || tab.length < 1) {
                 let parent = document.querySelector('.' + tabsM.side);
                 if (!parent) {
-                    setTimeout(() => {mod.render();}, 100);
+                    setTimeout(() => {arguments[0].thisObject.forceUpdate();}, 100);
                     return arguments[0].callOriginalMethod(arguments[0].methodArguments);
                 }
                 let anchor = parent.querySelectorAll(`.${tabsM.separator}`)[3];
