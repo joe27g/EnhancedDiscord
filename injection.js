@@ -28,6 +28,12 @@ class BrowserWindow extends electron.BrowserWindow {
 
 const electron_path = require.resolve('electron');
 Object.assign(BrowserWindow, electron.BrowserWindow); // Assigns the new chrome-specific ones
+
+if (electron.deprecate && electron.deprecate.promisify) {
+	const originalDeprecate = electron.deprecate.promisify; // Grab original deprecate promisify
+	electron.deprecate.promisify = (originalFunction) => originalFunction ? originalDeprecate(originalFunction) : () => void 0; // Override with falsey check
+}
+
 const newElectron = Object.assign({}, electron, {BrowserWindow});
 require.cache[electron_path].exports = newElectron;
 const browser_window_path = require.resolve(path.resolve(electron_path, '..', '..', 'browser-window.js'));
