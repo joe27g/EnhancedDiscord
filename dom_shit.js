@@ -44,7 +44,7 @@ Object.defineProperty(window.ED, 'config', {
             conf = require('./config.json');
         } catch (err) {
             if(err.code !== 'MODULE_NOT_FOUND')
-                throw err;
+                c.error(err);
             conf = {};
         }
         return conf;
@@ -57,7 +57,7 @@ Object.defineProperty(window.ED, 'config', {
             bDelCache = true;
         } catch (err) {
             if(err.code !== 'MODULE_NOT_FOUND')
-                throw err;
+                c.error(err);
             confPath = process.env.injDir + '/config.json';
             bDelCache = false;
         } 
