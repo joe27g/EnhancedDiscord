@@ -39,12 +39,33 @@ let c = {
 window.ED = { plugins: {}, version: '2.3.1' };
 Object.defineProperty(window.ED, 'config', {
     get: function() {
-        return require('./config.json') || {};
+        let conf; 
+        try{
+            conf = require('./config.json');
+        } catch (err) {
+            if(err.code !== 'MODULE_NOT_FOUND')
+                throw err;
+            conf = {};
+        }
+        return conf;
     },
     set: function(newSets = {}) {
-        try {
-            fs.writeFileSync(require.resolve('./config.json'), JSON.stringify(newSets));
-            delete require.cache[require.resolve('./config.json')];
+        let confPath;
+        let bDelCache;
+        try{
+            confPath = require.resolve('./config.json');
+            bDelCache = true;
+        } catch (err) {
+            if(err.code !== 'MODULE_NOT_FOUND')
+                throw err;
+            confPath = process.env.injDir + '/config.json';
+            bDelCache = false;
+        } 
+
+        try { 
+            fs.writeFileSync(confPath, JSON.stringify(newSets));
+            if(bDelCache)
+                delete require.cache[confPath];
         } catch(err) {
             c.error(err);
         }
