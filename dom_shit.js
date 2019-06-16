@@ -39,7 +39,15 @@ let c = {
 window.ED = { plugins: {}, version: '2.3.1' };
 Object.defineProperty(window.ED, 'config', {
     get: function() {
-        return require('./config.json') || {};
+        let conf; 
+        try{
+            conf = require('./config.json');
+        } catch (err) {
+            if(e.code !== 'MODULE_NOT_FOUND')
+                throw err;
+            conf = {};
+        }
+        return conf;
     },
     set: function(newSets = {}) {
         try {
