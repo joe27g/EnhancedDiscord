@@ -43,7 +43,7 @@ Object.defineProperty(window.ED, 'config', {
         try{
             conf = require('./config.json');
         } catch (err) {
-            if(e.code !== 'MODULE_NOT_FOUND')
+            if(err.code !== 'MODULE_NOT_FOUND')
                 throw err;
             conf = {};
         }
