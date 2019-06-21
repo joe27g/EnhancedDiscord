@@ -36,7 +36,7 @@ let c = {
     }
 }
 // config util
-window.ED = { plugins: {}, version: '2.3.1' };
+window.ED = { plugins: {}, version: '2.3.3' };
 Object.defineProperty(window.ED, 'config', {
     get: function() {
         let conf; 
