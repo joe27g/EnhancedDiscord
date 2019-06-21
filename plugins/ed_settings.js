@@ -81,7 +81,7 @@ module.exports = new Plugin({
                 settingsTab.parentNode.insertBefore(sep, settingsTab.nextSibling);
 
                 parent.onclick = function(e) {
-                    if (!e.target.className || e.target.className.indexOf(tabsM.item) == -1) return;
+                    if (!e.target.className || e.target.className.indexOf(tabsM.item) == -1 || e.target.innerHTML === 'Change Log') return;
 
                     for (let i in tab) {
                         tab[i].className = (tab[i].className || '')
