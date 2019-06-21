@@ -5,16 +5,20 @@ const { app, dialog } = require('electron').remote;
 const http = require('https');
 const fs = require('fs');
 const path = require('path');
+let ttM = {};
 
 function saveAs(url, filename, fileExtension) {
     const userChosenPath = dialog.showSaveDialog({ defaultPath: filename, title: 'Where would you like to store the stolen memes?', buttonLabel: 'Steal this meme', filters: [{ name: "Stolen meme", extensions: [fileExtension] }] });
     if (userChosenPath) {
         download(url, userChosenPath, () => {
+        	const wrap = document.createElement('div');
+        	wrap.class = 'theme-dark';
         	const gay = document.createElement('div');
         	gay.style = "position: fixed; bottom: 10%; left: calc(50% - 88px);"
-        	gay.className = "tooltip-1OS-Ti top-1pTh1F black-2bmmnj";
+        	gay.className = `${ttM.tooltip} ${ttM.tooltipTop} ${ttM.tooltipBlack}`;
         	gay.innerHTML = 'Successfully downloaded | ' + userChosenPath;
-        	document.body.appendChild(gay);
+        	document.body.appendChild(wrap);
+        	wrap.appendChild(gay);
         	setTimeout(() => gay.remove(), 2000);
         });
     }
@@ -56,6 +60,7 @@ module.exports = new Plugin({
     load: async function() {
         this._cmClass = findModule("contextMenu").contextMenu;
         this._contClass = findModule("embedWrapper").container;
+        ttM = findModule('tooltipPointer');
         document.addEventListener("contextmenu", this.listener);
     },
     listener(e) {

@@ -217,10 +217,18 @@ process.once("loaded", async () => {
     const ht = window.findModule('hideToken'), cw = findModule('consoleWarning');
     // prevent client from removing token from localstorage when dev tools is opened, or reverting your token if you change it
     monkeyPatch(ht, 'hideToken', () => {});
-    monkeyPatch(ht, 'showToken', () => {});
+    window.fixedShowToken = () => {
+        // Only allow this to add a token, not replace it. This allows for changing of the token in dev tools.
+        if (!window.ED.localStorage || window.ED.localStorage.getItem("token")) return;
+        return window.ED.localStorage.setItem("token", '"'+ht.getToken()+'"');
+    };
+    monkeyPatch(ht, 'showToken', fixedShowToken);
+    if (!window.ED.localStorage.getItem("token") && ht.getToken())
+        fixedShowToken(); // prevent you from being logged out for no reason
+
     // change the console warning to be more fun
     monkeyPatch(cw, 'consoleWarning', () => {
-        console.log("%cHold Up!", "color: #7289DA; -webkit-text-stroke: 2px black; font-size: 72px; font-weight: bold;");
+        console.log("%cHold Up!", "color: #FF5200; -webkit-text-stroke: 2px black; font-size: 72px; font-weight: bold;");
         console.log("%cIf you're reading this, you're probably smarter than most Discord developers.", "font-size: 16px;");
         console.log("%cPasting anything in here could actually improve the Discord client.", "font-size: 18px; font-weight: bold; color: red;");
         console.log("%cUnless you understand exactly what you're doing, keep this window open to browse our bad code.", "font-size: 16px;");
