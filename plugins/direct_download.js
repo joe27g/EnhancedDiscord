@@ -12,14 +12,14 @@ function saveAs(url, filename, fileExtension) {
     if (userChosenPath) {
         download(url, userChosenPath, () => {
         	const wrap = document.createElement('div');
-        	wrap.class = 'theme-dark';
+        	wrap.className = 'theme-dark';
         	const gay = document.createElement('div');
         	gay.style = "position: fixed; bottom: 10%; left: calc(50% - 88px);"
         	gay.className = `${ttM.tooltip} ${ttM.tooltipTop} ${ttM.tooltipBlack}`;
         	gay.innerHTML = 'Successfully downloaded | ' + userChosenPath;
         	document.body.appendChild(wrap);
         	wrap.appendChild(gay);
-        	setTimeout(() => gay.remove(), 2000);
+        	setTimeout(() => wrap.remove(), 2000);
         });
     }
 }
