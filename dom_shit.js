@@ -58,7 +58,7 @@ Object.defineProperty(window.ED, 'config', {
         } catch (err) {
             if(err.code !== 'MODULE_NOT_FOUND')
                 c.error(err);
-            confPath = process.env.injDir + '/config.json';
+            confPath = path.join(process.env.injDir, 'config.json');
             bDelCache = false;
         } 
 
