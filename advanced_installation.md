@@ -2,7 +2,7 @@
 
 #### Recommended for people that have trouble with the installers or really like wasting time.
 
-1. Download/clone this repo to wherever you want your ED filed to reside.
+1. Download/clone this repo to wherever you want your ED files to reside.
 
 2. Find your appdata folder:
 - For PC: `%appdata%/discord`
