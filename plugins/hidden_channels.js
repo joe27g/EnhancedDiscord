@@ -193,9 +193,7 @@ module.exports = new Plugin({
             if (m.toolbar && m.selected) return m;
         }).toolbar);
 
-        toolbar.children[0].remove(); // Remove channel specific actions (e.g. pinned msgs, mute)
-        toolbar.children[1].remove(); // @TODO Pinned messages icon is a bitch bitch and won't remove ?
-        toolbar.children[2].remove(); // Remove ability to hide user list as it will crash Discord when the notice is up.
+        toolbar.style.display = "none";
 
 
         const hiddenChannelNotif = document.createElement("div");
