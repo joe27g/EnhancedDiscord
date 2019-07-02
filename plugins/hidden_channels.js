@@ -144,6 +144,13 @@ module.exports = new Plugin({
                 return false; // don't show icon on hidden channel pins.
             return b.callOriginalMethod(b.methodArguments);
         });
+
+        findModule("dispatch").subscribe("CHANNEL_SELECT", module.exports.dispatchSubscription);
+
+        monkeyPatch(findModule("fetchMessages"), "fetchMessages", function(d) {
+            if (window.ED._hiddenChans.includes(d.methodArguments[0])) return;
+            else return d.callOriginalMethod();
+        })
     },
 
     unload: function() {
@@ -151,6 +158,9 @@ module.exports = new Plugin({
         if (m.__monkeyPatched && m.unpatch)
             m.unpatch();
         m = findModule('hasUnread').__proto__.hasUnreadPins;
+        if (m.__monkeyPatched && m.unpatch)
+            m.unpatch();
+        m = findModule('fetchMessages').fetchMessages;
         if (m.__monkeyPatched && m.unpatch)
             m.unpatch();
         m = findModule('computePermissions');
@@ -161,5 +171,47 @@ module.exports = new Plugin({
             if (mod && mod.__monkeyPatched && mod.unpatch)
                 mod.unpatch();
         }
+
+        findModule("dispatch").unsubscribe("CHANNEL_SELECT", module.exports.dispatchSubscription);
+    },
+    dispatchSubscription: function (data) {
+        if (data.type !== "CHANNEL_SELECT") return;
+
+        if (ED._hiddenChans.includes(data.channelId)) {
+            setTimeout(module.exports.attachHiddenChanNotice,100); // This value could be brought down however I don't know if lower spec users would suffer.
+        }
+    },
+    attachHiddenChanNotice: function () {
+        const messagesWrapper = document.querySelector(`.${findModule("messages").messagesWrapper}`);
+
+        messagesWrapper.firstChild.remove(); // Remove messages shit.
+        messagesWrapper.parentElement.children[1].remove(); // Remove message box.
+        messagesWrapper.parentElement.parentElement.children[1].remove(); // Remove user list.
+
+        const toolbar = document.querySelector("."+EDApi.findModule(m => {
+            if (m instanceof Window) return;
+            if (m.toolbar && m.selected) return m;
+        }).toolbar);
+
+        toolbar.style.display = "none";
+
+
+        const hiddenChannelNotif = document.createElement("div");
+        
+        // Class name modules
+        const txt = findModule("h5");
+        const flx = findModule("flex");
+
+        hiddenChannelNotif.className = flx.flexCenter; // yikes american spelling
+        hiddenChannelNotif.style.width = "100%";
+
+        hiddenChannelNotif.innerHTML = `
+        <div class="${flx.flex} ${flx.directionColumn} ${flx.alignCenter}">
+        <h2 class="${txt.h2} ${txt.defaultColor}">This is a hidden channel.</h2>
+        <h5 class="${txt.h5} ${txt.defaultColor}">You cannot see the contents of this channel. However, you may see its name and topic.</h5>
+        </div>
+        `
+
+        messagesWrapper.appendChild(hiddenChannelNotif);
     }
 });
