@@ -208,7 +208,7 @@ module.exports = new Plugin({
         hiddenChannelNotif.innerHTML = `
         <div class="${flx.flex} ${flx.directionColumn} ${flx.alignCenter}">
         <h2 class="${txt.h2} ${txt.defaultColor}">This is a hidden channel.</h2>
-        <h5 class="${txt.h5} ${txt.defaultColor}">You cannot see the contents of this channel however you may see it's name and topic.</h5>
+        <h5 class="${txt.h5} ${txt.defaultColor}">You cannot see the contents of this channel. However, you may see its name and topic.</h5>
         </div>
         `
 
