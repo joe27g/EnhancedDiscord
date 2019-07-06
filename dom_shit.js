@@ -1,6 +1,8 @@
 const path = window.require('path');
 const fs = window.require('fs');
 const electron = window.require('electron');
+const Module =  window.require('module').Module;
+Module.globalPaths.push(path.resolve(electron.remote.app.getAppPath(), 'node_modules'));
 const currentWindow = electron.remote.getCurrentWindow();
 if (currentWindow.__preload) require(currentWindow.__preload);
 

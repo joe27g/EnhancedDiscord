@@ -2,7 +2,6 @@ const path = require('path');
 const fs = require('fs');
 const Module = require('module').Module;
 const originalRequire = Module._extensions['.js'];
-Module.globalPaths.push(path.resolve(require('electron').remote.app.getAppPath(), 'node_modules'));
 const EDPlugin = require('./plugin');
 
 const css = `#bd-settingspane-container h2.ui-form-title {
