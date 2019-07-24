@@ -93,7 +93,7 @@ window.ED.localStorage = window.localStorage;
 
 process.once("loaded", async () => {
     c.log(`Loading v${window.ED.version}...`);
-	while (typeof window.webpackJsonp === 'undefined')
+	while (!window.webpackJsonp || window.webpackJsonp.length < 25)
 		await c.sleep(1000); // wait until this is loaded in order to use it for modules
 
     window.ED.webSocket = window._ws;
