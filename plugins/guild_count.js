@@ -8,20 +8,8 @@ module.exports = new Plugin({
 
     load: async function() {
 		const guildClasses = window.findModule('friendsOnline');
-		const blobClass = window.findModule('homeIcon').blob;
 
-		// Essentially check for the home button to show up within 5 seconds
-		let failures = 0;
-		while (!document.querySelector(`.${blobClass}`)) {
-			failures = failures + 1;
-			if (failures >= 20) { // Button class may have changed
-				this.error("guild_count could not find the home button, going to try adding the count anyways."); 
-				break;
-			}
-			await new Promise(r => { setTimeout(r, 250);});
-		}
-		
-        window.monkeyPatch(window.findModule('getGuilds'), 'getGuilds', function(b) {
+        const gg = function(b) {
             let og = b.callOriginalMethod(b.methodArguments);
 
             let guildCount = document.getElementById('ed_guild_count');
@@ -38,7 +26,11 @@ module.exports = new Plugin({
                 try { separator.parentElement.insertAdjacentElement('beforebegin', guildCount); } catch(err) { this.error(err); }
             }
             return og;
-        })
+        };
+
+        findModule('subscribe').subscribe('CONNECTION_OPEN', gg);
+		
+        window.monkeyPatch(window.findModule('getGuilds'), 'getGuilds', gg);
     },
     unload: function() {
         let m = window.findModule('getGuilds').getGuilds;
