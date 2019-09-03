@@ -376,6 +376,7 @@ window.EDApi = window.BdApi = class EDApi {
         };
         what[methodName].__monkeyPatched = true;
         what[methodName].displayName = "patched " + (what[methodName].displayName || methodName);
+        what[methodName].unpatch = cancel;
         return cancel;
     }
 
