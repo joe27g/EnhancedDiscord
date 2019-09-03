@@ -38,7 +38,7 @@ let c = {
     }
 }
 // config util
-window.ED = { plugins: {}, version: '2.3.3' };
+window.ED = { plugins: {}, version: '2.4.0' };
 Object.defineProperty(window.ED, 'config', {
     get: function() {
         let conf; 
@@ -76,14 +76,11 @@ Object.defineProperty(window.ED, 'config', {
 });
 
 function loadPlugin(plugin) {
-    /*if (window.ED.plugins[plugin.name]) {
-        console.log(`%c[EnhancedDiscord] %cSkipped plugin %c${plugin.name}`, 'color: red;', '', `color: ${plugin.color}`, `because it was already loaded.`);
-        return false;
-    }*/
     try {
-        console.log(`%c[EnhancedDiscord] %cLoading plugin %c${plugin.name}`, 'color: red;', '', `color: ${plugin.color}`, `by ${plugin.author}...`);
+    	if (plugin.preload)
+    		console.log(`%c[EnhancedDiscord] %c[PRELOAD] %cLoading plugin %c${plugin.name}`, 'color: red;', 'color: yellow;', '', `color: ${plugin.color}`, `by ${plugin.author}...`);
+        else console.log(`%c[EnhancedDiscord] %cLoading plugin %c${plugin.name}`, 'color: red;', '', `color: ${plugin.color}`, `by ${plugin.author}...`);
         plugin.load();
-        //window.ED.plugins[plugin.id] = plugin;
     } catch(err) {
         c.error(`Failed to load:\n${err.stack}`, plugin);
     }
@@ -92,8 +89,8 @@ function loadPlugin(plugin) {
 window.ED.localStorage = window.localStorage;
 
 process.once("loaded", async () => {
-    c.log(`Loading v${window.ED.version}...`);
-	while (!window.webpackJsonp || window.webpackJsonp.length < 25)
+    c.log(`v${window.ED.version} is running.`);
+	while (!window.webpackJsonp)
 		await c.sleep(1000); // wait until this is loaded in order to use it for modules
 
     window.ED.webSocket = window._ws;
@@ -105,71 +102,10 @@ process.once("loaded", async () => {
 	delete req.m['__extra_id__'];
 	delete req.c['__extra_id__'];
 
-    window.findModule = (module, silent) => {
-        for (let i in req.c) {
-            if (req.c.hasOwnProperty(i)) {
-                let m = req.c[i].exports;
-                if (m && m.__esModule && m.default && m.default[module] !== undefined)
-                    return m.default;
-                if (m && m[module] !== undefined)
-                    return m;
-            }
-        }
-        if (!silent) c.warn(`Could not find module ${module}.`, {name: 'Modules', color: 'black'});
-        return null;
-    };
-    window.findModules = (module) => {
-        let mods = [];
-        for (let i in req.c) {
-            if (req.c.hasOwnProperty(i)) {
-                let m = req.c[i].exports;
-                if (m && m.__esModule && m.default && m.default[module] !== undefined)
-                    mods.push(m.default);
-                if (m && m[module] !== undefined)
-                    mods.push(m);
-            }
-        }
-        return mods;
-    };
-    window.findRawModule = (module, silent) => {
-        for (let i in req.c) {
-            if (req.c.hasOwnProperty(i)) {
-                let m = req.c[i].exports;
-                if (m && m.__esModule && m.default && m.default[module] !== undefined)
-                    return req.c[i];
-                if (m && m[module] !== undefined)
-                    return req.c[i];
-            }
-        }
-        if (!silent) c.warn(`Could not find module ${module}.`, {name: 'Modules', color: 'black'});
-        return null;
-    };
-    window.monkeyPatch = function(what, methodName, newFunc) {
-        if (!what || typeof what !== 'object')
-            return c.error(`Could not patch ${methodName} - Invalid module passed!`, {name: 'Modules', color: 'black'});
-        const displayName = what.displayName || what.name || what.constructor.displayName || what.constructor.name;
-        const origMethod = what[methodName];
-        const cancel = () => {
-            what[methodName] = origMethod;
-            console.log(`%c[EnhancedDiscord] %c[Modules]`, 'color: red;', `color: black;`, `Unpatched ${methodName} in module:`, what);
-            return true;
-        };
-        what[methodName] = function() {
-            const data = {
-                thisObject: this,
-                methodArguments: arguments,
-                //cancelPatch: cancel,
-                originalMethod: origMethod,
-                callOriginalMethod: () => data.returnValue = data.originalMethod.apply(data.thisObject, data.methodArguments)
-            };
-            return newFunc(data);
-        };
-        what[methodName].__monkeyPatched = true;
-        what[methodName].displayName = 'patched ' + (what[methodName].displayName || methodName);
-        what[methodName].unpatch = cancel;
-        console.log(`%c[EnhancedDiscord] %c[Modules]`, 'color: red;', `color: black;`, `Patched ${methodName} in module:`, what);
-        return true;
-    };
+    window.findModule = EDApi.findModule;
+    window.findModules = EDApi.findAllModules;
+    window.findRawModule = EDApi.findRawModule;
+    window.monkeyPatch = EDApi.monkeyPatch;
 
     while (!window.findModule('startTyping', true) || !window.findModule('track', true))
         await c.sleep(1000); // wait until essential modules are loaded
@@ -186,7 +122,7 @@ process.once("loaded", async () => {
     if (window.ED.config.bdPlugins)
         await require('./bd_shit').setup(currentWindow);
 
-	//load and validate plugins
+    c.log(`Loading and validating plugins...`);
     let pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));
     let plugins = {};
     for (let i in pluginFiles) {
@@ -211,10 +147,21 @@ process.once("loaded", async () => {
         }
         plugins[id].settings; // this will set default settings in config if necessary
         if (window.ED.config[id] && window.ED.config[id].enabled == false) continue;
+        if (!plugins[id].preload) continue;
         loadPlugin(plugins[id]);
-	}
+    }
+    window.ED.plugins = plugins;
 
-	window.ED.plugins = plugins;
+    c.log(`Waiting for modules...`);
+    while (!window.webpackJsonp || window.webpackJsonp.length < 25)
+        await c.sleep(1000); // wait until this is loaded in order to use it for modules
+
+    c.log(`Loading plugins...`);
+    for (let id in plugins) {
+        if (window.ED.config[id] && window.ED.config[id].enabled == false) continue;
+        if (plugins[id].preload) continue;
+        loadPlugin(plugins[id]);
+    }
 
     const ht = window.findModule('hideToken'), cw = findModule('consoleWarning');
     // prevent client from removing token from localstorage when dev tools is opened, or reverting your token if you change it
@@ -344,11 +291,25 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static findModule(filter, silent = true) {
+    	let moduleName = typeof filter === 'string' ? filter : null;
         for (let i in req.c) {
             if (req.c.hasOwnProperty(i)) {
                 let m = req.c[i].exports;
-                if (m && m.__esModule && m.default && filter(m.default)) return m.default;
-                if (m && filter(m))	return m;
+                if (m && m.__esModule && m.default && (moduleName ? m.default[moduleName] : filter(m.default))) return m.default;
+                if (m && (moduleName ? m[moduleName] : filter(m)))	return m;
+            }
+        }
+        if (!silent) c.warn(`Could not find module ${module}.`, {name: 'Modules', color: 'black'})
+        return null;
+    }
+
+    static findRawModule(filter, silent = true) {
+    	let moduleName = typeof filter === 'string' ? filter : null;
+        for (let i in req.c) {
+            if (req.c.hasOwnProperty(i)) {
+                let m = req.c[i].exports;
+                if (m && m.__esModule && m.default && (moduleName ? m.default[moduleName] : filter(m.default))) return req.c[i];
+                if (m && (moduleName ? m[moduleName] : filter(m)))	return req.c[i];
             }
         }
         if (!silent) c.warn(`Could not find module ${module}.`, {name: 'Modules', color: 'black'})
@@ -356,12 +317,13 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static findAllModules(filter) {
+    	let moduleName = typeof filter === 'string' ? filter : null;
         const modules = [];
         for (let i in req.c) {
             if (req.c.hasOwnProperty(i)) {
                 let m = req.c[i].exports;
-                if (m && m.__esModule && m.default && filter(m.default)) modules.push(m.default);
-                else if (m && filter(m)) modules.push(m);
+                if (m && m.__esModule && m.default && (moduleName ? m.default[moduleName] : filter(m.default))) modules.push(m.default);
+                else if (m && (moduleName ? m[moduleName] : filter(m))) modules.push(m);
             }
         }
         return modules;
@@ -376,16 +338,20 @@ window.EDApi = window.BdApi = class EDApi {
     }
     
     static monkeyPatch(what, methodName, options) {
+        if (typeof options === 'function') {
+    	    const newOptions = {instead: options, silent: true};
+    	    options = newOptions;
+        }
         const {before, after, instead, once = false, silent = false, force = false} = options;
         const displayName = options.displayName || what.displayName || what.name || what.constructor.displayName || what.constructor.name;
-        if (!silent) console.log("patch", methodName, "of", displayName); // eslint-disable-line no-console
+        if (!silent) console.log(`%c[EnhancedDiscord] %c[Modules]`, 'color: red;', `color: black;`, `Patched ${methodName} in module ${displayName || '<unknown>'}:`, what); // eslint-disable-line no-console
         if (!what[methodName]) {
             if (force) what[methodName] = function() {};
-            else return console.error(methodName, "does not exist for", displayName); // eslint-disable-line no-console
+            else return console.warn(`%c[EnhancedDiscord] %c[Modules]`, 'color: red;', `color: black;`, `Method ${methodName} doesn't exist in module ${displayName || '<unknown>'}`, what); // eslint-disable-line no-console
         }
         const origMethod = what[methodName];
         const cancel = () => {
-            if (!silent) console.log("unpatch", methodName, "of", displayName); // eslint-disable-line no-console
+            if (!silent) console.log(`%c[EnhancedDiscord] %c[Modules]`, 'color: red;', `color: black;`, `Unpatched ${methodName} in module ${displayName || '<unknown>'}:`, what); // eslint-disable-line no-console
             what[methodName] = origMethod;
         };
         what[methodName] = function() {
