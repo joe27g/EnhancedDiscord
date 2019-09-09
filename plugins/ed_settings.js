@@ -35,7 +35,7 @@ module.exports = new Plugin({
         if (!window.ED.classMaps) {
             window.ED.classMaps = {};
         }
-        const tabsM = findModule('themed');
+        const tabsM = findModule('topPill');
         const contentM = ED.classMaps.headers = findModule('defaultMarginh2');
         const div = ED.classMaps.divider = findModules('divider')[1].divider;
         const swiM = ED.classMaps.switchItem = findModule('switchItem');
