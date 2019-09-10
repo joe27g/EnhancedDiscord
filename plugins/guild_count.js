@@ -7,23 +7,32 @@ module.exports = new Plugin({
     color: 'indigo',
 
     load: async function() {
-		const guildClasses = window.findModule('friendsOnline');
+		const sep = window.findModule('guildSeparator'), ms = window.findModule('modeSelectable');
 
         const gg = function(b) {
             let og = b.callOriginalMethod(b.methodArguments);
+            if (!sep) return og;
+            const num = Object.keys(og).length;
 
             let guildCount = document.getElementById('ed_guild_count');
             if (guildCount) {
-                guildCount.innerHTML = Object.keys(og).length + ' Servers';
+            	if (num === this._num) return og; // don't update if # is the same as before
+                guildCount.innerHTML = num + ' Servers';
+            	this._num = num;
                 return og;
             }
-            let separator = document.querySelector(`.${guildClasses.guildSeparator}`);
+            let separator = document.querySelector(`.${sep.guildSeparator}`);
             if (separator) {
                 guildCount = document.createElement('div');
-                guildCount.className = `${guildClasses.friendsOnline} ${guildClasses.listItem}`;
-                guildCount.innerHTML = Object.keys(og).length + ' Servers';
+                guildCount.className = `${ms ? ms.description+' ' : ''}${sep.listItem}`;
+                guildCount.innerHTML = num + ' Servers';
                 guildCount.id = 'ed_guild_count';
-                try { separator.parentElement.insertAdjacentElement('beforebegin', guildCount); } catch(err) { this.error(err); }
+                try {
+                	separator.parentElement.insertAdjacentElement('beforebegin', guildCount);
+                	this._num = num;
+                } catch(err) {
+                	this.error(err);
+                }
             }
             return og;
         };
@@ -36,5 +45,8 @@ module.exports = new Plugin({
         let m = window.findModule('getGuilds').getGuilds;
         if (m && m.__monkeyPatched)
             m.unpatch();
+        let guildCount = document.getElementById('ed_guild_count');
+        if (guildCount)
+        	guildCount.remove();
     }
 });

@@ -5,7 +5,7 @@ const { app, dialog } = require('electron').remote;
 const http = require('https');
 const fs = require('fs');
 const path = require('path');
-let ttM = {};
+let ttM = {}, iteM = {};
 
 function saveAs(url, filename, fileExtension) {
     const userChosenPath = dialog.showSaveDialog({ defaultPath: filename, title: 'Where would you like to store the stolen memes?', buttonLabel: 'Steal this meme', filters: [{ name: "Stolen meme", extensions: [fileExtension] }] });
@@ -37,11 +37,11 @@ function download (url, dest, cb) {
 };
 
 function addMenuItem(url, text, filename = true, fileExtension) {
-    let cmGroups = document.getElementsByClassName('itemGroup-1tL0uz');
+    let cmGroups = document.getElementsByClassName(iteM.itemGroup);
     if (!cmGroups || cmGroups.length == 0) return;
 
     let newCmItem = document.createElement('div');
-    newCmItem.className = 'item-1Yvehc';
+    newCmItem.className = iteM.item;
     newCmItem.innerHTML = text;
 
     let lastGroup = cmGroups[cmGroups.length-1];
@@ -61,6 +61,7 @@ module.exports = new Plugin({
         this._cmClass = findModule("contextMenu").contextMenu;
         this._contClass = findModule("embedWrapper").container;
         ttM = findModule('tooltipPointer');
+        iteM = findModule('itemBase');
         document.addEventListener("contextmenu", this.listener);
     },
     listener(e) {
@@ -95,7 +96,7 @@ module.exports = new Plugin({
             saveLabel = "Download Emoji";
             fileName = e.target.alt.replace(/[^A-Za-z_-]/g, "");
         }
-        console.log({url, saveLabel, fileName, fileExtension});
+        //console.log({url, saveLabel, fileName, fileExtension});
 
         setTimeout(() => addMenuItem(url, saveLabel, fileName, fileExtension), 5);
     },

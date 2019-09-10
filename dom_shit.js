@@ -38,10 +38,10 @@ let c = {
     }
 }
 // config util
-window.ED = { plugins: {}, version: '2.4.0' };
+window.ED = { plugins: {}, version: '2.4.1' };
 Object.defineProperty(window.ED, 'config', {
     get: function() {
-        let conf; 
+        let conf;
         try{
             conf = require('./config.json');
         } catch (err) {
@@ -62,9 +62,9 @@ Object.defineProperty(window.ED, 'config', {
                 c.error(err);
             confPath = path.join(process.env.injDir, 'config.json');
             bDelCache = false;
-        } 
+        }
 
-        try { 
+        try {
             fs.writeFileSync(confPath, JSON.stringify(newSets));
             if(bDelCache)
                 delete require.cache[confPath];
@@ -107,18 +107,23 @@ process.once("loaded", async () => {
     window.findRawModule = EDApi.findRawModule;
     window.monkeyPatch = EDApi.monkeyPatch;
 
-    while (!window.findModule('startTyping', true) || !window.findModule('track', true))
-        await c.sleep(1000); // wait until essential modules are loaded
+    while (!window.findModule('startTyping', true) || !window.findModule('track', true) || !window.findModule('collectWindowErrors', true))
+        await c.sleep(500); // wait until essential modules are loaded
 
-    if (window.ED.config.silentTyping)
+    if (window.ED.config.silentTyping) {
         window.monkeyPatch(window.findModule('startTyping'), 'startTyping', () => {});
+    }
 
-    if (window.ED.config.antiTrack !== false)
+    if (window.ED.config.antiTrack !== false) {
         window.monkeyPatch(window.findModule('track'), 'track', () => {});
+        const errReports = window.findModule('collectWindowErrors');
+        errReports.collectWindowErrors = false;
+        window.monkeyPatch(errReports, 'report', () => {});
+    }
 
     while (Object.keys(window.req.c).length < 5000)
         await c.sleep(1000); // wait until most modules are loaded for plugins
-    
+
     if (window.ED.config.bdPlugins)
         await require('./bd_shit').setup(currentWindow);
 
@@ -336,7 +341,7 @@ window.EDApi = window.BdApi = class EDApi {
     static findModuleByDisplayName(name) {
         return EDApi.findModule(module => module.displayName === name);
     }
-    
+
     static monkeyPatch(what, methodName, options) {
         if (typeof options === 'function') {
     	    const newOptions = {instead: options, silent: true};

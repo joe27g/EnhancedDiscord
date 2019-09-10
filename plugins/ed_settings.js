@@ -36,8 +36,10 @@ module.exports = new Plugin({
             window.ED.classMaps = {};
         }
         const tabsM = findModule('topPill');
+        const divM = window.findModule(m => m.divider && Object.keys(m).length === 1)
         const contentM = ED.classMaps.headers = findModule('defaultMarginh2');
-        const div = ED.classMaps.divider = findModules('divider')[1].divider;
+        const marginM = ED.classMaps.margins = findModule('marginBottom8');
+        const div = ED.classMaps.divider = divM ? divM.divider : '';
         const swiM = ED.classMaps.switchItem = findModule('switchItem');
         const alignM = ED.classMaps.alignment = findModule('horizontalReverse');
         const cbM = ED.classMaps.checkbox = findModule('checkboxEnabled');
@@ -99,11 +101,11 @@ module.exports = new Plugin({
 
                     if (settingsPane) {
                         // ED Header
-                        settingsPane.innerHTML = `<h2 class="${contentM.h2} ${contentM.defaultColor} ${contentM.marginBottom8}">EnhancedDiscord Plugins</h2>`;
+                        settingsPane.innerHTML = `<h2 class="${contentM.h2} ${contentM.defaultColor} ${marginM.marginBottom8}">EnhancedDiscord Plugins</h2>`;
                         // Open Plugins Folder Button
-                        settingsPane.innerHTML += `<button id="ed-openPluginsFolder" class="${buttM.button} ${buttM.lookFilled} ${buttM.colorGreen} ${buttM.sizeSmall} ${buttM.grow}"><div class="${buttM.contents}">Open Plugins Directory</div></button>`;
+                        settingsPane.innerHTML += `<button id="ed-openPluginsFolder" style="margin-bottom: 10px;" class="${buttM.button} ${buttM.lookFilled} ${buttM.colorGreen} ${buttM.sizeSmall} ${buttM.grow}"><div class="${buttM.contents}">Open Plugins Directory</div></button>`;
                         // Divider
-                        settingsPane.innerHTML += `<div class="${div} ${contentM.marginBottom20}"></div>`
+                        settingsPane.innerHTML += `<div class="${div} ${marginM.marginBottom20}"></div>`
 
                         for (let id in window.ED.plugins) {
                             //if (id == 'ed_settings') continue;
@@ -133,7 +135,7 @@ module.exports = new Plugin({
                     this.className += ` ${tabsM.selected}`;
 
                     if (settingsPane) {
-                        settingsPane.innerHTML = `<h2 class="${contentM.h2} ${contentM.defaultColor}">EnhancedDiscord Configuration</h2><div class="${div} ${contentM.marginBottom20}"></div>`;
+                        settingsPane.innerHTML = `<h2 class="${contentM.h2} ${contentM.defaultColor}">EnhancedDiscord Configuration</h2><div class="${div} ${marginM.marginBottom20}"></div>`;
                         settingsPane.innerHTML += makePluginToggle({id: 'silentTyping', title: 'Silent Typing', desc: "Never appear as typing in any channel."});
                         settingsPane.innerHTML += makePluginToggle({id: 'antiTrack', title: 'Anti-Track', desc: 'Prevent Discord from sending "tracking" data that they may be selling to advertisers or otherwise sharing.'});
                         settingsPane.innerHTML += makePluginToggle({id: 'bdPlugins', title: 'BD Plugins', desc: "Allows ED to load BD plugins natively. (Reload with ctrl+r after enabling/disabling.)"});
