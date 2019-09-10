@@ -51,6 +51,6 @@
     border-bottom-left-radius: 5px;
     transition: border-radius 150ms;
 }
-button[aria-label="Send a gift"], button[aria-label="Open GIF picker"] {
+button[aria-label="Open GIF picker"] {
     display: none;
 }
