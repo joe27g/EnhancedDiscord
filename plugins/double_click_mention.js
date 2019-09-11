@@ -18,11 +18,13 @@ module.exports = new Plugin({
         document.addEventListener("dblclick", this.doubleListener);
     },
     unload: async function() {
+        document.removeEventListener("click", this.clickListener);
         document.removeEventListener("dblclick", this.doubleListener);
     },
 
     clickListener: function(e) {
-        if (!e || !e.target || !e.target.className || !e.target.className.includes || !e.target.className.includes(userM.username)) return;
+        if (!e || !e.target || e.target.className !== userM.username) return;
+        ree.log(e)
 
         const pop = document.querySelector('.'+popM.userPopout);
         if (!pop) { ree._userTag = null; return; }
@@ -33,9 +35,10 @@ module.exports = new Plugin({
         ree._userTag = userTag.textContent;
     },
     doubleListener: function(e) {
-        if (!ree._userTag || !e || !e.target || !e.target.className || !e.target.className.includes || !e.target.className.includes(userM.username)) return;
+        if (!ree._userTag || !e || !e.target || e.target.className !== userM.username) return;
 
         const ta = document.querySelector('.'+taM.textArea);
+        ree.log(ta)
         if (!ta) return;
         ta.value = `${ta.value || ''}@${ree._userTag} `;
         ree._userTag = null;
