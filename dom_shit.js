@@ -413,7 +413,7 @@ window.EDApi = window.BdApi = class EDApi {
 		const plugins = Object.values(window.ED.plugins);
 		const plugin = plugins.find(p => p.id == name || p.name == name);
 		if (!plugin) return false;
-		return !(p.settings.enabled === false);
+		return !(plugin.settings.enabled === false);
 	}
 
 	static isThemeEnabled(name) {
