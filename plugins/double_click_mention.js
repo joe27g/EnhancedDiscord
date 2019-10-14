@@ -1,5 +1,5 @@
 const Plugin = require('../plugin');
-let userM = {}, taM = {}, popM = {}, ree;
+let userM = {}, taM = {}, avM = {}, wM = {}, ree;
 
 module.exports = new Plugin({
     name: 'Double-Click Mention',
@@ -11,36 +11,32 @@ module.exports = new Plugin({
     load: async function() {
         taM = findModule('textArea');
         userM = findModule('username');
-        popM = findModule('userPopout');
+        avM = findModule('avatar');
+        wM = findModule(m => m.wrapper && m.avatar);
         ree = this;
 
-        document.addEventListener("click", this.clickListener);
         document.addEventListener("dblclick", this.doubleListener);
     },
     unload: async function() {
-        document.removeEventListener("click", this.clickListener);
         document.removeEventListener("dblclick", this.doubleListener);
     },
 
-    clickListener: function(e) {
-        if (!e || !e.target || e.target.className !== userM.username) return;
-        ree.log(e)
-
-        const pop = document.querySelector('.'+popM.userPopout);
-        if (!pop) { ree._userTag = null; return; }
-
-        const userTag = pop.querySelector('.'+(popM.headerTag || 'bite_my_shiny_metal_ass').split(' ').join('.'));
-        if (!userTag) return;
-
-        ree._userTag = userTag.textContent;
-    },
     doubleListener: function(e) {
-        if (!ree._userTag || !e || !e.target || e.target.className !== userM.username) return;
+        if (!e || !e.target || !e.target.parentElement) return;
+        let tag;
+        try {
+            if (e.target.className === userM.username)
+                tag = e.target.parentElement.__reactInternalInstance$.return.return.memoizedProps.message.author.tag;
+            else if (e.target.className === wM.wrapper && e.target.parentElement.className === avM.avatar)
+                tag = e.target.parentElement.__reactInternalInstance$.return.return.memoizedProps.user.tag;
+        } catch(err) {
+            ree.error(err);
+            tag = null;
+        }
+        if (!tag) return;
 
         const ta = document.querySelector('.'+taM.textArea);
-        ree.log(ta)
         if (!ta) return;
-        ta.value = `${ta.value || ''}@${ree._userTag} `;
-        ree._userTag = null;
+        ta.value = `${ta.value ? ta.value.endsWith(' ') ? ta.value : ta.value+' ' : ''}@${tag} `;
     }
 });
