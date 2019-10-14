@@ -407,5 +407,20 @@ window.EDApi = window.BdApi = class EDApi {
             string = string.replace(new RegExp(`\\{\\{${val}\\}\\}`, 'g'), values[val]);
         }
         return string;
-    };
+    }
+	
+	static isPluginEnabled(name) {
+		const plugins = Object.values(window.ED.plugins);
+		const plugin = plugins.find(p => p.id == name || p.name == name);
+		if (!plugin) return false;
+		return !(plugin.settings.enabled === false);
+	}
+
+	static isThemeEnabled(name) {
+		return false;
+	}
+
+	static isSettingEnabled(id) {
+		return window.ED.config[id];
+	}
 };
