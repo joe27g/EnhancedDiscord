@@ -1,5 +1,5 @@
 const Plugin = require('../plugin');
-let contM = {}, iteM = {}, buttM = {}, cM, eM, dM;
+let contM = {}, iteM = {}, buttM = {}, cM, eM, dM, ree;
 
 module.exports = new Plugin({
     name: 'Double-Click Edit',
@@ -18,6 +18,7 @@ module.exports = new Plugin({
         if (!cM || !eM || !dM) {
             return this.error('Aborted loading - Failed to find required modules!');
         }
+        ree = this;
 
         document.addEventListener("dblclick", this.editListener, false);
         document.addEventListener("keydown", this.keyDownListener);
@@ -38,7 +39,7 @@ module.exports = new Plugin({
         try {
             msgObj = messageElem.__reactInternalInstance$.return.return.memoizedProps.message;
         } catch(err) {
-            this.error(err);
+            ree.error(err);
         }
         if (!msgObj) return;
         const channelId = cM.getChannelId();
@@ -46,7 +47,7 @@ module.exports = new Plugin({
         return eM.startEditMessage(channelId, msgObj.id, msgObj.content || '');
     },
     deleteListener: function(e) {
-        if (!this.deletePressed) return;
+        if (!ree.deletePressed) return;
 
         let messageElem = e.target.closest('.'+contM.container);
         if (!messageElem) return;
@@ -54,7 +55,7 @@ module.exports = new Plugin({
         try {
             msgObj = messageElem.__reactInternalInstance$.return.return.memoizedProps.message;
         } catch(err) {
-            this.error(err);
+            ree.error(err);
         }
         if (!msgObj) return;
         const channelId = cM.getChannelId();
@@ -63,10 +64,10 @@ module.exports = new Plugin({
     },
     keyUpListener: function(e) {
         if (e.keyCode == 46)
-            this.deletePressed = false;
+            ree.deletePressed = false;
     },
     keyDownListener: function(e) {
         if (e.keyCode == 46)
-            this.deletePressed = true;
+            ree.deletePressed = true;
     }
 });
