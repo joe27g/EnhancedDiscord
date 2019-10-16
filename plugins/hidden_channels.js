@@ -184,9 +184,9 @@ module.exports = new Plugin({
     attachHiddenChanNotice: function () {
         const messagesWrapper = document.querySelector(`.${findModule("messages").messagesWrapper}`);
 
-        messagesWrapper.firstChild.remove(); // Remove messages shit.
-        messagesWrapper.parentElement.children[1].remove(); // Remove message box.
-        messagesWrapper.parentElement.parentElement.children[1].remove(); // Remove user list.
+        messagesWrapper.firstChild.style.display = "none"; // Remove messages shit.
+        messagesWrapper.parentElement.children[1].style.display = "none"; // Remove message box.
+        messagesWrapper.parentElement.parentElement.children[1].style.display = "none"; // Remove user list.
 
         const toolbar = document.querySelector("."+EDApi.findModule(m => {
             if (m instanceof Window) return;
