@@ -1,5 +1,5 @@
 const Plugin = require('../plugin');
-let contM = {}, iteM = {}, buttM = {}, cM, eM, dM, ree;
+let contM = {}, iteM = {}, buttM = {}, cM, eM, dM, ewM, ree;
 
 module.exports = new Plugin({
     name: 'Double-Click Edit',
@@ -15,7 +15,8 @@ module.exports = new Plugin({
         cM = findModule('getChannelId');
         eM = findModule('startEditMessage');
         dM = findModule('deleteMessage');
-        if (!cM || !eM || !dM) {
+        ewM = findModule('embedWrapper');
+        if (!cM || !eM || !dM || !ewM) {
             return this.error('Aborted loading - Failed to find required modules!');
         }
         ree = this;
@@ -49,7 +50,9 @@ module.exports = new Plugin({
     deleteListener: function(e) {
         if (!ree.deletePressed) return;
 
-        let messageElem = e.target.closest('.'+contM.container);
+        let messageElem = e.target.closest('.'+contM.container), wrapperElem = e.target.closest('.'+ewM.container);
+        if (!messageElem && wrapperElem)
+        	messageElem = wrapperElem.parentElement.firstElementChild;
         if (!messageElem) return;
         let msgObj;
         try {
