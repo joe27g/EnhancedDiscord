@@ -25,6 +25,14 @@ module.exports = new Plugin({
         document.addEventListener("keydown", this.keyDownListener);
         document.addEventListener("keyup", this.keyUpListener);
         document.addEventListener("click", this.deleteListener);
+        
+        // allow editing in "locked" (read-only) channels
+        const prot = EDApi.findModuleByDisplayName("ChannelTextArea").prototype;
+        monkeyPatch(prot, 'render', b => {
+        	if (b.thisObject.props.type === 'edit')
+        		b.thisObject.props.disabled = false;
+        	return b.callOriginalMethod(b.methodArguments);
+        });
     },
     unload: async function() {
         document.removeEventListener("dblclick", this.editListener);
