@@ -4,252 +4,6 @@ const Module = require('module').Module;
 const originalRequire = Module._extensions['.js'];
 const EDPlugin = require('./plugin');
 
-const css = `#bd-settingspane-container h2.ui-form-title {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 20px;
-    text-transform: uppercase;
-    display: inline-block;
-    margin-bottom: 20px;
-}
-#bd-settingspane-container h2.ui-form-title {
-    color: #f6f6f7;
-}
-.theme-light #bd-settingspane-container h2.ui-form-title {
-    color: #4f545c;
-}
-
-#bd-settingspane-container .ui-switch-item {
-    flex-direction: column;
-    margin-top: 8px;
-}
-
-#bd-settingspane-container .ui-switch-item h3 {
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 24px;
-    flex: 1;
-}
-#bd-settingspane-container .ui-switch-item h3 {
-    color: #f6f6f7;
-}
-.theme-light #bd-settingspane-container .ui-switch-item h3 {
-    color: #4f545c;
-}
-
-#bd-settingspane-container .ui-switch-item .style-description {
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 20px;
-    margin-bottom: 10px;
-	padding-bottom: 10px;
-	border-bottom: 1px solid hsla(218,5%,47%,.3);
-}
-#bd-settingspane-container .ui-switch-item .style-description {
-    color: #72767d;
-}
-.theme-light #bd-settingspane-container .ui-switch-item .style-description {
-    color: rgba(114,118,125,.6);
-}
-
-#bd-settingspane-container .ui-switch-item .ui-switch-wrapper {
-	-webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    position: relative;
-    width: 44px;
-    height: 24px;
-    display: block;
-    flex: 0 0 auto;
-}
-
-#bd-settingspane-container .ui-switch-item .ui-switch-wrapper input {
-	position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-}
-
-#bd-settingspane-container .ui-switch-item .ui-switch-wrapper .ui-switch {
-	background: #7289da;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: #72767d;
-    border-radius: 14px;
-    transition: background .15s ease-in-out,box-shadow .15s ease-in-out,border .15s ease-in-out;
-}
-
-#bd-settingspane-container .ui-switch-item .ui-switch-wrapper .ui-switch:before {
-	content: '';
-    display: block;
-    width: 18px;
-    height: 18px;
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    bottom: 3px;
-    background: #f6f6f7;
-    border-radius: 10px;
-    transition: all .15s ease;
-    box-shadow: 0 3px 1px 0 rgba(0,0,0,.05),0 2px 2px 0 rgba(0,0,0,.1),0 3px 3px 0 rgba(0,0,0,.05);
-}
-
-#bd-settingspane-container .ui-switch-item .ui-switch-wrapper .ui-switch.checked {
-	background: #7289da;
-}
-
-#bd-settingspane-container .ui-switch-item .ui-switch-wrapper .ui-switch.checked:before {
-	transform: translateX(20px);
-}
-
-#bd-settingspane-container .plugin-settings {
-    padding: 0 12px 12px 20px;
-}
-
-@keyframes bd-modal-backdrop {
-    to { opacity: 0.85; }
-}
-
-@keyframes bd-modal-anim {
-    to { transform: scale(1); opacity: 1; }
-}
-
-@keyframes bd-modal-backdrop-closing {
-    to { opacity: 0; }
-}
-
-@keyframes bd-modal-closing {
-    to { transform: scale(0.7); opacity: 0; }
-}
-
-#bd-settingspane-container .backdrop {
-    animation: bd-modal-backdrop 250ms ease;
-    animation-fill-mode: forwards;
-    background-color: rgb(0, 0, 0);
-    transform: translateZ(0px);
-}
-
-#bd-settingspane-container.closing .backdrop {
-    animation: bd-modal-backdrop-closing 200ms linear;
-    animation-fill-mode: forwards;
-    animation-delay: 50ms;
-    opacity: 0.85;
-}
-
-#bd-settingspane-container.closing .modal {
-    animation: bd-modal-closing 250ms cubic-bezier(0.19, 1, 0.22, 1);
-    animation-fill-mode: forwards;
-    opacity: 1;
-    transform: scale(1);
-}
-
-#bd-settingspane-container .modal {
-    animation: bd-modal-anim 250ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    animation-fill-mode: forwards;
-    transform: scale(0.7);
-    transform-origin: 50% 50%;
-}
-/* Toast CSS */
-
-.toasts {
-  position: fixed;
-  display: flex;
-  top: 0;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  pointer-events: none;
-  z-index: 4000;
-}
-
-@keyframes toast-up {
-  from {
-      transform: translateY(0);
-      opacity: 0;
-  }
-}
-
-.toast {
-  animation: toast-up 300ms ease;
-  transform: translateY(-10px);
-  background: #36393F;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 0 0 1px rgba(32,34,37,.6), 0 2px 10px 0 rgba(0,0,0,.2);
-  font-weight: 500;
-  color: #fff;
-  user-select: text;
-  font-size: 14px;
-  opacity: 1;
-  margin-top: 10px;
-  pointer-events: none;
-  user-select: none;
-}
-
-@keyframes toast-down {
-  to {
-      transform: translateY(0px);
-      opacity: 0;
-  }
-}
-
-.toast.closing {
-  animation: toast-down 200ms ease;
-  animation-fill-mode: forwards;
-  opacity: 1;
-  transform: translateY(-10px);
-}
-
-
-.toast.icon {
-  padding-left: 30px;
-  background-size: 20px 20px;
-  background-repeat: no-repeat;
-  background-position: 6px 50%;
-}
-
-.toast.toast-info {
-  background-color: #4a90e2;
-}
-
-.toast.toast-info.icon {
-  background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPiAgICA8cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptMSAxNWgtMnYtNmgydjZ6bTAtOGgtMlY3aDJ2MnoiLz48L3N2Zz4=);
-}
-
-.toast.toast-success {
-  background-color: #43b581;
-}
-
-.toast.toast-success.icon {
-  background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPiAgICA8cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptLTIgMTVsLTUtNSAxLjQxLTEuNDFMMTAgMTQuMTdsNy41OS03LjU5TDE5IDhsLTkgOXoiLz48L3N2Zz4=);
-}
-.toast.toast-danger,
-.toast.toast-error {
-  background-color: #f04747;
-}
-
-.toast.toast-danger.icon,
-.toast.toast-error.icon {
-  background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTEyIDJDNi40NyAyIDIgNi40NyAyIDEyczQuNDcgMTAgMTAgMTAgMTAtNC40NyAxMC0xMFMxNy41MyAyIDEyIDJ6bTUgMTMuNTlMMTUuNTkgMTcgMTIgMTMuNDEgOC40MSAxNyA3IDE1LjU5IDEwLjU5IDEyIDcgOC40MSA4LjQxIDcgMTIgMTAuNTkgMTUuNTkgNyAxNyA4LjQxIDEzLjQxIDEyIDE3IDE1LjU5eiIvPiAgICA8cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PC9zdmc+);
-}
-
-.toast.toast-warning,
-.toast.toast-warn {
-  background-color: #FFA600;
-  color: white;
-}
-
-.toast.toast-warning.icon,
-.toast.toast-warn.icon {
-  background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgPHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPiAgICA8cGF0aCBkPSJNMSAyMWgyMkwxMiAyIDEgMjF6bTEyLTNoLTJ2LTJoMnYyem0wLTRoLTJ2LTRoMnY0eiIvPjwvc3ZnPg==);
-}`;
-
 module.exports = class BDManager {
 
     static async setup(currentWindow) {
@@ -269,13 +23,16 @@ module.exports = class BDManager {
 
         this.currentWindow.webContents.on('did-navigate-in-page', BDManager.onSwitch);
 
-        EDApi.injectCSS('BDManager', css);
+        fs.readFile('./bd.css', (err, text) => {
+            if (err) return console.error(err);
+            window.EDApi.injectCSS('BDManager', text);
+        })
 
         Module._extensions['.js'] = this.pluginRequire();
     }
 
     static destroy() {
-        EDApi.clearCSS('BDManager');
+        window.EDApi.clearCSS('BDManager');
         this.observer.disconnect();
         this.currentWindow.webContents.removeEventListener('did-navigate-in-page', BDManager.onSwitch);
         this.jqueryElement.remove();
@@ -290,7 +47,7 @@ module.exports = class BDManager {
         const meta = content.split('\n')[0];
         const rawMeta = meta.substring(meta.lastIndexOf('//META') + 6, meta.lastIndexOf('*//'));
         if (meta.indexOf('META') < 0) throw new Error('META was not found.');
-        if (!EDApi.testJSON(rawMeta)) throw new Error('META could not be parsed.');
+        if (!window.EDApi.testJSON(rawMeta)) throw new Error('META could not be parsed.');
 
         const parsed = JSON.parse(rawMeta);
         if (!parsed.name) throw new Error('META missing name data.');
@@ -352,21 +109,21 @@ module.exports = class BDManager {
         window.bdplugins = window.bdthemes = window.pluginCookie = window.themeCookie = window.settingsCookie = {};
         window.bdpluginErrors = window.bdthemeErrors = [];
 
-        window.bdPluginStorage = {get: EDApi.getData, set: EDApi.setData};
-        window.Utils = {monkeyPatch: EDApi.monkeyPatch, suppressErrors: EDApi.suppressErrors, escapeID: EDApi.escapeID};
+        window.bdPluginStorage = {get: window.EDApi.getData, set: window.EDApi.setData};
+        window.Utils = {monkeyPatch: window.EDApi.monkeyPatch, suppressErrors: window.EDApi.suppressErrors, escapeID: window.EDApi.escapeID};
 
         window.BDV2 = class V2 {
-            static get WebpackModules() {return {find: EDApi.findModule, findAll: EDApi.findAllModules, findByUniqueProperties: EDApi.findModuleByProps, findByDisplayName: EDApi.findModuleByDisplayName};}
-            static getInternalInstance(node) {return EDApi.getInternalInstance(node);}
-            static get react() {return EDApi.React;}
-            static get reactDom() {return EDApi.ReactDOM;}
+            static get WebpackModules() {return {find: window.EDApi.findModule, findAll: window.EDApi.findAllModules, findByUniqueProperties: window.EDApi.findModuleByProps, findByDisplayName: window.EDApi.findModuleByDisplayName};}
+            static getInternalInstance(node) {return window.EDApi.getInternalInstance(node);}
+            static get react() {return window.EDApi.React;}
+            static get reactDom() {return window.EDApi.ReactDOM;}
         };
     }
 
     static showSettingsModal(plugin) {
-        const baseModalClasses = EDApi.findModule(m => m.modal && m.inner && !m.sizeMedium) || {modal: "modal-36zFtW", inner: "inner-2VEzy9"};
-        const modalClasses = EDApi.findModuleByProps("sizeMedium") || {modal: "backdrop-1wrmKb", sizeMedium: "sizeMedium-ctncE5", content: "content-2KoCOZ", header: "header-2nhbou", footer: "footer-30ewN8", close: "close-hhyjWJ", inner: "inner-2Z5QZX"};
-        const backdrop = EDApi.findModuleByProps("backdrop") || {backdrop: "backdrop-1wrmKb"};
+        const baseModalClasses = window.EDApi.findModule(m => m.modal && m.inner && !m.sizeMedium) || {modal: "modal-36zFtW", inner: "inner-2VEzy9"};
+        const modalClasses = window.EDApi.findModuleByProps("sizeMedium") || {modal: "backdrop-1wrmKb", sizeMedium: "sizeMedium-ctncE5", content: "content-2KoCOZ", header: "header-2nhbou", footer: "footer-30ewN8", close: "close-hhyjWJ", inner: "inner-2Z5QZX"};
+        const backdrop = window.EDApi.findModuleByProps("backdrop") || {backdrop: "backdrop-1wrmKb"};
         const modalHTML = `<div id="bd-settingspane-container" class="theme-dark">
                 <div class="backdrop ${backdrop.backdrop}" style="background-color: rgb(0, 0, 0); opacity: 0.85;"></div>
                 <div class="modal ${baseModalClasses.modal}" style="opacity: 1;">
@@ -389,7 +146,7 @@ module.exports = class BDManager {
 
         const panel = plugin.getSettingsPanel();
         if (!panel) return;
-        let modal = $(EDApi.formatString(modalHTML, {modalTitle: `${plugin.name} Settings`, id: `plugin-settings-${plugin.name}`}));
+        const modal = window.$(window.EDApi.formatString(modalHTML, {modalTitle: `${plugin.name} Settings`, id: `plugin-settings-${plugin.name}`}));
         if (typeof panel == 'string') modal.find('.plugin-settings').html(panel);
         else modal.find('.plugin-settings').append(panel);
         modal.find('.backdrop, .close-button, .done-button').on('click', () => {

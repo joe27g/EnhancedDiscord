@@ -7,13 +7,13 @@ module.exports = new Plugin({
     color: 'salmon',
 
     load: async function() {
-        let hcModules = window.findModules('hasChanges');
+        const hcModules = window.EDApi.findModules('hasChanges');
         this._listener = function(e) {
           if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) && e.keyCode == 83) {
             e.preventDefault();
-            let types = ['GUILD', 'CHANNEL', 'ACCOUNT', 'GUILD ROLES', 'CHANNEL OVERWRITES'];
+            const types = ['GUILD', 'CHANNEL', 'ACCOUNT', 'GUILD ROLES', 'CHANNEL OVERWRITES'];
             let hasChanges = false;
-            for (let i in types) {
+            for (const i in types) {
                 if (hcModules[i] && hcModules[i].hasChanges()) {
                     hasChanges = true;
                     //module.exports.log(`saving ${types[i]} settings`);
@@ -24,7 +24,7 @@ module.exports = new Plugin({
                 //module.exports.log('No setting changes detected. Aborting.');
                 return;
             }
-            let saveButton = document.querySelector('[class*="lookFilled-"][class*="colorGreen-"]');
+            const saveButton = document.querySelector('[class*="lookFilled-"][class*="colorGreen-"]');
             if (saveButton)
                 try { saveButton.click(); } catch(err) { module.exports.error(err); }
             return;

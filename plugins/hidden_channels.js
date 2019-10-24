@@ -12,30 +12,30 @@ module.exports = new Plugin({
         if (!window.ED._hiddenChans)
             window.ED._hiddenChans = [];
 
-        let gcu = findModule('getCurrentUser').getCurrentUser, gc = findModule('getChannels').getChannels, gg = findModule('getGuilds').getGuilds;
+        const gcu = window.EDApi.findModule('getCurrentUser').getCurrentUser, gc = window.EDApi.findModule('getChannels').getChannels, gg = window.EDApi.findModule('getGuilds').getGuilds;
 
         function disButt() { // disable perm buttons cause u can't use them :P
             //console.log('executing disButt();');
-            let r = document.getElementById('app-mount');
+            const r = document.getElementById('app-mount');
             if (!r) return;
-            let permButtons = r.getElementsByClassName('item-3T2z1R');
+            const permButtons = r.getElementsByClassName('item-3T2z1R');
             if (permButtons && permButtons.length > 0) {
-                for (let i in permButtons) {
+                for (const i in permButtons) {
                     permButtons[i].disabled = true;
                 }
             }
-            let redButton = r.querySelector('.content-1rPSz4 .colorRed-1TFJan');
+            const redButton = r.querySelector('.content-1rPSz4 .colorRed-1TFJan');
             hide(redButton);
 
-            let syncButton = r.querySelector('.sidebarScrollable-1qPI87 .card-2j1p1_ .button-1dUBJq');
+            const syncButton = r.querySelector('.sidebarScrollable-1qPI87 .card-2j1p1_ .button-1dUBJq');
             hide(syncButton);
 
-            let addPermOverw = r.querySelector('.sidebarScrollable-1qPI87 img.sidebarHeader-2uiNOo');
+            const addPermOverw = r.querySelector('.sidebarScrollable-1qPI87 img.sidebarHeader-2uiNOo');
             hide(addPermOverw);
 
-            let switches = r.getElementsByClassName('checkbox-2tyjJg');
+            const switches = r.getElementsByClassName('checkbox-2tyjJg');
             if (switches && switches.length > 0) {
-                for (let i in switches) {
+                for (const i in switches) {
                     if (!switches[i]) continue;
                     switches[i].className = 'checkboxDisabled-1MA81A checkbox-2tyjJg';
                     //console.log(switches[i].parentElement);
@@ -43,9 +43,9 @@ module.exports = new Plugin({
                         switches[i].parentElement.className = (switches[i].parentElement.className || '').replace('switchEnabled-V2WDBB', 'switchDisabled-3HsXAJ');
                 }
             }
-            let addRoleButtons = r.getElementsByClassName('addButton-pcyyf6');
+            const addRoleButtons = r.getElementsByClassName('addButton-pcyyf6');
             if (addRoleButtons && addRoleButtons.length > 0) {
-                for (let i in addRoleButtons) {
+                for (const i in addRoleButtons) {
                     hide(addRoleButtons[i]);
                 }
             }
@@ -61,16 +61,16 @@ module.exports = new Plugin({
             return element;
         }
 
-        let cp = findModule('computePermissions');
-        monkeyPatch(cp, 'computePermissions', function(b) {
-            let member = b.methodArguments[0]; // member to get perms for, object or ID
-            let thing = b.methodArguments[1]; // this can be a channel, guild, category, ... object or ID
-            let original = b.callOriginalMethod(arguments[0].methodArguments); // original (correct) perms
+        const cp = window.EDApi.findModule('computePermissions');
+        window.EDApi.monkeyPatch(cp, 'computePermissions', function(b) {
+            const member = b.methodArguments[0]; // member to get perms for, object or ID
+            const thing = b.methodArguments[1]; // this can be a channel, guild, category, ... object or ID
+            const original = b.callOriginalMethod(arguments[0].methodArguments); // original (correct) perms
 
             if (member.id !== gcu().id) { // checking for someone else
                 return original;
             }
-            let chans = gc(), guilds = gg();
+            const chans = gc(), guilds = gg();
             if (chans[thing.id] || guilds[thing.id]) { // checking perms for a channel or guild
 
                 if (original & 1024) { // can already wiew channel
@@ -92,12 +92,12 @@ module.exports = new Plugin({
             }
             return original;
         });
-        monkeyPatch(cp, 'getGuildPermissionProps', function(b) {
-            let retVal = b.callOriginalMethod(b.methodArguments);
+        window.EDApi.monkeyPatch(cp, 'getGuildPermissionProps', function(b) {
+            const retVal = b.callOriginalMethod(b.methodArguments);
             if (!retVal) return;
             //console.log(b.methodArguments);
-            let guild = b.methodArguments[0];
-            let member = b.methodArguments[1];
+            const guild = b.methodArguments[0];
+            const member = b.methodArguments[1];
             if (member.id !== gcu().id) { // checking for someone else
                 return retVal;
             }
@@ -115,9 +115,9 @@ module.exports = new Plugin({
         });
         //TODO: ^ This method is triggered very often while settings are open. That can cause a lot of lag. Could be partially replaced with the patched version of generateGuildGeneralPermissionSpec if it worked. Perhaps set an interval on disButt instead, but make sure to stop it when settings are closed.
 
-        monkeyPatch(cp, 'generateChannelGeneralPermissionSpec', function(b) {
+        window.EDApi.monkeyPatch(cp, 'generateChannelGeneralPermissionSpec', function(b) {
             //console.log('channel permissions pane opened', b);
-            let guildID = findModule('getGuildId').getGuildId();
+            const guildID = window.EDApi.findModule('getGuildId').getGuildId();
             if (window.ED._readOnlyPerms.indexOf(guildID) > -1) {
                 disButt();
                 setTimeout(disButt, 690);
@@ -134,61 +134,61 @@ module.exports = new Plugin({
         });*/
         //TODO: ^ This method tells when guild permissions are opened, but not what guild. Figure out how to get said guild
 
-        monkeyPatch(findModule('hasUnread').__proto__, 'hasUnread', function(b) {
+        window.EDApi.monkeyPatch(window.EDApi.findModule('hasUnread').__proto__, 'hasUnread', function(b) {
             if (window.ED._hiddenChans.indexOf(b.methodArguments[0]) > -1)
                 return false; // don't show hidden channels as unread.
             return b.callOriginalMethod(b.methodArguments);
         });
-        monkeyPatch(findModule('hasUnread').__proto__, 'hasUnreadPins', function(b) {
+        window.EDApi.monkeyPatch(window.EDApi.findModule('hasUnread').__proto__, 'hasUnreadPins', function(b) {
             if (window.ED._hiddenChans.indexOf(b.methodArguments[0]) > -1)
                 return false; // don't show icon on hidden channel pins.
             return b.callOriginalMethod(b.methodArguments);
         });
 
-        findModule("dispatch").subscribe("CHANNEL_SELECT", module.exports.dispatchSubscription);
+        window.EDApi.findModule("dispatch").subscribe("CHANNEL_SELECT", module.exports.dispatchSubscription);
 
-        monkeyPatch(findModule("fetchMessages"), "fetchMessages", function(d) {
+        window.EDApi.monkeyPatch(window.EDApi.findModule("fetchMessages"), "fetchMessages", function(d) {
             if (window.ED._hiddenChans.includes(d.methodArguments[0])) return;
             else return d.callOriginalMethod();
         })
     },
 
     unload: function() {
-        let m = findModule('hasUnread').__proto__.hasUnread;
+        let m = window.EDApi.findModule('hasUnread').__proto__.hasUnread;
         if (m.__monkeyPatched && m.unpatch)
             m.unpatch();
-        m = findModule('hasUnread').__proto__.hasUnreadPins;
+        m = window.EDApi.findModule('hasUnread').__proto__.hasUnreadPins;
         if (m.__monkeyPatched && m.unpatch)
             m.unpatch();
-        m = findModule('fetchMessages').fetchMessages;
+        m = window.EDApi.findModule('fetchMessages').fetchMessages;
         if (m.__monkeyPatched && m.unpatch)
             m.unpatch();
-        m = findModule('computePermissions');
+        m = window.EDApi.findModule('computePermissions');
 
-        let shitToUnpatch = ['computePermissions', 'generateChannelGeneralPermissionSpec', 'generateGuildGeneralPermissionSpec'];
+        const shitToUnpatch = ['computePermissions', 'generateChannelGeneralPermissionSpec', 'generateGuildGeneralPermissionSpec'];
         for (const meme of shitToUnpatch) {
-            let mod = m[meme];
+            const mod = m[meme];
             if (mod && mod.__monkeyPatched && mod.unpatch)
                 mod.unpatch();
         }
 
-        findModule("dispatch").unsubscribe("CHANNEL_SELECT", module.exports.dispatchSubscription);
+        window.EDApi.findModule("dispatch").unsubscribe("CHANNEL_SELECT", module.exports.dispatchSubscription);
     },
     dispatchSubscription: function (data) {
         if (data.type !== "CHANNEL_SELECT") return;
 
-        if (ED._hiddenChans.includes(data.channelId)) {
+        if (window.ED._hiddenChans.includes(data.channelId)) {
             setTimeout(module.exports.attachHiddenChanNotice,100); // This value could be brought down however I don't know if lower spec users would suffer.
         }
     },
     attachHiddenChanNotice: function () {
-        const messagesWrapper = document.querySelector(`.${findModule("messages").messagesWrapper}`);
+        const messagesWrapper = document.querySelector(`.${window.EDApi.findModule("messages").messagesWrapper}`);
 
         messagesWrapper.firstChild.style.display = "none"; // Remove messages shit.
         messagesWrapper.parentElement.children[1].style.display = "none"; // Remove message box.
         messagesWrapper.parentElement.parentElement.children[1].style.display = "none"; // Remove user list.
 
-        const toolbar = document.querySelector("."+EDApi.findModule(m => {
+        const toolbar = document.querySelector("."+window.EDApi.findModule(m => {
             if (m instanceof Window) return;
             if (m.toolbar && m.selected) return m;
         }).toolbar);
@@ -197,10 +197,10 @@ module.exports = new Plugin({
 
 
         const hiddenChannelNotif = document.createElement("div");
-        
+
         // Class name modules
-        const txt = findModule("h5");
-        const flx = findModule("flex");
+        const txt = window.EDApi.findModule("h5");
+        const flx = window.EDApi.findModule("flex");
 
         hiddenChannelNotif.className = flx.flexCenter; // yikes american spelling
         hiddenChannelNotif.style.width = "100%";

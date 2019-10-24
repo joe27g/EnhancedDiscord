@@ -11,10 +11,10 @@ module.exports = new Plugin({
 
     load: async function() {
         ree = this;
-        cm = findModule('contextMenu');
-        Dispatcher = findModule("dispatch");
-        ImageResolver = findModule("getUserAvatarURL");
-        ContextMenuActions = findModule("closeContextMenu");
+        cm = window.EDApi.findModule('contextMenu');
+        Dispatcher = window.EDApi.findModule("dispatch");
+        ImageResolver = window.EDApi.findModule("getUserAvatarURL");
+        ContextMenuActions = window.EDApi.findModule("closeContextMenu");
 
         Dispatcher.subscribe("CONTEXT_MENU_OPEN", this.checkMenu);
     },
@@ -32,7 +32,7 @@ module.exports = new Plugin({
         let label = "";
         let url = "";
         let props = {onHeightUpdate: () => {}};
-        
+
         // For users
         if (
             reactData.return &&
@@ -56,7 +56,7 @@ module.exports = new Plugin({
             if (!url.startsWith("http") && url.startsWith("/assets"))
                 url = `https://discordapp.com${url}`;
         }
-        
+
         // For guilds
         if (
             reactData.return &&
@@ -74,32 +74,32 @@ module.exports = new Plugin({
             // No way to make it return the animated version, do it manually
             if (ImageResolver.hasAnimatedGuildIcon(guild))
                 url = url.replace(".webp?", ".gif?");
-            else 
+            else
                 url = url.replace(".webp?", ".png?");
         }
-        
+
         // Assume it is already in the DOM and add item ASAP
         if (label && url)
             ree.addMenuItem(url, label, props);
     },
 
     addMenuItem: function(imageURL, text, menu) {
-        let cmGroups = document.getElementsByClassName(cm.itemGroup);
+        const cmGroups = document.getElementsByClassName(cm.itemGroup);
         if (!cmGroups || cmGroups.length == 0) return;
 
-        let newCmItem = document.createElement("div");
+        const newCmItem = document.createElement("div");
         newCmItem.className = cm.item+' '+cm.clickable;
-        let newCmItemContent = document.createElement("div");
+        const newCmItemContent = document.createElement("div");
         newCmItemContent.className = cm.label;
         newCmItemContent.innerHTML = text;
         newCmItem.appendChild(newCmItemContent);
 
-        let lastGroup = cmGroups[cmGroups.length-1];
+        const lastGroup = cmGroups[cmGroups.length-1];
         lastGroup.appendChild(newCmItem);
 
         menu.onHeightUpdate();
 
-        newCmItem.onclick = function(e) {
+        newCmItem.onclick = () => {
             Clipboard.write({text: imageURL});
             ContextMenuActions.closeContextMenu();
         }

@@ -9,10 +9,10 @@ module.exports = new Plugin({
 
     _userTag: '',
     load: async function() {
-        taM = findModule('textArea');
-        userM = findModule('username');
-        avM = findModule('avatar');
-        wM = findModule(m => m.wrapper && m.avatar);
+        taM = window.EDApi.findModule('textArea');
+        userM = window.EDApi.findModule('username');
+        avM = window.EDApi.findModule('avatar');
+        wM = window.EDApi.findModule(m => m.wrapper && m.avatar);
         ree = this;
 
         document.addEventListener("dblclick", this.doubleListener);

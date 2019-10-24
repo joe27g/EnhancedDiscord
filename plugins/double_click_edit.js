@@ -1,5 +1,5 @@
 const Plugin = require('../plugin');
-let contM = {}, iteM = {}, buttM = {}, cM, eM, dM, ewM, ree;
+let contM = {}, cM, eM, dM, ewM = {}, ree;
 
 module.exports = new Plugin({
     name: 'Double-Click Edit',
@@ -9,13 +9,11 @@ module.exports = new Plugin({
 
     deletePressed: false,
     load: async function() {
-        contM = findModule(m => m.container && m.containerCozy);
-        iteM = findModule('itemBase');
-        buttM = findModule(m => m.buttonSpacing && m.button);
-        cM = findModule('getChannelId');
-        eM = findModule('startEditMessage');
-        dM = findModule('deleteMessage');
-        ewM = findModule('embedWrapper');
+        contM = window.EDApi.findModule(m => m.container && m.containerCozy);
+        cM = window.EDApi.findModule('getChannelId');
+        eM = window.EDApi.findModule('startEditMessage');
+        dM = window.EDApi.findModule('deleteMessage');
+        ewM = window.EDApi.findModule('embedWrapper');
         if (!cM || !eM || !dM || !ewM) {
             return this.error('Aborted loading - Failed to find required modules!');
         }
@@ -25,13 +23,13 @@ module.exports = new Plugin({
         document.addEventListener("keydown", this.keyDownListener);
         document.addEventListener("keyup", this.keyUpListener);
         document.addEventListener("click", this.deleteListener);
-        
+
         // allow editing in "locked" (read-only) channels
-        const prot = EDApi.findModuleByDisplayName("ChannelTextArea").prototype;
-        monkeyPatch(prot, 'render', b => {
-        	if (b.thisObject.props.type === 'edit')
-        		b.thisObject.props.disabled = false;
-        	return b.callOriginalMethod(b.methodArguments);
+        const prot = window.EDApi.findModuleByDisplayName("ChannelTextArea").prototype;
+        window.EDApi.monkeyPatch(prot, 'render', b => {
+            if (b.thisObject.props.type === 'edit')
+                b.thisObject.props.disabled = false;
+            return b.callOriginalMethod(b.methodArguments);
         });
     },
     unload: async function() {
@@ -42,7 +40,7 @@ module.exports = new Plugin({
     },
 
     editListener: function(e) {
-        let messageElem = e.target.closest('.'+contM.container);
+        const messageElem = e.target.closest('.'+contM.container);
         if (!messageElem) return;
         let msgObj;
         try {
@@ -58,9 +56,10 @@ module.exports = new Plugin({
     deleteListener: function(e) {
         if (!ree.deletePressed) return;
 
-        let messageElem = e.target.closest('.'+contM.container), wrapperElem = e.target.closest('.'+ewM.container);
+        let messageElem = e.target.closest('.'+contM.container);
+        const wrapperElem = e.target.closest('.'+ewM.container);
         if (!messageElem && wrapperElem)
-        	messageElem = wrapperElem.parentElement.firstElementChild;
+            messageElem = wrapperElem.parentElement.firstElementChild;
         if (!messageElem) return;
         let msgObj;
         try {

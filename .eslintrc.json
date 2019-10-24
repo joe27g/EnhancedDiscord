@@ -1,0 +1,20 @@
+{
+    "extends": "eslint:recommended",
+    "env": {
+        "browser": true,
+        "node": true,
+        "es6": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 8
+    },
+    "rules": {
+        "no-console": "off",
+        "no-unused-vars": "warn",
+        "no-useless-escape": "warn",
+        "no-empty": "warn",
+        "no-var": "error",
+        "no-mixed-spaces-and-tabs": "warn",
+        "prefer-const": "warn"
+    }
+}

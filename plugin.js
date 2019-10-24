@@ -28,7 +28,7 @@ class Plugin {
         const newPlugin = require(`./plugins/${this.id}`);
         window.ED.plugins[this.id] = newPlugin;
         newPlugin.id = this.id;
-        this.load();
+        newPlugin.load();
     }
 
     /**
@@ -73,9 +73,9 @@ class Plugin {
         if (window.ED.config && window.ED.config[this.id])
             return window.ED.config[this.id];
 
-        let final = {};
+        const final = {};
         if (this.config)
-            for (let key in this.config)
+            for (const key in this.config)
                 final[key] = this.config[key].default;
         return this.settings = final;
         //return final;
@@ -84,7 +84,7 @@ class Plugin {
         //this.log(__dirname, process.env.injDir);
         //console.log(`setting settings for ${this.id} to`, newSets);
         try {
-            let gay = window.ED.config;
+            const gay = window.ED.config;
             gay[this.id] = newSets;
             window.ED.config = gay;
             //console.log(`set settings for ${this.id} to`, this.settings);

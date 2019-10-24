@@ -1,31 +1,30 @@
 const Plugin = require('../plugin');
 
 // contains modified code from https://stackoverflow.com/a/47820271
-const { app, dialog } = require('electron').remote;
+const { dialog } = require('electron').remote;
 const http = require('https');
 const fs = require('fs');
-const path = require('path');
 let ttM = {}, iteM = {};
 
 function saveAs(url, filename, fileExtension) {
     const userChosenPath = dialog.showSaveDialog({ defaultPath: filename, title: 'Where would you like to store the stolen memes?', buttonLabel: 'Steal this meme', filters: [{ name: "Stolen meme", extensions: [fileExtension] }] });
     if (userChosenPath) {
         download(url, userChosenPath, () => {
-        	const wrap = document.createElement('div');
-        	wrap.className = 'theme-dark';
-        	const gay = document.createElement('div');
-        	gay.style = "position: fixed; bottom: 10%; left: calc(50% - 88px);"
-        	gay.className = `${ttM.tooltip} ${ttM.tooltipTop} ${ttM.tooltipBlack}`;
-        	gay.innerHTML = 'Successfully downloaded | ' + userChosenPath;
-        	document.body.appendChild(wrap);
-        	wrap.appendChild(gay);
-        	setTimeout(() => wrap.remove(), 2000);
+            const wrap = document.createElement('div');
+            wrap.className = 'theme-dark';
+            const gay = document.createElement('div');
+            gay.style = "position: fixed; bottom: 10%; left: calc(50% - 88px);"
+            gay.className = `${ttM.tooltip} ${ttM.tooltipTop} ${ttM.tooltipBlack}`;
+            gay.innerHTML = 'Successfully downloaded | ' + userChosenPath;
+            document.body.appendChild(wrap);
+            wrap.appendChild(gay);
+            setTimeout(() => wrap.remove(), 2000);
         });
     }
 }
 function download (url, dest, cb) {
     const file = fs.createWriteStream(dest);
-    const request = http.get(url, function(response) {
+    http.get(url, function(response) {
         response.pipe(file);
         file.on('finish', function() {
             file.close(cb);
@@ -34,17 +33,17 @@ function download (url, dest, cb) {
         fs.unlink(dest);
         if (cb) cb(err.message);
     });
-};
+}
 
 function addMenuItem(url, text, filename = true, fileExtension) {
-    let cmGroups = document.getElementsByClassName(iteM.itemGroup);
+    const cmGroups = document.getElementsByClassName(iteM.itemGroup);
     if (!cmGroups || cmGroups.length == 0) return;
 
-    let newCmItem = document.createElement('div');
+    const newCmItem = document.createElement('div');
     newCmItem.className = iteM.item;
     newCmItem.innerHTML = text;
 
-    let lastGroup = cmGroups[cmGroups.length-1];
+    const lastGroup = cmGroups[cmGroups.length-1];
     lastGroup.appendChild(newCmItem);
     newCmItem.onclick = () => saveAs(url, filename, fileExtension);
 }
@@ -58,10 +57,10 @@ module.exports = new Plugin({
     color: '#18770e',
 
     load: async function() {
-        this._cmClass = findModule("contextMenu").contextMenu;
-        this._contClass = findModule("embedWrapper").container;
-        ttM = findModule('tooltipPointer');
-        iteM = findModule('itemBase');
+        this._cmClass = window.EDApi.findModule("contextMenu").contextMenu;
+        this._contClass = window.EDApi.findModule("embedWrapper").container;
+        ttM = window.EDApi.findModule('tooltipPointer');
+        iteM = window.EDApi.findModule('itemBase');
         document.addEventListener("contextmenu", this.listener);
     },
     listener(e) {
@@ -74,8 +73,7 @@ module.exports = new Plugin({
         if (e.target.localName != "a" && e.target.localName != "img" && e.target.localName != "video" && !messageGroup && !e.target.className.includes("guildIcon") && !e.target.className.includes("image-")) return;
 
         let saveLabel = "Download",
-            url = e.target.poster || e.target.style.backgroundImage.substring(e.target.style.backgroundImage.indexOf(`"`) + 1, e.target.style.backgroundImage.lastIndexOf(`"`)) || e.target.href || e.target.src,
-            menu = [];
+            url = e.target.poster || e.target.style.backgroundImage.substring(e.target.style.backgroundImage.indexOf(`"`) + 1, e.target.style.backgroundImage.lastIndexOf(`"`)) || e.target.href || e.target.src;
 
         if (e.target.className.includes("guildIcon")) saveLabel = "Download Icon";
         else if (e.target.className.includes("image-")) saveLabel = "Download Avatar";
@@ -87,8 +85,8 @@ module.exports = new Plugin({
 
         url = url.replace(".webp", ".png");
 
-        let fileName = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf(".")),
-            fileExtension = url.substr(url.lastIndexOf(".") + 1, url.length);
+        let fileName = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
+        const fileExtension = url.substr(url.lastIndexOf(".") + 1, url.length);
 
         if (saveLabel.includes("Avatar") || saveLabel.includes("Icon")) url += "?size=2048";
 

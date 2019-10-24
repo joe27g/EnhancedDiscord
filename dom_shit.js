@@ -10,26 +10,26 @@ if (currentWindow.__preload) require(currentWindow.__preload);
 if (!process.env.injDir) process.env.injDir = __dirname;
 
 //set up global functions
-let c = {
+const c = {
     log: function(msg, plugin) {
         if (plugin && plugin.name)
             console.log(`%c[EnhancedDiscord] %c[${plugin.name}]`, 'color: red;', `color: ${plugin.color}`, msg);
-    	else console.log('%c[EnhancedDiscord]', 'color: red;', msg);
+        else console.log('%c[EnhancedDiscord]', 'color: red;', msg);
     },
     info: function(msg, plugin) {
         if (plugin && plugin.name)
             console.info(`%c[EnhancedDiscord] %c[${plugin.name}]`, 'color: red;', `color: ${plugin.color}`, msg);
-    	else console.info('%c[EnhancedDiscord]', 'color: red;', msg);
+        else console.info('%c[EnhancedDiscord]', 'color: red;', msg);
     },
     warn: function(msg, plugin) {
         if (plugin && plugin.name)
             console.warn(`%c[EnhancedDiscord] %c[${plugin.name}]`, 'color: red;', `color: ${plugin.color}`, msg);
-    	else console.warn('%c[EnhancedDiscord]', 'color: red;', msg);
+        else console.warn('%c[EnhancedDiscord]', 'color: red;', msg);
     },
     error: function(msg, plugin) {
         if (plugin && plugin.name)
             console.error(`%c[EnhancedDiscord] %c[${plugin.name}]`, 'color: red;', `color: ${plugin.color}`, msg);
-    	else console.error('%c[EnhancedDiscord]', 'color: red;', msg);
+        else console.error('%c[EnhancedDiscord]', 'color: red;', msg);
     },
     sleep: function(ms) {
         return new Promise(resolve => {
@@ -38,7 +38,7 @@ let c = {
     }
 }
 // config util
-window.ED = { plugins: {}, version: '2.4.1' };
+window.ED = { plugins: {}, version: '2.5.0' };
 Object.defineProperty(window.ED, 'config', {
     get: function() {
         let conf;
@@ -77,8 +77,8 @@ Object.defineProperty(window.ED, 'config', {
 
 function loadPlugin(plugin) {
     try {
-    	if (plugin.preload)
-    		console.log(`%c[EnhancedDiscord] %c[PRELOAD] %cLoading plugin %c${plugin.name}`, 'color: red;', 'color: yellow;', '', `color: ${plugin.color}`, `by ${plugin.author}...`);
+        if (plugin.preload)
+            console.log(`%c[EnhancedDiscord] %c[PRELOAD] %cLoading plugin %c${plugin.name}`, 'color: red;', 'color: yellow;', '', `color: ${plugin.color}`, `by ${plugin.author}...`);
         else console.log(`%c[EnhancedDiscord] %cLoading plugin %c${plugin.name}`, 'color: red;', '', `color: ${plugin.color}`, `by ${plugin.author}...`);
         plugin.load();
     } catch(err) {
@@ -96,29 +96,29 @@ process.once("loaded", async () => {
     window.ED.webSocket = window._ws;
 
 	/* Add helper functions that make plugins easy to create */
-	window.req = webpackJsonp.push([[], {
-	    '__extra_id__': (module, exports, req) => module.exports = req
+	window.req = window.webpackJsonp.push([[], {
+        '__extra_id__': (module, exports, req) => module.exports = req
 	}, [['__extra_id__']]]);
-	delete req.m['__extra_id__'];
-	delete req.c['__extra_id__'];
+	delete window.req.m['__extra_id__'];
+	delete window.req.c['__extra_id__'];
 
-    window.findModule = EDApi.findModule;
-    window.findModules = EDApi.findAllModules;
-    window.findRawModule = EDApi.findRawModule;
-    window.monkeyPatch = EDApi.monkeyPatch;
+    window.findModule = window.EDApi.findModule;
+    window.findModules = window.EDApi.findAllModules;
+    window.findRawModule = window.EDApi.findRawModule;
+    window.monkeyPatch = window.EDApi.monkeyPatch;
 
-    while (!window.findModule('startTyping', true) || !window.findModule('track', true) || !window.findModule('collectWindowErrors', true))
+    while (!window.EDApi.findModule('startTyping', true) || !window.EDApi.findModule('track', true) || !window.EDApi.findModule('collectWindowErrors', true))
         await c.sleep(500); // wait until essential modules are loaded
 
     if (window.ED.config.silentTyping) {
-        window.monkeyPatch(window.findModule('startTyping'), 'startTyping', () => {});
+        window.EDApi.monkeyPatch(window.EDApi.findModule('startTyping'), 'startTyping', () => {});
     }
 
     if (window.ED.config.antiTrack !== false) {
-        window.monkeyPatch(window.findModule('track'), 'track', () => {});
-        const errReports = window.findModule('collectWindowErrors');
+        window.EDApi.monkeyPatch(window.EDApi.findModule('track'), 'track', () => {});
+        const errReports = window.EDApi.findModule('collectWindowErrors');
         errReports.collectWindowErrors = false;
-        window.monkeyPatch(errReports, 'report', () => {});
+        window.EDApi.monkeyPatch(errReports, 'report', () => {});
     }
 
     while (Object.keys(window.req.c).length < 5000)
@@ -128,12 +128,13 @@ process.once("loaded", async () => {
         await require('./bd_shit').setup(currentWindow);
 
     c.log(`Loading and validating plugins...`);
-    let pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));
-    let plugins = {};
-    for (let i in pluginFiles) {
+    const pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));
+    const plugins = {};
+    for (const i in pluginFiles) {
         if (!pluginFiles[i].endsWith('.js')) continue;
         if (!window.ED.config.bdPlugins && pluginFiles[i].endsWith(".plugin.js")) continue;
-        let p, pName = pluginFiles[i].replace(/\.js$/, '');
+        let p;
+        const pName = pluginFiles[i].replace(/\.js$/, '');
         try {
             p = require(path.join(process.env.injDir, 'plugins', pName));
             if (typeof p.name !== 'string' || typeof p.load !== 'function') {
@@ -146,7 +147,7 @@ process.once("loaded", async () => {
         }
     }
 
-    for (let id in plugins) {
+    for (const id in plugins) {
         if (!plugins[id] || !plugins[id].name || typeof plugins[id].load !== 'function') {
             c.info(`Skipping invalid plugin: ${id}`); plugins[id] = null; continue;
         }
@@ -162,26 +163,26 @@ process.once("loaded", async () => {
         await c.sleep(1000); // wait until this is loaded in order to use it for modules
 
     c.log(`Loading plugins...`);
-    for (let id in plugins) {
+    for (const id in plugins) {
         if (window.ED.config[id] && window.ED.config[id].enabled == false) continue;
         if (plugins[id].preload) continue;
         loadPlugin(plugins[id]);
     }
 
-    const ht = window.findModule('hideToken'), cw = findModule('consoleWarning');
+    const ht = window.EDApi.findModule('hideToken'), cw = window.EDApi.findModule('consoleWarning');
     // prevent client from removing token from localstorage when dev tools is opened, or reverting your token if you change it
-    monkeyPatch(ht, 'hideToken', () => {});
+    window.EDApi.monkeyPatch(ht, 'hideToken', () => {});
     window.fixedShowToken = () => {
         // Only allow this to add a token, not replace it. This allows for changing of the token in dev tools.
         if (!window.ED.localStorage || window.ED.localStorage.getItem("token")) return;
         return window.ED.localStorage.setItem("token", '"'+ht.getToken()+'"');
     };
-    monkeyPatch(ht, 'showToken', fixedShowToken);
+    window.EDApi.monkeyPatch(ht, 'showToken', window.fixedShowToken);
     if (!window.ED.localStorage.getItem("token") && ht.getToken())
-        fixedShowToken(); // prevent you from being logged out for no reason
+        window.fixedShowToken(); // prevent you from being logged out for no reason
 
     // change the console warning to be more fun
-    monkeyPatch(cw, 'consoleWarning', () => {
+    window.EDApi.monkeyPatch(cw, 'consoleWarning', () => {
         console.log("%cHold Up!", "color: #FF5200; -webkit-text-stroke: 2px black; font-size: 72px; font-weight: bold;");
         console.log("%cIf you're reading this, you're probably smarter than most Discord developers.", "font-size: 16px;");
         console.log("%cPasting anything in here could actually improve the Discord client.", "font-size: 18px; font-weight: bold; color: red;");
@@ -236,8 +237,8 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static alert(title, body) {
-        const ModalStack = EDApi.findModuleByProps("push", "update", "pop", "popWithKey");
-        const AlertModal = EDApi.findModule(m => m.prototype && m.prototype.handleCancel && m.prototype.handleSubmit && m.prototype.handleMinorConfirm);
+        const ModalStack = this.findModuleByProps("push", "update", "pop", "popWithKey");
+        const AlertModal = this.findModule(m => m.prototype && m.prototype.handleCancel && m.prototype.handleSubmit && m.prototype.handleMinorConfirm);
         if (!ModalStack || !AlertModal) return window.alert(body);
         ModalStack.push(function(props) {
             return EDApi.React.createElement(AlertModal, Object.assign({title, body}, props));
@@ -256,11 +257,11 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static getData(pluginName, key) {
-        return EDApi.loadData(pluginName, key);
+        return this.loadData(pluginName, key);
     }
 
     static setData(pluginName, key, data) {
-        EDApi.saveData(pluginName, key, data);
+        this.saveData(pluginName, key, data);
     }
 
     static getInternalInstance(node) {
@@ -271,16 +272,16 @@ window.EDApi = window.BdApi = class EDApi {
 
     static showToast(content, options = {}) {
         if (!document.querySelector(".toasts")) {
-            let toastWrapper = document.createElement("div");
+            const toastWrapper = document.createElement("div");
             toastWrapper.classList.add("toasts");
-            let boundingElement = document.querySelector(".chat-3bRxxu form, #friends, .noChannel-Z1DQK7, .activityFeed-28jde9");
+            const boundingElement = document.querySelector(".chat-3bRxxu form, #friends, .noChannel-Z1DQK7, .activityFeed-28jde9");
             toastWrapper.style.setProperty("left", boundingElement ? boundingElement.getBoundingClientRect().left + "px" : "0px");
             toastWrapper.style.setProperty("width", boundingElement ? boundingElement.offsetWidth + "px" : "100%");
             toastWrapper.style.setProperty("bottom", (document.querySelector(".chat-3bRxxu form") ? document.querySelector(".chat-3bRxxu form").offsetHeight : 80) + "px");
-            document.querySelector("." + findModule('app').app).appendChild(toastWrapper);
+            document.querySelector("." + this.findModule('app').app).appendChild(toastWrapper);
         }
         const {type = "", icon = true, timeout = 3000} = options;
-        let toastElem = document.createElement("div");
+        const toastElem = document.createElement("div");
         toastElem.classList.add("toast");
         if (type) toastElem.classList.add("toast-" + type);
         if (type && icon) toastElem.classList.add("icon");
@@ -296,10 +297,10 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static findModule(filter, silent = true) {
-    	let moduleName = typeof filter === 'string' ? filter : null;
-        for (let i in req.c) {
-            if (req.c.hasOwnProperty(i)) {
-                let m = req.c[i].exports;
+        const moduleName = typeof filter === 'string' ? filter : null;
+        for (const i in window.req.c) {
+            if (window.req.c.hasOwnProperty(i)) {
+                const m = window.req.c[i].exports;
                 if (m && m.__esModule && m.default && (moduleName ? m.default[moduleName] : filter(m.default))) return m.default;
                 if (m && (moduleName ? m[moduleName] : filter(m)))	return m;
             }
@@ -309,12 +310,14 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static findRawModule(filter, silent = true) {
-    	let moduleName = typeof filter === 'string' ? filter : null;
-        for (let i in req.c) {
-            if (req.c.hasOwnProperty(i)) {
-                let m = req.c[i].exports;
-                if (m && m.__esModule && m.default && (moduleName ? m.default[moduleName] : filter(m.default))) return req.c[i];
-                if (m && (moduleName ? m[moduleName] : filter(m)))	return req.c[i];
+        const moduleName = typeof filter === 'string' ? filter : null;
+        for (const i in window.req.c) {
+            if (window.req.c.hasOwnProperty(i)) {
+                const m = window.req.c[i].exports;
+                if (m && m.__esModule && m.default && (moduleName ? m.default[moduleName] : filter(m.default)))
+                    return window.req.c[i];
+                if (m && (moduleName ? m[moduleName] : filter(m)))
+                    return window.req.c[i];
             }
         }
         if (!silent) c.warn(`Could not find module ${module}.`, {name: 'Modules', color: 'black'})
@@ -322,11 +325,11 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static findAllModules(filter) {
-    	let moduleName = typeof filter === 'string' ? filter : null;
+        const moduleName = typeof filter === 'string' ? filter : null;
         const modules = [];
-        for (let i in req.c) {
-            if (req.c.hasOwnProperty(i)) {
-                let m = req.c[i].exports;
+        for (const i in window.req.c) {
+            if (window.req.c.hasOwnProperty(i)) {
+                const m = window.req.c[i].exports;
                 if (m && m.__esModule && m.default && (moduleName ? m.default[moduleName] : filter(m.default))) modules.push(m.default);
                 else if (m && (moduleName ? m[moduleName] : filter(m))) modules.push(m);
             }
@@ -335,17 +338,17 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static findModuleByProps(...props) {
-        return EDApi.findModule(module => props.every(prop => module[prop] !== undefined));
+        return this.findModule(module => props.every(prop => module[prop] !== undefined));
     }
 
     static findModuleByDisplayName(name) {
-        return EDApi.findModule(module => module.displayName === name);
+        return this.findModule(module => module.displayName === name);
     }
 
     static monkeyPatch(what, methodName, options) {
         if (typeof options === 'function') {
-    	    const newOptions = {instead: options, silent: true};
-    	    options = newOptions;
+            const newOptions = {instead: options, silent: true};
+            options = newOptions;
         }
         const {before, after, instead, once = false, silent = false, force = false} = options;
         const displayName = options.displayName || what.displayName || what.name || what.constructor.displayName || what.constructor.name;
@@ -403,12 +406,12 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static formatString(string, values) {
-        for (let val in values) {
+        for (const val in values) {
             string = string.replace(new RegExp(`\\{\\{${val}\\}\\}`, 'g'), values[val]);
         }
         return string;
     }
-	
+
 	static isPluginEnabled(name) {
 		const plugins = Object.values(window.ED.plugins);
 		const plugin = plugins.find(p => p.id == name || p.name == name);
@@ -416,7 +419,7 @@ window.EDApi = window.BdApi = class EDApi {
 		return !(plugin.settings.enabled === false);
 	}
 
-	static isThemeEnabled(name) {
+	static isThemeEnabled() {
 		return false;
 	}
 

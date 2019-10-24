@@ -19,7 +19,7 @@ function makePluginToggle(opts = {}) {
         </div>
     </div>
     <div class="${d.description} ${d.modeDefault}" style="flex: 1 1 auto;">${opts.desc ? opts.desc : '<i>No Description Provided</i<'}</div>
-    <div class="${ED.classMaps.divider} ${sw.dividerDefault}"></div>
+    <div class="${window.ED.classMaps.divider} ${sw.dividerDefault}"></div>
 </div>`;
 }
 
@@ -30,70 +30,67 @@ module.exports = new Plugin({
     color: 'darkred',
 
     load: async function() {
-        let parentThis = this; //Allow use of parent methods in sub functions
+        const parentThis = this; //Allow use of parent methods in sub functions
 
         if (!window.ED.classMaps) {
             window.ED.classMaps = {};
         }
-        const tabsM = findModule('topPill');
-        const divM = window.findModule(m => m.divider && Object.keys(m).length === 1)
-        const contentM = ED.classMaps.headers = findModule('defaultMarginh2');
-        const marginM = ED.classMaps.margins = findModule('marginBottom8');
-        const div = ED.classMaps.divider = divM ? divM.divider : '';
-        const swiM = ED.classMaps.switchItem = findModule('switchItem');
-        const alignM = ED.classMaps.alignment = findModule('horizontalReverse');
-        const cbM = ED.classMaps.checkbox = findModule('checkboxEnabled');
-        const buttM = ED.classMaps.buttons = findModule('lookFilled');
-        const descM = ED.classMaps.description = findModule('formText');
-        const concentCol = findModule('contentColumn');
+        const tabsM = window.EDApi.findModule('topPill');
+        const divM = window.EDApi.findModule(m => m.divider && Object.keys(m).length === 1)
+        const contentM = window.ED.classMaps.headers = window.EDApi.findModule('defaultMarginh2');
+        const marginM = window.ED.classMaps.margins = window.EDApi.findModule('marginBottom8');
+        const div = window.ED.classMaps.divider = divM ? divM.divider : '';
+        const cbM = window.ED.classMaps.checkbox = window.EDApi.findModule('checkboxEnabled');
+        const buttM = window.ED.classMaps.buttons = window.EDApi.findModule('lookFilled');
+        const concentCol = window.EDApi.findModule('contentColumn');
 
         // use this function to trigger the loading of the settings tabs. No MutationObservers this way :)
-        monkeyPatch( findModule('getUserSettingsSections').default.prototype, 'render', function() {
+        const gss = window.EDApi.findModule('getUserSettingsSections').default.prototype;
+        window.EDApi.monkeyPatch(gss, 'render', function() {
 
-            let tab = document.getElementsByClassName('ed-settings');
+            const tab = document.getElementsByClassName('ed-settings');
             //console.log(tab);
             if (!tab || tab.length < 1) {
-                let parent = document.querySelector('.' + tabsM.side);
+                const parent = document.querySelector('.' + tabsM.side);
                 if (!parent) {
                     setTimeout(() => {arguments[0].thisObject.forceUpdate();}, 100);
                     return arguments[0].callOriginalMethod(arguments[0].methodArguments);
                 }
-                let anchor = parent.querySelectorAll(`.${tabsM.separator}`)[3];
+                const anchor = parent.querySelectorAll(`.${tabsM.separator}`)[3];
                 if (!anchor)
                     return arguments[0].callOriginalMethod(arguments[0].methodArguments);
 
-                let header = document.createElement('div');
+                const header = document.createElement('div');
                 header.className = tabsM.header + ' ed-settings';
                 header.innerHTML = 'EnhancedDiscord';
                 anchor.parentNode.insertBefore(header, anchor.nextSibling);
 
-                let pluginsTab = document.createElement('div');
-                let tabClass = `${tabsM.item} ${tabsM.themed} ed-settings`;
+                const pluginsTab = document.createElement('div');
+                const tabClass = `${tabsM.item} ${tabsM.themed} ed-settings`;
                 pluginsTab.className = tabClass;
                 pluginsTab.innerHTML = 'Plugins';
                 header.parentNode.insertBefore(pluginsTab, header.nextSibling);
 
-                let settingsTab = document.createElement('div');
+                const settingsTab = document.createElement('div');
                 settingsTab.className = tabClass;
                 settingsTab.innerHTML = 'Settings';
                 pluginsTab.parentNode.insertBefore(settingsTab, pluginsTab.nextSibling);
 
-                let sep = document.createElement('div');
+                const sep = document.createElement('div');
                 sep.className = tabsM.separator;
                 settingsTab.parentNode.insertBefore(sep, settingsTab.nextSibling);
 
                 parent.onclick = function(e) {
                     if (!e.target.className || e.target.className.indexOf(tabsM.item) == -1 || e.target.innerHTML === 'Change Log') return;
 
-                    for (let i in tab) {
-                        tab[i].className = (tab[i].className || '')
-                            .replace(" " + tabsM.selected, '')
-                    };
+                    for (const i in tab) {
+                        tab[i].className = (tab[i].className || '').replace(" " + tabsM.selected, '')
+                    }
                 }
 
                 pluginsTab.onclick = function(e) {
-                    let settingsPane = document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn} > div`);
-                    let otherTab = document.querySelector('.' + tabsM.item + '.' + tabsM.selected);
+                    const settingsPane = document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn} > div`);
+                    const otherTab = document.querySelector('.' + tabsM.item + '.' + tabsM.selected);
                     if (otherTab) {
                         otherTab.className = otherTab.className.replace(" " + tabsM.selected, '');
                     }
@@ -107,12 +104,12 @@ module.exports = new Plugin({
                         // Divider
                         settingsPane.innerHTML += `<div class="${div} ${marginM.marginBottom20}"></div>`
 
-                        for (let id in window.ED.plugins) {
+                        for (const id in window.ED.plugins) {
                             //if (id == 'ed_settings') continue;
 
                             settingsPane.innerHTML += makePluginToggle({id, title: window.ED.plugins[id].name, desc: window.ED.plugins[id].description, color: window.ED.plugins[id].color || 'orange', showSettingsButton: typeof window.ED.plugins[id].getSettingsPanel == 'function'});
                             if (!window.ED.plugins[id].settings || window.ED.plugins[id].settings.enabled !== false) {
-                                let cb = document.getElementById(id);
+                                const cb = document.getElementById(id);
                                 if (cb && cb.className)
                                     cb.className = cb.className.replace(cbM.valueUnchecked, cbM.valueChecked);
                             }
@@ -127,8 +124,8 @@ module.exports = new Plugin({
                 }
 
                 settingsTab.onclick = function(e) {
-                    let settingsPane = document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn} > div`);
-                    let otherTab = document.querySelector('.' + tabsM.item + '.' + tabsM.selected);
+                    const settingsPane = document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn} > div`);
+                    const otherTab = document.querySelector('.' + tabsM.item + '.' + tabsM.selected);
                     if (otherTab) {
                         otherTab.className = otherTab.className.replace(" " + tabsM.selected, '');
                     }
@@ -140,17 +137,17 @@ module.exports = new Plugin({
                         settingsPane.innerHTML += makePluginToggle({id: 'antiTrack', title: 'Anti-Track', desc: 'Prevent Discord from sending "tracking" data that they may be selling to advertisers or otherwise sharing.'});
                         settingsPane.innerHTML += makePluginToggle({id: 'bdPlugins', title: 'BD Plugins', desc: "Allows ED to load BD plugins natively. (Reload with ctrl+r after enabling/disabling.)"});
 
-                        let st = document.getElementById('silentTyping');
+                        const st = document.getElementById('silentTyping');
                         if (st && window.ED.config.silentTyping == true)
                             st.className = st.className.replace(cbM.valueUnchecked, cbM.valueChecked);
-                        let at = document.getElementById('antiTrack');
+                        const at = document.getElementById('antiTrack');
                         if (at && window.ED.config.antiTrack !== false)
                             at.className = at.className.replace(cbM.valueUnchecked, cbM.valueChecked);
-                        let bl = document.getElementById('bdPlugins');
+                        const bl = document.getElementById('bdPlugins');
                         if (bl && window.ED.config.bdPlugins == true)
                             bl.className = bl.className.replace(cbM.valueUnchecked, cbM.valueChecked);
                         //console.log(st, at);
-                        for (let id in window.ED.plugins) {
+                        for (const id in window.ED.plugins) {
                             if (window.ED.plugins[id].getSettingsPanel && typeof window.ED.plugins[id].getSettingsPanel == 'function') continue;
                             if (!window.ED.plugins[id].config || window.ED.config[id].enabled === false || !window.ED.plugins[id].generateSettings) continue;
 
@@ -161,16 +158,16 @@ module.exports = new Plugin({
                             settingsPane.innerHTML += `<div class="${div}"></div>`;
                             if (window.ED.plugins[id].settingListeners) {
                                 setTimeout(() => { // let shit render
-                                        for(let eventObject in window.ED.plugins[id].settingListeners){
-                                            let currentSettingListener = window.ED.plugins[id].settingListeners[eventObject];
+                                        for(const eventObject in window.ED.plugins[id].settingListeners){
+                                            const currentSettingListener = window.ED.plugins[id].settingListeners[eventObject];
                                             //Check if plugin is using the old format
 
                                             if(Array.isArray(window.ED.plugins[id].settingListeners)){
-                                                let elem = settingsPane.querySelector(currentSettingListener.el);
+                                                const elem = settingsPane.querySelector(currentSettingListener.el);
                                                 if (elem)
                                                     elem.addEventListener(currentSettingListener.type, currentSettingListener.eHandler);
                                             } else {
-                                                let elem = settingsPane.querySelector(eventObject);
+                                                const elem = settingsPane.querySelector(eventObject);
                                                 if (elem){
                                                     parentThis.warn(`Plugin ${window.ED.plugins[id].name} is using a deprecated plugin format (New format: https://github.com/joe27g/EnhancedDiscord/blob/beta/plugins.md#advanced-plugin-functionality). Ignore this unless you're the plugin dev`)
                                                     elem.onclick = window.ED.plugins[id].settingListeners[eventObject];
@@ -185,16 +182,16 @@ module.exports = new Plugin({
                 }
 
                 document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn}`).onclick = function(e) {
-                    let parent = e.target.parentElement;
+                    const parent = e.target.parentElement;
                     if (e.target.className && ((parent.className.indexOf && parent.className.indexOf('ed-plugin-settings') > -1) || (e.target.className.indexOf && e.target.className.indexOf('ed-plugin-settings') > -1))) {
-                        let box = e.target.className === buttM.contents ? parent.nextElementSibling.nextElementSibling : e.target.nextElementSibling.nextElementSibling;
+                        const box = e.target.className === buttM.contents ? parent.nextElementSibling.nextElementSibling : e.target.nextElementSibling.nextElementSibling;
                         if (!box || !box.id || !window.ED.plugins[box.id] || box.className.indexOf(cbM.valueChecked) == -1 || !window.ED.config.bdPlugins) return;
                         return require('../bd_shit').showSettingsModal(window.ED.plugins[box.id]);
                     }
 
                     if (e.target.className && ((parent.className.indexOf && parent.className.indexOf('ed-plugin-reload') > -1) || (e.target.className.indexOf && e.target.className.indexOf('ed-plugin-reload') > -1))) {
-                        let button = e.target.className === buttM.contents ? e.target : e.target.firstElementChild;
-                        let plugin = e.target.className === buttM.contents ? e.target.parentElement.nextElementSibling : e.target.nextElementSibling;
+                        const button = e.target.className === buttM.contents ? e.target : e.target.firstElementChild;
+                        const plugin = e.target.className === buttM.contents ? e.target.parentElement.nextElementSibling : e.target.nextElementSibling;
                         //console.log(plugin);
                         if (!plugin || !plugin.id || !window.ED.plugins[plugin.id] || plugin.className.indexOf(cbM.valueChecked) == -1) return;
                         button.innerHTML = 'Reloading...';
@@ -206,13 +203,13 @@ module.exports = new Plugin({
                             button.innerHTML = `Failed to reload (${err.name} - see console.)`;
                         }
                         setTimeout(() => {
-                            try { button.innerHTML = 'Reload'; } catch(err){}
+                            try { button.innerHTML = 'Reload'; } catch(err){/*do nothing*/}
                         }, 3000);
                         return;
                     }
 
                     if (e.target.tagName !== 'INPUT' || e.target.type !== 'checkbox' || !parent || !parent.className || !parent.id) return;
-                    let p = window.ED.plugins[parent.id];
+                    const p = window.ED.plugins[parent.id];
                     if (!p && parent.id !== 'silentTyping' && parent.id !== 'antiTrack' && parent.id !== 'bdPlugins') return;
                     //console.log('settings for '+p.id, p.settings);
 
@@ -225,15 +222,15 @@ module.exports = new Plugin({
                             p.unload();
                         }
                         else {
-                            let edc = window.ED.config;
+                            const edc = window.ED.config;
                             if (edc[parent.id] === false || (parent.id == 'silentTyping' && edc[parent.id] === undefined)) return;
                             edc[parent.id] = false;
                             window.ED.config = edc;
                             if (parent.id !== 'bdPlugins') {
-                                let mod = parent.id == 'antiTrack' ? 'track' : 'startTyping';
+                                const mod = parent.id == 'antiTrack' ? 'track' : 'startTyping';
                                 //console.log(parent);
-                                if (findModule(mod, true) && findModule(mod, true)[mod] && findModule(mod, true)[mod].__monkeyPatched)
-                                    findModule(mod)[mod].unpatch();
+                                if (window.EDApi.findModule(mod, true) && window.EDApi.findModule(mod, true)[mod] && window.EDApi.findModule(mod, true)[mod].__monkeyPatched)
+                                    window.EDApi.findModule(mod)[mod].unpatch();
                             }
                         }
                         parent.className = parent.className.replace(cbM.valueChecked, cbM.valueUnchecked);
@@ -246,14 +243,13 @@ module.exports = new Plugin({
                             p.load();
                         }
                         else {
-                            let edc = window.ED.config;
+                            const edc = window.ED.config;
                             if (edc[parent.id] === true || (parent.id == 'antiTrack' && edc[parent.id] === undefined)) return;
                             edc[parent.id] = true;
                             window.ED.config = edc;
                             if (parent.id !== 'bdPlugins') {
-                                let mod = parent.id == 'antiTrack' ? 'track' : 'startTyping';
-                                //console.log(parent);
-                                monkeyPatch(findModule(mod), mod, () => {});
+                                const mod = parent.id == 'antiTrack' ? 'track' : 'startTyping';
+                                window.EDApi.monkeyPatch(window.EDApi.findModule(mod), mod, () => {});
                             }
                         }
                         parent.className = parent.className.replace(cbM.valueUnchecked, cbM.valueChecked);
@@ -265,6 +261,6 @@ module.exports = new Plugin({
     },
 
     unload: function() {
-        findModule('getUserSettingsSections').default.prototype.render.unpatch();
+        window.EDApi.findModule('getUserSettingsSections').default.prototype.render.unpatch();
     }
 });
