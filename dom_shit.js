@@ -38,7 +38,7 @@ const c = {
     }
 }
 // config util
-window.ED = { plugins: {}, version: '2.5.0' };
+window.ED = { plugins: {}, version: '2.5.1' };
 Object.defineProperty(window.ED, 'config', {
     get: function() {
         let conf;
@@ -169,7 +169,7 @@ process.once("loaded", async () => {
         loadPlugin(plugins[id]);
     }
 
-    const ht = window.EDApi.findModule('hideToken'), cw = window.EDApi.findModule('consoleWarning');
+    const ht = window.EDApi.findModule('hideToken')
     // prevent client from removing token from localstorage when dev tools is opened, or reverting your token if you change it
     window.EDApi.monkeyPatch(ht, 'hideToken', () => {});
     window.fixedShowToken = () => {
@@ -182,7 +182,9 @@ process.once("loaded", async () => {
         window.fixedShowToken(); // prevent you from being logged out for no reason
 
     // change the console warning to be more fun
-    window.EDApi.monkeyPatch(cw, 'consoleWarning', () => {
+    const wc = require('electron').remote.getCurrentWebContents();
+    wc.removeAllListeners("devtools-opened");
+    wc.on("devtools-opened",  () => {
         console.log("%cHold Up!", "color: #FF5200; -webkit-text-stroke: 2px black; font-size: 72px; font-weight: bold;");
         console.log("%cIf you're reading this, you're probably smarter than most Discord developers.", "font-size: 16px;");
         console.log("%cPasting anything in here could actually improve the Discord client.", "font-size: 18px; font-weight: bold; color: red;");

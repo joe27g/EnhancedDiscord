@@ -7,7 +7,7 @@ module.exports = new Plugin({
     color: '#7289da',
 
     load: async function() {
-        const gg = window.EDApi.findModules('getChannelId')[2], bs = window.EDApi.findModule('Messages').Messages;
+        const gg = window.EDApi.findModule(m => m.getChannelId && m.getGuildId && !m.getPings), bs = window.EDApi.findModule('Messages').Messages;
 
         window.EDApi.monkeyPatch(window.EDApi.findModule('sendBotMessage'), 'sendBotMessage', function (b) {
             if (gg.getGuildId() !== null) return; // don't send Clyde messages when looking at a server
