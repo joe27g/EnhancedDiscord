@@ -1,6 +1,6 @@
 const Plugin = require('../plugin');
 
-let ml = {}, ce = {}, cta = {}, gc, gci, cm;
+let ml = {}, ce = {}, cta = {}, gc, gci, gcu, cm;
 
 module.exports = new Plugin({
     name: 'Character Count',
@@ -10,14 +10,23 @@ module.exports = new Plugin({
 
     load: async function() {
         ml = window.EDApi.findModule('maxLength');
-        ce = window.EDApi.findModule('colorError');
+        em = window.EDApi.findModule(m => m.checkbox && m.errorMessage);
         cta = window.EDApi.findModule('channelTextArea');
         gc = window.EDApi.findModule('getChannel');
         gci = window.EDApi.findModule('getChannelId');
+        gcu = window.EDApi.findModule('getCurrentUser');
         cm = window.EDApi.findModule('createBotMessage');
 
         document.addEventListener("input", this.inputListener);
         document.addEventListener("keydown", this.keydownListener);
+        findModule('dispatch').subscribe("MESSAGE_CREATE", this.msgListener);
+    },
+
+    msgListener: function(event) {
+        // if message is not by current user or in different channel, cancel
+        if (event.message.author.id !== gcu.getCurrentUser().id || event.message.channel_id !== gci.getChannelId()) return;
+        const charCounters = document.querySelectorAll('.ed_char_count');
+        charCounters.forEach(cc => cc.remove());
     },
 
     inputListener: function(e) {
@@ -39,19 +48,17 @@ module.exports = new Plugin({
                 len = msgObj.content.trim().length;
         }
         charCountElem.innerHTML = len + '/2000';
-        if (len > 2000) {
-            charCountElem.className = ml.maxLength + ' ' + ce.colorError;
-        } else {
-            charCountElem.className = ml.maxLength;
-        }
+        charCountElem.className = `ed_char_count ${ml.maxLength}${len > 2000 ? ' '+em.errorMessage : ''}`;
     },
 
     keydownListener: function(e) {
-        if ((e.keyCode || e.which) === 13) return this.lis(e);
+        if ((e.keyCode || e.which) === 13) // update char count when enter is pressed. used for autocomplete.
+            return module.exports.inputListener(e);
     },
 
     unload: function() {
         document.removeEventListener("input", this.inputListener);
         document.removeEventListener("keydown", this.keydownListener);
+        findModule('dispatch').unsubscribe("MESSAGE_CREATE", this.msgListener);
     }
 });
