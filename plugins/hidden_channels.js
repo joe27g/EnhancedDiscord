@@ -1,5 +1,7 @@
 const Plugin = require('../plugin');
 
+let getUser, getChannel, getAllChannels, g_dc, g_cat, can, ha, disp, fm;
+
 module.exports = new Plugin({
     name: 'Hidden Channels',
     description: 'Shows hidden channels and lets you view server permissions.',
@@ -7,182 +9,80 @@ module.exports = new Plugin({
     author: 'Joe 🎸#7070',
 
     load: async function() {
-        if (!window.ED._readOnlyPerms)
-            window.ED._readOnlyPerms = [];
-        if (!window.ED._hiddenChans)
-            window.ED._hiddenChans = [];
+        getUser = window.EDApi.findModule('getCurrentUser').getCurrentUser;
+        getChannel = window.EDApi.findModule('getChannel').getChannel;
+        getAllChannels = window.EDApi.findModule('getChannels').getChannels;
+        g_dc = window.EDApi.findModule('getDefaultChannel');
+        g_cat = window.EDApi.findModule(m => m.getCategories && !m.EMOJI_NAME_RE);
+        can = window.findModule('computePermissions').can;
+        ha = window.EDApi.findModule('hasUnread').__proto__;
+        disp = window.EDApi.findModule("dispatch");
+        fm = window.EDApi.findModule("fetchMessages");
 
-        const gcu = window.EDApi.findModule('getCurrentUser').getCurrentUser, gc = window.EDApi.findModule('getChannels').getChannels, gg = window.EDApi.findModule('getGuilds').getGuilds;
-
-        function disButt() { // disable perm buttons cause u can't use them :P
-            //console.log('executing disButt();');
-            const r = document.getElementById('app-mount');
-            if (!r) return;
-            const permButtons = r.getElementsByClassName('item-3T2z1R');
-            if (permButtons && permButtons.length > 0) {
-                for (const i in permButtons) {
-                    permButtons[i].disabled = true;
+        window.EDApi.monkeyPatch(g_dc, 'getChannels', b => {
+            const og = b.callOriginalMethod(b.methodArguments);
+            if (!b.methodArguments[0]) return og;
+            const hidden = [], allChans = getAllChannels();
+            for (const i in allChans) {
+                if (allChans[i].guild_id === b.methodArguments[0]) {
+                    if (allChans[i].type !== 4 && !can(1024, getUser(), getChannel(allChans[i].id))) {
+                        allChans[i].hidden = true;
+                        hidden.push(allChans[i]);
+                    }
                 }
             }
-            const redButton = r.querySelector('.content-1rPSz4 .colorRed-1TFJan');
-            hide(redButton);
-
-            const syncButton = r.querySelector('.sidebarScrollable-1qPI87 .card-2j1p1_ .button-1dUBJq');
-            hide(syncButton);
-
-            const addPermOverw = r.querySelector('.sidebarScrollable-1qPI87 img.sidebarHeader-2uiNOo');
-            hide(addPermOverw);
-
-            const switches = r.getElementsByClassName('checkbox-2tyjJg');
-            if (switches && switches.length > 0) {
-                for (const i in switches) {
-                    if (!switches[i]) continue;
-                    switches[i].className = 'checkboxDisabled-1MA81A checkbox-2tyjJg';
-                    //console.log(switches[i].parentElement);
-                    if (switches[i].parentElement)
-                        switches[i].parentElement.className = (switches[i].parentElement.className || '').replace('switchEnabled-V2WDBB', 'switchDisabled-3HsXAJ');
-                }
-            }
-            const addRoleButtons = r.getElementsByClassName('addButton-pcyyf6');
-            if (addRoleButtons && addRoleButtons.length > 0) {
-                for (const i in addRoleButtons) {
-                    hide(addRoleButtons[i]);
-                }
-            }
-        }
-        function hide(element) { // these elements need to be hidden, NOT removed. Removing causes React to crash
-            if (!element) return;
-            //console.log('hiding', element);
-            const hiddenClass = 'roleRemoveIcon-2-TeGW';
-            if (element.className && element.className.indexOf('roleRemoveIcon-2-TeGW') > -1) return;
-            else if (element.className)
-                element.className += ' '+hiddenClass;
-            else element.className = hiddenClass;
-            return element;
-        }
-
-        const cp = window.EDApi.findModule('computePermissions');
-        window.EDApi.monkeyPatch(cp, 'computePermissions', function(b) {
-            const member = b.methodArguments[0]; // member to get perms for, object or ID
-            const thing = b.methodArguments[1]; // this can be a channel, guild, category, ... object or ID
-            const original = b.callOriginalMethod(arguments[0].methodArguments); // original (correct) perms
-
-            if (member.id !== gcu().id) { // checking for someone else
-                return original;
-            }
-            const chans = gc(), guilds = gg();
-            if (chans[thing.id] || guilds[thing.id]) { // checking perms for a channel or guild
-
-                if (original & 1024) { // can already wiew channel
-                    if (window.ED._hiddenChans.indexOf(thing.id) >= 0)
-                        window.ED._hiddenChans.splice(window.ED._hiddenChans.indexOf(thing.id), 1);
-                } else { // can't view channel
-                    if (window.ED._hiddenChans.indexOf(thing.id) == -1)
-                        window.ED._hiddenChans.push(thing.id);
-                }
-                if (original & 268435456) { // can already edit perms
-                    if (window.ED._readOnlyPerms.indexOf(thing.id) >= 0)
-                        window.ED._readOnlyPerms.splice(window.ED._readOnlyPerms.indexOf(thing.id), 1);
-                } else { // can't edit perms, but let me view them
-                    if (window.ED._readOnlyPerms.indexOf(thing.id) == -1)
-                        window.ED._readOnlyPerms.push(thing.id);
-                }
-
-                return (original | 1024 | 1048576 | 268435456); // add READ_MESSAGES, CONNECT, and MANAGE_ROLES to make it visible & allow viewing perms
-            }
-            return original;
+            og.HIDDEN = hidden;
+            return og;
         });
-        window.EDApi.monkeyPatch(cp, 'getGuildPermissionProps', function(b) {
-            const retVal = b.callOriginalMethod(b.methodArguments);
-            if (!retVal) return;
-            //console.log(b.methodArguments);
-            const guild = b.methodArguments[0];
-            const member = b.methodArguments[1];
-            if (member.id !== gcu().id) { // checking for someone else
-                return retVal;
-            }
-            if (retVal.canManageRoles) {
-                if (window.ED._readOnlyPerms.indexOf(guild.id) > -1)
-                    window.ED._readOnlyPerms.splice(window.ED._readOnlyPerms.indexOf(guild.id), 1);
-                return retVal;
-            } else { // can't edit roles, but let me view their perms
-                if (window.ED._readOnlyPerms.indexOf(guild.id) == -1)
-                    window.ED._readOnlyPerms.push(guild.id);
-            }
-            disButt();
-            retVal.canManageRoles = true;
-            return retVal;
+        window.EDApi.monkeyPatch(g_cat, 'getCategories', b => {
+            const og = b.callOriginalMethod(b.methodArguments);
+            const chs = g_dc.getChannels(b.methodArguments[0]);
+            chs.HIDDEN.forEach(c => {
+                const result = og[c.parent_id || "null"].filter(item => item.channel.id === c.id);
+                if (result.length) return; // already added
+                og[c.parent_id || "null"].push({channel: c, index: 0})
+            });
+            return og;
         });
-        //TODO: ^ This method is triggered very often while settings are open. That can cause a lot of lag. Could be partially replaced with the patched version of generateGuildGeneralPermissionSpec if it worked. Perhaps set an interval on disButt instead, but make sure to stop it when settings are closed.
 
-        window.EDApi.monkeyPatch(cp, 'generateChannelGeneralPermissionSpec', function(b) {
-            //console.log('channel permissions pane opened', b);
-            const guildID = window.EDApi.findModule('getGuildId').getGuildId();
-            if (window.ED._readOnlyPerms.indexOf(guildID) > -1) {
-                disButt();
-                setTimeout(disButt, 690);
-            }
-            return b.callOriginalMethod(b.methodArguments);
-        });
-        //TODO: ^ This method tells when channel permissions are opened, but not what channel. Figure out how to get said channel, and make the check channel-specific instead of only checking guild perms
-
-        /*monkeyPatch(cp, 'generateGuildGeneralPermissionSpec', function(b) {
-            console.log('guild permissions pane opened', b);
-            //if (window.ED._readOnlyPerms.indexOf( magical guild ID ) > -1)
-                //setTimeout(disButt, 420);
-            return b.callOriginalMethod(b.methodArguments);
-        });*/
-        //TODO: ^ This method tells when guild permissions are opened, but not what guild. Figure out how to get said guild
-
-        window.EDApi.monkeyPatch(window.EDApi.findModule('hasUnread').__proto__, 'hasUnread', function(b) {
-            if (window.ED._hiddenChans.indexOf(b.methodArguments[0]) > -1)
+        window.EDApi.monkeyPatch(ha, 'hasUnread', function(b) {
+            if (getChannel(b.methodArguments[0]).hidden)
                 return false; // don't show hidden channels as unread.
             return b.callOriginalMethod(b.methodArguments);
         });
-        window.EDApi.monkeyPatch(window.EDApi.findModule('hasUnread').__proto__, 'hasUnreadPins', function(b) {
-            if (window.ED._hiddenChans.indexOf(b.methodArguments[0]) > -1)
+        window.EDApi.monkeyPatch(ha, 'hasUnreadPins', function(b) {
+            if (getChannel(b.methodArguments[0]).hidden)
                 return false; // don't show icon on hidden channel pins.
             return b.callOriginalMethod(b.methodArguments);
         });
 
-        window.EDApi.findModule("dispatch").subscribe("CHANNEL_SELECT", module.exports.dispatchSubscription);
+        disp.subscribe("CHANNEL_SELECT", module.exports.dispatchSubscription);
 
-        window.EDApi.monkeyPatch(window.EDApi.findModule("fetchMessages"), "fetchMessages", function(d) {
-            if (window.ED._hiddenChans.includes(d.methodArguments[0])) return;
-            else return d.callOriginalMethod();
+        window.EDApi.monkeyPatch(fm, "fetchMessages", function(b) {
+            if (getChannel(b.methodArguments[0]).hidden) return;
+            else return b.callOriginalMethod();
         })
     },
 
     unload: function() {
-        let m = window.EDApi.findModule('hasUnread').__proto__.hasUnread;
-        if (m.__monkeyPatched && m.unpatch)
-            m.unpatch();
-        m = window.EDApi.findModule('hasUnread').__proto__.hasUnreadPins;
-        if (m.__monkeyPatched && m.unpatch)
-            m.unpatch();
-        m = window.EDApi.findModule('fetchMessages').fetchMessages;
-        if (m.__monkeyPatched && m.unpatch)
-            m.unpatch();
-        m = window.EDApi.findModule('computePermissions');
+        g_dc.getChannels.unpatch();
+        g_cat.getCategories.unpatch();
+        ha.hasUnread.unpatch();
+        ha.hasUnreadPins.unpatch();
+        fm.fetchMessages.unpatch();
 
-        const shitToUnpatch = ['computePermissions', 'generateChannelGeneralPermissionSpec', 'generateGuildGeneralPermissionSpec'];
-        for (const meme of shitToUnpatch) {
-            const mod = m[meme];
-            if (mod && mod.__monkeyPatched && mod.unpatch)
-                mod.unpatch();
-        }
-
-        window.EDApi.findModule("dispatch").unsubscribe("CHANNEL_SELECT", module.exports.dispatchSubscription);
+        disp.unsubscribe("CHANNEL_SELECT", module.exports.dispatchSubscription);
     },
     dispatchSubscription: function (data) {
         if (data.type !== "CHANNEL_SELECT") return;
 
-        if (window.ED._hiddenChans.includes(data.channelId)) {
-            setTimeout(module.exports.attachHiddenChanNotice,100); // This value could be brought down however I don't know if lower spec users would suffer.
+        if (getChannel(data.channelId).hidden) {
+            setTimeout(module.exports.attachHiddenChanNotice, 100); // This value could be brought down however I don't know if lower spec users would suffer.
         }
     },
     attachHiddenChanNotice: function () {
         const messagesWrapper = document.querySelector(`.${window.EDApi.findModule("messages").messagesWrapper}`);
+        if (!messagesWrapper) return;
 
         messagesWrapper.firstChild.style.display = "none"; // Remove messages shit.
         messagesWrapper.parentElement.children[1].style.display = "none"; // Remove message box.
@@ -195,22 +95,20 @@ module.exports = new Plugin({
 
         toolbar.style.display = "none";
 
-
         const hiddenChannelNotif = document.createElement("div");
 
         // Class name modules
         const txt = window.EDApi.findModule("h5");
         const flx = window.EDApi.findModule("flex");
 
-        hiddenChannelNotif.className = flx.flexCenter; // yikes american spelling
+        hiddenChannelNotif.className = flx.flexCenter;
         hiddenChannelNotif.style.width = "100%";
 
         hiddenChannelNotif.innerHTML = `
         <div class="${flx.flex} ${flx.directionColumn} ${flx.alignCenter}">
         <h2 class="${txt.h2} ${txt.defaultColor}">This is a hidden channel.</h2>
         <h5 class="${txt.h5} ${txt.defaultColor}">You cannot see the contents of this channel. However, you may see its name and topic.</h5>
-        </div>
-        `
+        </div>`;
 
         messagesWrapper.appendChild(hiddenChannelNotif);
     }
