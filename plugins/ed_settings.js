@@ -43,6 +43,9 @@ module.exports = new Plugin({
         const cbM = window.ED.classMaps.checkbox = window.EDApi.findModule('checkboxEnabled');
         const buttM = window.ED.classMaps.buttons = window.EDApi.findModule('lookFilled');
         const concentCol = window.EDApi.findModule('contentColumn');
+        window.ED.classMaps.switchItem = window.EDApi.findModule('switchItem');
+        window.ED.classMaps.alignment = window.EDApi.findModule('horizontalReverse');
+        window.ED.classMaps.description = window.EDApi.findModule('formText');
 
         // use this function to trigger the loading of the settings tabs. No MutationObservers this way :)
         const gss = window.EDApi.findModule('getUserSettingsSections').default.prototype;
