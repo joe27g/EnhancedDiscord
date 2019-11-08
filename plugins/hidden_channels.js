@@ -1,6 +1,9 @@
 const Plugin = require('../plugin');
 
-let getUser, getChannel, getAllChannels, g_dc, g_cat, can, ha, disp, fm;
+let getChannel, g_dc, g_cat, ha, disp, fm, reb, sv, cs, csp, ghp, gs, gsr, pf, sw = {}, g = {}, ai = {};
+
+// copied from Discord's minified JS
+function N(e,o,l,n){let r;r||(r="function"==typeof Symbol&&Symbol.for&&Symbol.for("react.element")||60103);const t=e&&e.defaultProps,f=arguments.length-3;if(o||0===f||(o={children:void 0}),o&&t)for(const e in t)void 0===o[e]&&(o[e]=t[e]);else o||(o=t||{});if(1===f)o.children=n;else if(f>1){const e=new Array(f);for(let o=0;o<f;o++)e[o]=arguments[o+3];o.children=e}return{$$typeof:r,type:e,key:void 0===l?null:""+l,ref:null,props:o,_owner:null}}
 
 module.exports = new Plugin({
     name: 'Hidden Channels',
@@ -9,16 +12,17 @@ module.exports = new Plugin({
     author: 'Joe 🎸#7070',
 
     load: async function() {
-        getUser = window.EDApi.findModule('getCurrentUser').getCurrentUser;
-        getChannel = window.EDApi.findModule('getChannel').getChannel;
-        getAllChannels = window.EDApi.findModule('getChannels').getChannels;
-        g_dc = window.EDApi.findModule('getDefaultChannel');
-        g_cat = window.EDApi.findModule(m => m.getCategories && !m.EMOJI_NAME_RE);
-        can = window.findModule('computePermissions').can;
-        ha = window.EDApi.findModule('hasUnread').__proto__;
         disp = window.EDApi.findModule("dispatch");
-        fm = window.EDApi.findModule("fetchMessages");
+        getChannel = window.EDApi.findModule('getChannel').getChannel;
+        sw = window.EDApi.findModule('switchItem');
+        g = window.EDApi.findModule(m => m.group && m.item);
+        ai = window.EDApi.findModule('actionIcon');
 
+        const getUser = window.EDApi.findModule('getCurrentUser').getCurrentUser;
+        const getAllChannels = window.EDApi.findModule('getChannels').getChannels;
+        const can = window.EDApi.findModule('computePermissions').can;
+
+        g_dc = window.EDApi.findModule('getDefaultChannel');
         window.EDApi.monkeyPatch(g_dc, 'getChannels', b => {
             const og = b.callOriginalMethod(b.methodArguments);
             if (!b.methodArguments[0]) return og;
@@ -34,6 +38,8 @@ module.exports = new Plugin({
             og.HIDDEN = hidden;
             return og;
         });
+
+        g_cat = window.EDApi.findModule(m => m.getCategories && !m.EMOJI_NAME_RE);
         window.EDApi.monkeyPatch(g_cat, 'getCategories', b => {
             const og = b.callOriginalMethod(b.methodArguments);
             const chs = g_dc.getChannels(b.methodArguments[0]);
@@ -45,6 +51,7 @@ module.exports = new Plugin({
             return og;
         });
 
+        ha = window.EDApi.findModule('hasUnread').__proto__;
         window.EDApi.monkeyPatch(ha, 'hasUnread', function(b) {
             if (getChannel(b.methodArguments[0]).hidden)
                 return false; // don't show hidden channels as unread.
@@ -58,18 +65,101 @@ module.exports = new Plugin({
 
         disp.subscribe("CHANNEL_SELECT", module.exports.dispatchSubscription);
 
+        fm = window.EDApi.findModule("fetchMessages");
         window.EDApi.monkeyPatch(fm, "fetchMessages", function(b) {
             if (getChannel(b.methodArguments[0]).hidden) return;
-            else return b.callOriginalMethod();
-        })
-    },
+            return b.callOriginalMethod(b.methodArguments);
+        });
 
+        const clk = window.EDApi.findModuleByDisplayName("Clickable")
+        const icon = window.EDApi.findModuleByDisplayName("Icon");
+
+        reb = window.EDApi.findModule(m => m.default && m.default.prototype && m.default.prototype.renderEditButton).default.prototype;
+        window.EDApi.monkeyPatch(reb, "renderEditButton", function(b) {
+            return N(clk, {
+                className: ai.iconItem,
+                onClick: b.thisObject.handleEditClick,
+                onMouseEnter: b.thisObject.props.onMouseEnter,
+                onMouseLeave: b.thisObject.props.onMouseLeave
+            }, void 0, N(icon, {
+                name: "Gear",
+                width: 16,
+                height: 16,
+                className: ai.actionIcon
+            }));
+        });
+
+        sv = window.EDApi.findModuleByDisplayName("SettingsView").prototype;
+        window.EDApi.monkeyPatch(sv, 'getPredicateSections', {before: b => {
+            const permSect = b.thisObject.props.sections.find(item => item.section === 'PERMISSIONS');
+            if (permSect) permSect.predicate = () => true;
+        }, silent: true});
+
+        cs = window.EDApi.findModuleByDisplayName("FluxContainer(ChannelSettings)").prototype;
+        window.EDApi.monkeyPatch(cs, 'render', b => {
+            const egg = b.callOriginalMethod(b.methodArguments);
+            egg.props.canManageRoles = true;
+            return egg;
+        });
+
+        csp = window.EDApi.findModuleByDisplayName("FluxContainer(ChannelSettingsPermissions)").prototype;
+        window.EDApi.monkeyPatch(csp, 'render', b => {
+            const egg = b.callOriginalMethod(b.methodArguments);
+            const chan = getChannel(egg.props.channel.id);
+            if (!chan || !chan.hidden) return egg;
+            egg.props.canSyncChannel = false;
+            egg.props.locked = true;
+            setTimeout(() => {
+                document.querySelectorAll('.'+g.group).forEach(elem => elem.style = "opacity: 0.5; pointer-events: none;");
+            });
+            return egg;
+        });
+
+        ghp = window.EDApi.findModuleByDisplayName("FluxContainer(GuildHeaderPopout)").prototype;
+        window.EDApi.monkeyPatch(ghp, 'render', b => {
+            const egg = b.callOriginalMethod(b.methodArguments);
+            egg.props.canAccessSettings = true;
+            return egg;
+        });
+
+        gs = window.EDApi.findModuleByDisplayName("FluxContainer(GuildSettings)").prototype;
+        window.EDApi.monkeyPatch(gs, 'render', b => {
+            const egg = b.callOriginalMethod(b.methodArguments);
+            egg.props.canManageRoles = true;
+            return egg;
+        });
+
+        const cancan = window.EDApi.findModule('can').can;
+        gsr = window.EDApi.findModuleByDisplayName("FluxContainer(GuildSettingsRoles)").prototype;
+        window.EDApi.monkeyPatch(gsr, 'render', b => {
+            const egg = b.callOriginalMethod(b.methodArguments);
+            const hasPerm = cancan(268435456, egg.props.guild.id);
+            if (hasPerm) return;
+            setTimeout(() => {
+                document.querySelectorAll('.'+sw.switchItem).forEach(elem => elem.classList.add(sw.disabled));
+            });
+            return egg;
+        });
+
+        pf = window.EDApi.findModuleByDisplayName("PermissionsForm").prototype;
+        window.EDApi.monkeyPatch(pf, 'render', b => {
+            const egg = b.callOriginalMethod(b.methodArguments);
+            console.log(egg);
+            if (!egg.props.children || !egg.props.children[1]) return egg;
+            egg.props.children[1].forEach(item => {item.disabled = true; item.props.disabled = true;});
+            return egg;
+        });
+    },
     unload: function() {
         g_dc.getChannels.unpatch();
         g_cat.getCategories.unpatch();
         ha.hasUnread.unpatch();
         ha.hasUnreadPins.unpatch();
         fm.fetchMessages.unpatch();
+        reb.renderEditButton.unpatch();
+
+        for (const mod of [sv, cs, csp, ghp, gs, gsr, pf])
+            mod.render.unpatch();
 
         disp.unsubscribe("CHANNEL_SELECT", module.exports.dispatchSubscription);
     },
@@ -77,7 +167,7 @@ module.exports = new Plugin({
         if (data.type !== "CHANNEL_SELECT") return;
 
         if (getChannel(data.channelId).hidden) {
-            setTimeout(module.exports.attachHiddenChanNotice, 100); // This value could be brought down however I don't know if lower spec users would suffer.
+            setTimeout(module.exports.attachHiddenChanNotice);
         }
     },
     attachHiddenChanNotice: function () {
