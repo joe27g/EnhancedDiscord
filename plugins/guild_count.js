@@ -1,6 +1,6 @@
 const Plugin = require('../plugin');
 
-let sep = {}, ms = {};
+let sep = {}, ms = {}, gg;
 
 module.exports = new Plugin({
     name: 'Server Count',
@@ -11,9 +11,10 @@ module.exports = new Plugin({
     load: async function() {
 		sep = window.EDApi.findModule('guildSeparator');
         ms = window.EDApi.findModule('modeSelectable');
+        gg = window.EDApi.findModule('getGuilds');
 
-        const gg = function(b) {
-            const og = b.callOriginalMethod(b.methodArguments);
+        const newGG = function(b) {
+            const og = b && b.callOriginalMethod ? b.callOriginalMethod(b.methodArguments) : null;
             if (!sep) return og;
             const num = Object.keys(og).length;
 
@@ -40,14 +41,11 @@ module.exports = new Plugin({
             return og;
         };
 
-        window.EDApi.findModule('subscribe').subscribe('CONNECTION_OPEN', gg);
-
-        window.EDApi.monkeyPatch(window.EDApi.findModule('getGuilds'), 'getGuilds', gg);
+        window.EDApi.monkeyPatch(gg, 'getGuilds', newGG);
+        window.EDApi.findModule('subscribe').subscribe('CONNECTION_OPEN', gg.getGuilds());
     },
     unload: function() {
-        const m = window.EDApi.findModule('getGuilds').getGuilds;
-        if (m && m.__monkeyPatched)
-            m.unpatch();
+        gg.getGuilds.unpatch();
         const guildCount = document.getElementById('ed_guild_count');
         if (guildCount)
             guildCount.remove();
