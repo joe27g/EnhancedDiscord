@@ -38,7 +38,7 @@ const c = {
     }
 }
 // config util
-window.ED = { plugins: {}, version: '2.5.1' };
+window.ED = { plugins: {}, version: '2.6.0' };
 Object.defineProperty(window.ED, 'config', {
     get: function() {
         let conf;
@@ -89,45 +89,8 @@ function loadPlugin(plugin) {
 window.ED.localStorage = window.localStorage;
 
 process.once("loaded", async () => {
-    c.log(`v${window.ED.version} is running.`);
-	while (!window.webpackJsonp)
-		await c.sleep(1000); // wait until this is loaded in order to use it for modules
+    c.log(`v${window.ED.version} is running. Validating plugins...`);
 
-    window.ED.webSocket = window._ws;
-
-	/* Add helper functions that make plugins easy to create */
-	window.req = window.webpackJsonp.push([[], {
-        '__extra_id__': (module, exports, req) => module.exports = req
-	}, [['__extra_id__']]]);
-	delete window.req.m['__extra_id__'];
-	delete window.req.c['__extra_id__'];
-
-    window.findModule = window.EDApi.findModule;
-    window.findModules = window.EDApi.findAllModules;
-    window.findRawModule = window.EDApi.findRawModule;
-    window.monkeyPatch = window.EDApi.monkeyPatch;
-
-    while (!window.EDApi.findModule('startTyping', true) || !window.EDApi.findModule('track', true) || !window.EDApi.findModule('collectWindowErrors', true))
-        await c.sleep(500); // wait until essential modules are loaded
-
-    if (window.ED.config.silentTyping) {
-        window.EDApi.monkeyPatch(window.EDApi.findModule('startTyping'), 'startTyping', () => {});
-    }
-
-    if (window.ED.config.antiTrack !== false) {
-        window.EDApi.monkeyPatch(window.EDApi.findModule('track'), 'track', () => {});
-        const errReports = window.EDApi.findModule('collectWindowErrors');
-        errReports.collectWindowErrors = false;
-        window.EDApi.monkeyPatch(errReports, 'report', () => {});
-    }
-
-    while (Object.keys(window.req.c).length < 5000)
-        await c.sleep(1000); // wait until most modules are loaded for plugins
-
-    if (window.ED.config.bdPlugins)
-        await require('./bd_shit').setup(currentWindow);
-
-    c.log(`Loading and validating plugins...`);
     const pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));
     const plugins = {};
     for (const i in pluginFiles) {
@@ -146,21 +109,71 @@ process.once("loaded", async () => {
             c.warn(`Failed to load ${pluginFiles[i]}: ${err}\n${err.stack}`, p);
         }
     }
-
     for (const id in plugins) {
         if (!plugins[id] || !plugins[id].name || typeof plugins[id].load !== 'function') {
             c.info(`Skipping invalid plugin: ${id}`); plugins[id] = null; continue;
         }
         plugins[id].settings; // this will set default settings in config if necessary
+    }
+    window.ED.plugins = plugins;
+    c.log(`Plugins validated.`);
+
+	while (!window.webpackJsonp)
+		await c.sleep(100); // wait until this is loaded in order to use it for modules
+
+    window.ED.webSocket = window._ws;
+
+	/* Add helper functions that make plugins easy to create */
+	window.req = window.webpackJsonp.push([[], {
+        '__extra_id__': (module, exports, req) => module.exports = req
+	}, [['__extra_id__']]]);
+	delete window.req.m['__extra_id__'];
+	delete window.req.c['__extra_id__'];
+
+    window.findModule = window.EDApi.findModule;
+    window.findModules = window.EDApi.findAllModules;
+    window.findRawModule = window.EDApi.findRawModule;
+    window.monkeyPatch = window.EDApi.monkeyPatch;
+
+    while (!window.EDApi.findModule('dispatch'))
+        await c.sleep(100);
+
+    c.log(`Loading preload plugins...`);
+    for (const id in plugins) {
         if (window.ED.config[id] && window.ED.config[id].enabled == false) continue;
         if (!plugins[id].preload) continue;
         loadPlugin(plugins[id]);
     }
-    window.ED.plugins = plugins;
 
-    c.log(`Waiting for modules...`);
-    while (!window.webpackJsonp || window.webpackJsonp.length < 25)
-        await c.sleep(1000); // wait until this is loaded in order to use it for modules
+    const d = {resolve: () => {}};
+    c.log(Object.keys(window.req.c).length);
+    window.monkeyPatch(window.findModule('dispatch'), 'dispatch', {before: b => {
+        c.log(b.methodArguments[0].type);
+        // modules seem to all be loaded when RPC server loads
+        if (b.methodArguments[0].type === 'RPC_SERVER_READY') {
+            window.findModule('dispatch').dispatch.unpatch();
+            d.resolve();
+        }
+    }});
+
+    await new Promise(resolve => {
+        d.resolve = resolve;
+    })
+    c.log(`Modules done loading (${Object.keys(window.req.c).length})`);
+
+    if (window.ED.config.silentTyping) {
+        window.EDApi.monkeyPatch(window.EDApi.findModule('startTyping'), 'startTyping', () => {});
+    }
+
+    if (window.ED.config.antiTrack !== false) {
+        window.EDApi.monkeyPatch(window.EDApi.findModule('track'), 'track', () => {});
+        const errReports = window.EDApi.findModule('collectWindowErrors');
+        errReports.collectWindowErrors = false;
+        window.EDApi.monkeyPatch(errReports, 'report', () => {});
+    }
+
+    if (window.ED.config.bdPlugins)
+        await require('./bd_shit').setup(currentWindow);
 
     c.log(`Loading plugins...`);
     for (const id in plugins) {
@@ -184,7 +197,7 @@ process.once("loaded", async () => {
     // change the console warning to be more fun
     const wc = require('electron').remote.getCurrentWebContents();
     wc.removeAllListeners("devtools-opened");
-    wc.on("devtools-opened",  () => {
+    wc.on("devtools-opened", () => {
         console.log("%cHold Up!", "color: #FF5200; -webkit-text-stroke: 2px black; font-size: 72px; font-weight: bold;");
         console.log("%cIf you're reading this, you're probably smarter than most Discord developers.", "font-size: 16px;");
         console.log("%cPasting anything in here could actually improve the Discord client.", "font-size: 18px; font-weight: bold; color: red;");
