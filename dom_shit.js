@@ -38,7 +38,7 @@ const c = {
     }
 }
 // config util
-window.ED = { plugins: {}, version: '2.6.0' };
+window.ED = { plugins: {}, version: '2.6.1' };
 Object.defineProperty(window.ED, 'config', {
     get: function() {
         let conf;
@@ -366,7 +366,7 @@ window.EDApi = window.BdApi = class EDApi {
             options = newOptions;
         }
         const {before, after, instead, once = false, silent = false, force = false} = options;
-        const displayName = options.displayName || what.displayName || what.name || what.constructor.displayName || what.constructor.name;
+        const displayName = options.displayName || what.displayName || what.name || what.constructor ? (what.constructor.displayName || what.constructor.name) : null;
         if (!silent) console.log(`%c[EnhancedDiscord] %c[Modules]`, 'color: red;', `color: black;`, `Patched ${methodName} in module ${displayName || '<unknown>'}:`, what); // eslint-disable-line no-console
         if (!what[methodName]) {
             if (force) what[methodName] = function() {};
