@@ -39,7 +39,7 @@ module.exports = new Plugin({
         });
         chanM = window.EDApi.findModule(m => m.prototype && m.prototype.isRoleRequired);
         chanM.prototype.isHidden = function() {
-            return !can(1024, getUser(), this);
+            return [0, 4, 5].includes(this.type) && !can(1024, getUser(), this);
         }
 
         g_cat = window.EDApi.findModule(m => m.getCategories && !m.EMOJI_NAME_RE);
