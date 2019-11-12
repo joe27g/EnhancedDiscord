@@ -1,6 +1,6 @@
 const Plugin = require('../plugin');
 
-let sep = {}, ms = {}, gg;
+let sep = {}, ms = {}, gg, sub;
 
 module.exports = new Plugin({
     name: 'Server Count',
@@ -12,42 +12,42 @@ module.exports = new Plugin({
 		sep = window.EDApi.findModule('guildSeparator');
         ms = window.EDApi.findModule('modeSelectable');
         gg = window.EDApi.findModule('getGuilds');
+        sub = window.EDApi.findModule('subscribe');
 
-        const newGG = function(b) {
-            const og = b && b.callOriginalMethod ? b.callOriginalMethod(b.methodArguments) : null;
-            if (!sep) return og;
-            const num = Object.keys(og).length;
+        window.EDApi.monkeyPatch(gg, 'getGuilds', {after: this.refreshCount, silent: true});
+        sub.subscribe('CONNECTION_OPEN', gg.getGuilds);
+    },
+    refreshCount: function(b) {
+        if (!sep) return;
+        const num = Object.keys(b.returnValue).length;
 
-            let guildCount = document.getElementById('ed_guild_count');
-            if (guildCount) {
-                if (num === this._num) return og; // don't update if # is the same as before
-                guildCount.innerHTML = num + ' Servers';
+        let guildCount = document.getElementById('ed_guild_count');
+        if (guildCount) {
+            if (num === this._num) return; // don't update if # is the same as before
+            guildCount.innerHTML = num + ' Servers';
+            this._num = num;
+            return;
+        }
+        const separator = document.querySelector(`.${sep.guildSeparator}`);
+        if (separator) {
+            guildCount = document.createElement('div');
+            guildCount.className = `${ms ? ms.description+' ' : ''}${sep.listItem}`;
+            guildCount.innerHTML = num + ' Servers';
+            guildCount.id = 'ed_guild_count';
+            try {
+                separator.parentElement.insertAdjacentElement('beforebegin', guildCount);
                 this._num = num;
-                return og;
+            } catch(err) {
+                this.error(err);
             }
-            const separator = document.querySelector(`.${sep.guildSeparator}`);
-            if (separator) {
-                guildCount = document.createElement('div');
-                guildCount.className = `${ms ? ms.description+' ' : ''}${sep.listItem}`;
-                guildCount.innerHTML = num + ' Servers';
-                guildCount.id = 'ed_guild_count';
-                try {
-                    separator.parentElement.insertAdjacentElement('beforebegin', guildCount);
-                    this._num = num;
-                } catch(err) {
-                    this.error(err);
-                }
-            }
-            return og;
-        };
-
-        window.EDApi.monkeyPatch(gg, 'getGuilds', newGG);
-        window.EDApi.findModule('subscribe').subscribe('CONNECTION_OPEN', gg.getGuilds());
+        }
+        return;
     },
     unload: function() {
         gg.getGuilds.unpatch();
         const guildCount = document.getElementById('ed_guild_count');
         if (guildCount)
             guildCount.remove();
+        sub.unsubscribe('CONNECTION_OPEN', gg.getGuilds);
     }
 });

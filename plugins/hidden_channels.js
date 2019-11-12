@@ -1,6 +1,6 @@
 const Plugin = require('../plugin');
 
-let getChannel, g_dc, g_cat, ha, disp, fm, reb, sv, cs, csp, ghp, gs, gsr, pf, sw = {}, g = {}, ai = {};
+let getChannel, g_dc, g_cat, ha, disp, chanM, fm, reb, sv, cs, csp, ghp, gs, gsr, pf, sw = {}, g = {}, ai = {};
 
 // copied from Discord's minified JS
 function N(e,o,l,n){let r;r||(r="function"==typeof Symbol&&Symbol.for&&Symbol.for("react.element")||60103);const t=e&&e.defaultProps,f=arguments.length-3;if(o||0===f||(o={children:void 0}),o&&t)for(const e in t)void 0===o[e]&&(o[e]=t[e]);else o||(o=t||{});if(1===f)o.children=n;else if(f>1){const e=new Array(f);for(let o=0;o<f;o++)e[o]=arguments[o+3];o.children=e}return{$$typeof:r,type:e,key:void 0===l?null:""+l,ref:null,props:o,_owner:null}}
@@ -30,7 +30,6 @@ module.exports = new Plugin({
             for (const i in allChans) {
                 if (allChans[i].guild_id === b.methodArguments[0]) {
                     if (allChans[i].type !== 4 && !can(1024, getUser(), getChannel(allChans[i].id))) {
-                        allChans[i].hidden = true;
                         hidden.push(allChans[i]);
                     }
                 }
@@ -38,6 +37,10 @@ module.exports = new Plugin({
             og.HIDDEN = hidden;
             return og;
         });
+        chanM = window.EDApi.findModule(m => m.prototype && m.prototype.isRoleRequired);
+        chanM.prototype.isHidden = function() {
+            return !can(1024, getUser(), this);
+        }
 
         g_cat = window.EDApi.findModule(m => m.getCategories && !m.EMOJI_NAME_RE);
         window.EDApi.monkeyPatch(g_cat, 'getCategories', b => {
@@ -53,12 +56,12 @@ module.exports = new Plugin({
 
         ha = window.EDApi.findModule('hasUnread').__proto__;
         window.EDApi.monkeyPatch(ha, 'hasUnread', function(b) {
-            if (getChannel(b.methodArguments[0]).hidden)
+            if (getChannel(b.methodArguments[0]) && getChannel(b.methodArguments[0]).isHidden())
                 return false; // don't show hidden channels as unread.
             return b.callOriginalMethod(b.methodArguments);
         });
         window.EDApi.monkeyPatch(ha, 'hasUnreadPins', function(b) {
-            if (getChannel(b.methodArguments[0]).hidden)
+            if (getChannel(b.methodArguments[0]) && getChannel(b.methodArguments[0]).isHidden())
                 return false; // don't show icon on hidden channel pins.
             return b.callOriginalMethod(b.methodArguments);
         });
@@ -67,7 +70,7 @@ module.exports = new Plugin({
 
         fm = window.EDApi.findModule("fetchMessages");
         window.EDApi.monkeyPatch(fm, "fetchMessages", function(b) {
-            if (getChannel(b.methodArguments[0]).hidden) return;
+            if (getChannel(b.methodArguments[0]) && getChannel(b.methodArguments[0]).isHidden()) return;
             return b.callOriginalMethod(b.methodArguments);
         });
 
@@ -106,7 +109,7 @@ module.exports = new Plugin({
         window.EDApi.monkeyPatch(csp, 'render', b => {
             const egg = b.callOriginalMethod(b.methodArguments);
             const chan = getChannel(egg.props.channel.id);
-            if (!chan || !chan.hidden) return egg;
+            if (!chan || !chan.isHidden()) return egg;
             egg.props.canSyncChannel = false;
             egg.props.locked = true;
             setTimeout(() => {
@@ -159,14 +162,14 @@ module.exports = new Plugin({
         reb.renderEditButton.unpatch();
 
         for (const mod of [sv, cs, csp, ghp, gs, gsr, pf])
-            mod.render.unpatch();
+            if (mod && mod.render && mod.render.unpatch) mod.render.unpatch();
 
         disp.unsubscribe("CHANNEL_SELECT", module.exports.dispatchSubscription);
     },
     dispatchSubscription: function (data) {
         if (data.type !== "CHANNEL_SELECT") return;
 
-        if (getChannel(data.channelId).hidden) {
+        if (getChannel(data.channelId) && getChannel(data.channelId).isHidden()) {
             setTimeout(module.exports.attachHiddenChanNotice);
         }
     },
