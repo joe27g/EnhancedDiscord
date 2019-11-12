@@ -81,7 +81,11 @@ module.exports = new Plugin({
         window.EDApi.monkeyPatch(reb, "renderEditButton", function(b) {
             return N(clk, {
                 className: ai.iconItem,
-                onClick: b.thisObject.handleEditClick,
+                onClick: function() {
+                    module.exports._editingGuild = null;
+                    module.exports._editingChannel = b.thisObject.props.channel.id;
+                    return b.thisObject.handleEditClick.apply(b.thisObject, arguments);
+                },
                 onMouseEnter: b.thisObject.props.onMouseEnter,
                 onMouseLeave: b.thisObject.props.onMouseLeave
             }, void 0, N(icon, {
@@ -128,6 +132,8 @@ module.exports = new Plugin({
         gs = window.EDApi.findModuleByDisplayName("FluxContainer(GuildSettings)").prototype;
         window.EDApi.monkeyPatch(gs, 'render', b => {
             const egg = b.callOriginalMethod(b.methodArguments);
+            module.exports._editingChannel = null;
+            module.exports._editingGuild = egg.props.guild.id;
             egg.props.canManageRoles = true;
             return egg;
         });
@@ -136,7 +142,7 @@ module.exports = new Plugin({
         gsr = window.EDApi.findModuleByDisplayName("FluxContainer(GuildSettingsRoles)").prototype;
         window.EDApi.monkeyPatch(gsr, 'render', b => {
             const egg = b.callOriginalMethod(b.methodArguments);
-            const hasPerm = cancan(268435456, egg.props.guild.id);
+            const hasPerm = cancan(268435456, egg.props.guild);
             if (hasPerm) return;
             setTimeout(() => {
                 document.querySelectorAll('.'+sw.switchItem).forEach(elem => elem.classList.add(sw.disabled));
@@ -144,10 +150,16 @@ module.exports = new Plugin({
             return egg;
         });
 
+        const getGuild = window.EDApi.findModule('getGuild').getGuild;
         pf = window.EDApi.findModuleByDisplayName("PermissionsForm").prototype;
         window.EDApi.monkeyPatch(pf, 'render', b => {
             const egg = b.callOriginalMethod(b.methodArguments);
-            console.log(egg);
+            const guild = module.exports._editingGuild ? getGuild(module.exports._editingGuild) : null;
+            const channel = module.exports._editingChannel ? getChannel(module.exports._editingChannel) : null;
+            if (!guild && !channel) return egg;
+            const hasPerm = cancan(268435456, guild || channel);
+            if (hasPerm) return;
+
             if (!egg.props.children || !egg.props.children[1]) return egg;
             egg.props.children[1].forEach(item => {item.disabled = true; item.props.disabled = true;});
             return egg;
