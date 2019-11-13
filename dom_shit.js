@@ -38,7 +38,7 @@ const c = {
     }
 }
 // config util
-window.ED = { plugins: {}, version: '2.6.1' };
+window.ED = { plugins: {}, version: '2.6.2' };
 Object.defineProperty(window.ED, 'config', {
     get: function() {
         let conf;
@@ -94,8 +94,7 @@ process.once("loaded", async () => {
     const pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));
     const plugins = {};
     for (const i in pluginFiles) {
-        if (!pluginFiles[i].endsWith('.js')) continue;
-        if (!window.ED.config.bdPlugins && pluginFiles[i].endsWith(".plugin.js")) continue;
+        if (!pluginFiles[i].endsWith('.js') || pluginFiles[i].endsWith(".plugin.js")) continue;
         let p;
         const pName = pluginFiles[i].replace(/\.js$/, '');
         try {
@@ -111,7 +110,7 @@ process.once("loaded", async () => {
     }
     for (const id in plugins) {
         if (!plugins[id] || !plugins[id].name || typeof plugins[id].load !== 'function') {
-            c.info(`Skipping invalid plugin: ${id}`); plugins[id] = null; continue;
+            c.info(`Skipping invalid plugin: ${id}`); delete plugins[id]; continue;
         }
         plugins[id].settings; // this will set default settings in config if necessary
     }
@@ -172,8 +171,30 @@ process.once("loaded", async () => {
         window.EDApi.monkeyPatch(errReports, 'report', () => {});
     }
 
-    if (window.ED.config.bdPlugins)
+    if (window.ED.config.bdPlugins) {
         await require('./bd_shit').setup(currentWindow);
+        c.log(`Preparing BD plugins...`);
+        for (const i in pluginFiles) {
+            if (!pluginFiles[i].endsWith('.js') || !pluginFiles[i].endsWith(".plugin.js")) continue;
+            let p;
+            const pName = pluginFiles[i].replace(/\.js$/, '');
+            try {
+                p = require(path.join(process.env.injDir, 'plugins', pName));
+                if (typeof p.name !== 'string' || typeof p.load !== 'function') {
+                    throw new Error('Plugin must have a name and load() function.');
+                }
+                plugins[pName] = Object.assign(p, {id: pName});
+            }
+            catch (err) {
+                c.warn(`Failed to load ${pluginFiles[i]}: ${err}\n${err.stack}`, p);
+            }
+        }
+        for (const id in plugins) {
+            if (!plugins[id] || !plugins[id].name || typeof plugins[id].load !== 'function') {
+                c.info(`Skipping invalid plugin: ${id}`); delete plugins[id]; continue;
+            }
+        }
+    }
 
     c.log(`Loading plugins...`);
     for (const id in plugins) {
@@ -181,6 +202,7 @@ process.once("loaded", async () => {
         if (plugins[id].preload) continue;
         loadPlugin(plugins[id]);
     }
+
 
     const ht = window.EDApi.findModule('hideToken')
     // prevent client from removing token from localstorage when dev tools is opened, or reverting your token if you change it
