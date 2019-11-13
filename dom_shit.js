@@ -145,9 +145,7 @@ process.once("loaded", async () => {
     }
 
     const d = {resolve: () => {}};
-    c.log(Object.keys(window.req.c).length);
     window.monkeyPatch(window.findModule('dispatch'), 'dispatch', {before: b => {
-        c.log(b.methodArguments[0].type);
         // modules seem to all be loaded when RPC server loads
         if (b.methodArguments[0].type === 'RPC_SERVER_READY') {
             window.findModule('dispatch').dispatch.unpatch();
