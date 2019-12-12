@@ -142,7 +142,7 @@ module.exports = new Plugin({
         gsr = window.EDApi.findModuleByDisplayName("FluxContainer(GuildSettingsRoles)").prototype;
         window.EDApi.monkeyPatch(gsr, 'render', b => {
             const egg = b.callOriginalMethod(b.methodArguments);
-            const hasPerm = cancan(268435456, egg.props.guild);
+            const hasPerm = cancan(268435456, getUser(), egg.props.guild);
             if (hasPerm) return;
             setTimeout(() => {
                 document.querySelectorAll('.'+sw.switchItem).forEach(elem => elem.classList.add(sw.disabled));
@@ -157,7 +157,7 @@ module.exports = new Plugin({
             const guild = module.exports._editingGuild ? getGuild(module.exports._editingGuild) : null;
             const channel = module.exports._editingChannel ? getChannel(module.exports._editingChannel) : null;
             if (!guild && !channel) return egg;
-            const hasPerm = cancan(268435456, guild || channel);
+            const hasPerm = cancan(268435456, getUser(), guild || channel);
             if (hasPerm) return;
 
             if (!egg.props.children || !egg.props.children[1]) return egg;
