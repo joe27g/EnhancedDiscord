@@ -13,5 +13,8 @@ module.exports = new Plugin({
         errReports.collectWindowErrors = false;
         window.EDApi.monkeyPatch(errReports, 'report', () => {});
         */
+    },
+    unload: async function() {
+        window.EDApi.findModule('track').track.unpatch();
     }
 });
