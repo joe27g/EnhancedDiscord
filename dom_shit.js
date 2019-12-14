@@ -158,17 +158,6 @@ process.once("loaded", async () => {
     })
     c.log(`Modules done loading (${Object.keys(window.req.c).length})`);
 
-    if (window.ED.config.silentTyping) {
-        window.EDApi.monkeyPatch(window.EDApi.findModule('startTyping'), 'startTyping', () => {});
-    }
-
-    if (window.ED.config.antiTrack !== false) {
-        window.EDApi.monkeyPatch(window.EDApi.findModule('track'), 'track', () => {});
-        const errReports = window.EDApi.findModule('collectWindowErrors');
-        errReports.collectWindowErrors = false;
-        window.EDApi.monkeyPatch(errReports, 'report', () => {});
-    }
-
     if (window.ED.config.bdPlugins) {
         await require('./bd_shit').setup(currentWindow);
         c.log(`Preparing BD plugins...`);
@@ -198,6 +187,7 @@ process.once("loaded", async () => {
     for (const id in plugins) {
         if (window.ED.config[id] && window.ED.config[id].enabled == false) continue;
         if (plugins[id].preload) continue;
+        if (window.ED.config[id].enabled != true && plugins[id].disable == true) { plugins[id].settings.enabled = false; continue; }
         loadPlugin(plugins[id]);
     }
 

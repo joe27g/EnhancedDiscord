@@ -13,7 +13,7 @@ function makePluginToggle(opts = {}) {
         <h3 class="${sw.titleDefault}" style="flex: 1 1 auto;">${opts.title}</h3>
         ${opts.color ? ` <div class="status" style="background-color:${opts.color}; box-shadow:0 0 5px 2px ${opts.color};margin-left: 5px; border-radius: 50%; height: 10px; width: 10px; position: relative; top: 6px; margin-right: 8px;"></div>` : ''}
         ${opts.showSettingsButton ? settingsButton : ''}
-        ${opts.id == 'silentTyping' || opts.id == 'antiTrack' || opts.id == 'bdPlugins' ? '' : `<button type="button" class="${b.button} ${b.lookFilled} ${b.colorBrand} ed-plugin-reload" style="height:24px;margin-right:10px;"><div class="${b.contents}">Reload</div></button>`}
+        ${opts.id == 'bdPlugins' ? '' : `<button type="button" class="${b.button} ${b.lookFilled} ${b.colorBrand} ed-plugin-reload" style="height:24px;margin-right:10px;"><div class="${b.contents}">Reload</div></button>`}
         <div id="${opts.id}" class="${cb.switchEnabled} ${cb.valueUnchecked} ${cb.sizeDefault} ${cb.themeDefault}">
             <input type="checkbox" class="${cb.checkboxEnabled}" value="on">
         </div>
@@ -136,16 +136,8 @@ module.exports = new Plugin({
 
                     if (settingsPane) {
                         settingsPane.innerHTML = `<h2 class="${contentM.h2} ${contentM.defaultColor}">EnhancedDiscord Configuration</h2><div class="${div} ${marginM.marginBottom20}"></div>`;
-                        settingsPane.innerHTML += makePluginToggle({id: 'silentTyping', title: 'Silent Typing', desc: "Never appear as typing in any channel."});
-                        settingsPane.innerHTML += makePluginToggle({id: 'antiTrack', title: 'Anti-Track', desc: 'Prevent Discord from sending "tracking" data that they may be selling to advertisers or otherwise sharing.'});
                         settingsPane.innerHTML += makePluginToggle({id: 'bdPlugins', title: 'BD Plugins', desc: "Allows ED to load BD plugins natively. (Reload with ctrl+r after enabling/disabling.)"});
 
-                        const st = document.getElementById('silentTyping');
-                        if (st && window.ED.config.silentTyping == true)
-                            st.className = st.className.replace(cbM.valueUnchecked, cbM.valueChecked);
-                        const at = document.getElementById('antiTrack');
-                        if (at && window.ED.config.antiTrack !== false)
-                            at.className = at.className.replace(cbM.valueUnchecked, cbM.valueChecked);
                         const bl = document.getElementById('bdPlugins');
                         if (bl && window.ED.config.bdPlugins == true)
                             bl.className = bl.className.replace(cbM.valueUnchecked, cbM.valueChecked);
@@ -213,7 +205,7 @@ module.exports = new Plugin({
 
                     if (e.target.tagName !== 'INPUT' || e.target.type !== 'checkbox' || !parent || !parent.className || !parent.id) return;
                     const p = window.ED.plugins[parent.id];
-                    if (!p && parent.id !== 'silentTyping' && parent.id !== 'antiTrack' && parent.id !== 'bdPlugins') return;
+                    if (!p && parent.id !== 'bdPlugins') return;
                     //console.log('settings for '+p.id, p.settings);
 
                     if (parent.className.indexOf(cbM.valueChecked) > -1) {
@@ -226,11 +218,11 @@ module.exports = new Plugin({
                         }
                         else {
                             const edc = window.ED.config;
-                            if (edc[parent.id] === false || (parent.id == 'silentTyping' && edc[parent.id] === undefined)) return;
+                            if (edc[parent.id] === false || (edc[parent.id] === undefined)) return;
                             edc[parent.id] = false;
                             window.ED.config = edc;
                             if (parent.id !== 'bdPlugins') {
-                                const mod = parent.id == 'antiTrack' ? 'track' : 'startTyping';
+                                const mod = parent.id == 'startTyping';
                                 //console.log(parent);
                                 if (window.EDApi.findModule(mod, true) && window.EDApi.findModule(mod, true)[mod] && window.EDApi.findModule(mod, true)[mod].__monkeyPatched)
                                     window.EDApi.findModule(mod)[mod].unpatch();
@@ -247,11 +239,11 @@ module.exports = new Plugin({
                         }
                         else {
                             const edc = window.ED.config;
-                            if (edc[parent.id] === true || (parent.id == 'antiTrack' && edc[parent.id] === undefined)) return;
+                            if (edc[parent.id] === true || (edc[parent.id] === undefined)) return;
                             edc[parent.id] = true;
                             window.ED.config = edc;
                             if (parent.id !== 'bdPlugins') {
-                                const mod = parent.id == 'antiTrack' ? 'track' : 'startTyping';
+                                const mod = parent.id == 'startTyping';
                                 window.EDApi.monkeyPatch(window.EDApi.findModule(mod), mod, () => {});
                             }
                         }
