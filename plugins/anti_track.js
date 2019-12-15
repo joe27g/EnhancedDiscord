@@ -8,13 +8,10 @@ module.exports = new Plugin({
 
     load: async function() {
         window.EDApi.monkeyPatch(window.EDApi.findModule('track'), 'track', () => {});
-        /*
-        const errReports = window.EDApi.findModule('collectWindowErrors');
-        errReports.collectWindowErrors = false;
-        window.EDApi.monkeyPatch(errReports, 'report', () => {});
-        */
+        window.EDApi.monkeyPatch(window.EDApi.findModule('submitLiveCrashReport'), 'submitLiveCrashReport', () => {});
     },
     unload: async function() {
         window.EDApi.findModule('track').track.unpatch();
+        window.EDApi.findModule('submitLiveCrashReport').submitLiveCrashReport.unpatch();
     }
 });
