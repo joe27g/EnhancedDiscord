@@ -187,7 +187,9 @@ process.once("loaded", async () => {
     for (const id in plugins) {
         if (window.ED.config[id] && window.ED.config[id].enabled == false) continue;
         if (plugins[id].preload) continue;
-        if (window.ED.config[id].enabled != true && plugins[id].disable == true) { plugins[id].settings.enabled = false; continue; }
+        if (window.ED.config[id].enabled !== true && plugins[id].disabledByDefault) {
+            plugins[id].settings.enabled = false; continue;
+        }
         loadPlugin(plugins[id]);
     }
 
