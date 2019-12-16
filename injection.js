@@ -32,6 +32,10 @@ if (electron.deprecate && electron.deprecate.promisify) {
 }
 
 const newElectron = Object.assign({}, electron, {BrowserWindow});
+// Tempfix for Injection breakage due to new version of Electron on Canary (Electron 7.x)
+// Found by Zerebos (Zack Rauen)
+delete require.cache[electron_path].exports;
+// /TempFix
 require.cache[electron_path].exports = newElectron;
-const browser_window_path = require.resolve(path.resolve(electron_path, '..', '..', 'browser-window.js'));
-require.cache[browser_window_path].exports = BrowserWindow;
+//const browser_window_path = require.resolve(path.resolve(electron_path, '..', '..', 'browser-window.js'));
+//require.cache[browser_window_path].exports = BrowserWindow;
