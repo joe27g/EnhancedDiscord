@@ -5,7 +5,7 @@ module.exports = new Plugin({
     author: 'Joe 🎸#7070',
     description: `Never appear as typing in any channel.`,
     color: 'grey',
-    disable: true,
+    disabledByDefault: true,
 
     load: async function() {
         window.EDApi.monkeyPatch(window.EDApi.findModule('startTyping'), 'startTyping', () => {});
