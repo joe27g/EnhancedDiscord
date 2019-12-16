@@ -10,18 +10,15 @@ electron.session.defaultSession.webRequest.onHeadersReceived(function(details, c
 
 class BrowserWindow extends electron.BrowserWindow {
     constructor(originalOptions) {
-		if (!originalOptions || !originalOptions.webPreferences|| !originalOptions.title) return super(originalOptions);
-        const options = Object.create(originalOptions);
-        options.webPreferences = Object.create(options.webPreferences);
-		
-		const originalPreloadScript = options.webPreferences.preload;
+        if (!originalOptions || !originalOptions.webPreferences || !originalOptions.title) return super(originalOptions);
+        const originalPreloadScript = originalOptions.webPreferences.preload;
 
         // Make sure Node integration is enabled
-        options.webPreferences.nodeIntegration = true;
-        options.webPreferences.preload = path.join(process.env.injDir, 'dom_shit.js');
-        options.webPreferences.transparency = true;
+        originalOptions.webPreferences.nodeIntegration = true;
+        originalOptions.webPreferences.preload = path.join(process.env.injDir, 'dom_shit.js');
+        originalOptions.webPreferences.transparency = true;
 
-        super(options);
+        super(originalOptions);
         this.__preload = originalPreloadScript;
     }
 }
