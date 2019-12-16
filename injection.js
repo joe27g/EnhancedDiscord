@@ -10,18 +10,15 @@ electron.session.defaultSession.webRequest.onHeadersReceived(function(details, c
 
 class BrowserWindow extends electron.BrowserWindow {
     constructor(originalOptions) {
-		if (!originalOptions || !originalOptions.webPreferences|| !originalOptions.title) return super(originalOptions);
-        const options = Object.create(originalOptions);
-        options.webPreferences = Object.create(options.webPreferences);
-		
-		const originalPreloadScript = options.webPreferences.preload;
+        if (!originalOptions || !originalOptions.webPreferences || !originalOptions.title) return super(originalOptions);
+        const originalPreloadScript = originalOptions.webPreferences.preload;
 
         // Make sure Node integration is enabled
-        options.webPreferences.nodeIntegration = true;
-        options.webPreferences.preload = path.join(process.env.injDir, 'dom_shit.js');
-        options.webPreferences.transparency = true;
+        originalOptions.webPreferences.nodeIntegration = true;
+        originalOptions.webPreferences.preload = path.join(process.env.injDir, 'dom_shit.js');
+        originalOptions.webPreferences.transparency = true;
 
-        super(options);
+        super(originalOptions);
         this.__preload = originalPreloadScript;
     }
 }
@@ -35,6 +32,10 @@ if (electron.deprecate && electron.deprecate.promisify) {
 }
 
 const newElectron = Object.assign({}, electron, {BrowserWindow});
+// Tempfix for Injection breakage due to new version of Electron on Canary (Electron 7.x)
+// Found by Zerebos (Zack Rauen)
+delete require.cache[electron_path].exports;
+// /TempFix
 require.cache[electron_path].exports = newElectron;
-const browser_window_path = require.resolve(path.resolve(electron_path, '..', '..', 'browser-window.js'));
-require.cache[browser_window_path].exports = BrowserWindow;
+//const browser_window_path = require.resolve(path.resolve(electron_path, '..', '..', 'browser-window.js'));
+//require.cache[browser_window_path].exports = BrowserWindow;

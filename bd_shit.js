@@ -23,7 +23,7 @@ module.exports = class BDManager {
 
         this.currentWindow.webContents.on('did-navigate-in-page', BDManager.onSwitch);
 
-        fs.readFile('./bd.css', (err, text) => {
+        fs.readFile(path.join(process.env.injDir, 'bd.css'), (err, text) => {
             if (err) return console.error(err);
             window.EDApi.injectCSS('BDManager', text);
         })
