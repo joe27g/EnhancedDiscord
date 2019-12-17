@@ -218,15 +218,9 @@ module.exports = new Plugin({
                         }
                         else {
                             const edc = window.ED.config;
-                            if (edc[parent.id] === false || (edc[parent.id] === undefined)) return;
+                            if (!edc[parent.id]) return;
                             edc[parent.id] = false;
                             window.ED.config = edc;
-                            if (parent.id !== 'bdPlugins') {
-                                const mod = parent.id == 'startTyping';
-                                //console.log(parent);
-                                if (window.EDApi.findModule(mod, true) && window.EDApi.findModule(mod, true)[mod] && window.EDApi.findModule(mod, true)[mod].__monkeyPatched)
-                                    window.EDApi.findModule(mod)[mod].unpatch();
-                            }
                         }
                         parent.className = parent.className.replace(cbM.valueChecked, cbM.valueUnchecked);
                     } else {
@@ -239,13 +233,9 @@ module.exports = new Plugin({
                         }
                         else {
                             const edc = window.ED.config;
-                            if (edc[parent.id] === true || (edc[parent.id] === undefined)) return;
+                            if (edc[parent.id] === true) return;
                             edc[parent.id] = true;
                             window.ED.config = edc;
-                            if (parent.id !== 'bdPlugins') {
-                                const mod = parent.id == 'startTyping';
-                                window.EDApi.monkeyPatch(window.EDApi.findModule(mod), mod, () => {});
-                            }
                         }
                         parent.className = parent.className.replace(cbM.valueUnchecked, cbM.valueChecked);
                     }
