@@ -1,5 +1,5 @@
 const Plugin = require('../plugin');
-let contM = {}, cM, eM, dM, ewM = {}, ree;
+let contM = {}, cM, eM, dM, mM, ewM = {}, ree;
 
 module.exports = new Plugin({
     name: 'Double-Click Edit',
@@ -13,6 +13,7 @@ module.exports = new Plugin({
         cM = window.EDApi.findModule('getChannelId');
         eM = window.EDApi.findModule('startEditMessage');
         dM = window.EDApi.findModule('deleteMessage');
+        mM = window.EDApi.findModule('getRawMessages');
         ewM = window.EDApi.findModule('embedWrapper');
         if (!cM || !eM || !dM || !ewM) {
             return this.error('Aborted loading - Failed to find required modules!');
@@ -51,7 +52,8 @@ module.exports = new Plugin({
         if (!msgObj) return;
         const channelId = cM.getChannelId();
         if (!channelId) return;
-        return eM.startEditMessage(channelId, msgObj.id, msgObj.content || '');
+        const newMsgObj = mM.getMessage(msgObj.channel_id, msgObj.id);
+        return eM.startEditMessage(channelId, msgObj.id, newMsgObj.content || '');
     },
     deleteListener: function(e) {
         if (!ree.deletePressed) return;
