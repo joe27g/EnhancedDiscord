@@ -122,7 +122,7 @@ module.exports = class BDManager {
 
     static showSettingsModal(plugin) {
         const baseModalClasses = window.EDApi.findModule(m => m.modal && m.inner && !m.sizeMedium) || {modal: "modal-36zFtW", inner: "inner-2VEzy9"};
-        const modalClasses = window.EDApi.findModuleByProps("sizeMedium") || {modal: "backdrop-1wrmKb", sizeMedium: "sizeMedium-ctncE5", content: "content-2KoCOZ", header: "header-2nhbou", footer: "footer-30ewN8", close: "close-hhyjWJ", inner: "inner-2Z5QZX"};
+        const modalClasses = window.EDApi.findModuleByProps("modal", "sizeMedium") || {modal: "backdrop-1wrmKb", sizeMedium: "sizeMedium-ctncE5", content: "content-2KoCOZ", header: "header-2nhbou", footer: "footer-30ewN8", close: "close-hhyjWJ", inner: "inner-2Z5QZX"};
         const backdrop = window.EDApi.findModuleByProps("backdrop") || {backdrop: "backdrop-1wrmKb"};
         const modalHTML = `<div id="bd-settingspane-container" class="theme-dark">
                 <div class="backdrop ${backdrop.backdrop}" style="background-color: rgb(0, 0, 0); opacity: 0.85;"></div>
