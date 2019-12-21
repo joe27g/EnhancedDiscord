@@ -37,7 +37,7 @@ module.exports = new Plugin({
             og.HIDDEN = hidden;
             return og;
         });
-        chanM = window.EDApi.findModule(m => m.prototype && m.prototype.isRoleRequired);
+        chanM = window.EDApi.findModule(m => m.prototype && m.prototype.isManaged);
         chanM.prototype.isHidden = function() {
             return [0, 4, 5].includes(this.type) && !can(1024, getUser(), this);
         }
