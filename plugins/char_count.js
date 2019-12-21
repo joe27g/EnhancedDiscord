@@ -11,7 +11,7 @@ module.exports = new Plugin({
     load: async function() {
         ml = window.EDApi.findModule('maxLength');
         cta = window.EDApi.findModule('channelTextArea');
-        ta = window.EDApi.findModuleByDisplayName('ChannelTextArea').prototype;
+        ta = window.EDApi.findModuleByDisplayName('ChannelEditorContainer').prototype;
         gs = window.EDApi.findModule('getAllSettings');
         em = window.EDApi.findModule(m => m.checkbox && m.errorMessage);
         gc = window.EDApi.findModule('getChannel');
@@ -30,12 +30,15 @@ module.exports = new Plugin({
         const txt = b.thisObject.props.textValue;
         const parent = ctaElem.parentElement;
         let charCountElem = parent.querySelector('.' + ml.maxLength);
+        const len = (txt || '').trim().length;
+        if (!len && charCountElem)
+            charCountElem.remove();
+        if (!len) return;
         if (!charCountElem) {
             charCountElem = document.createElement('div');
             charCountElem.style = "bottom:3px;right:5px;";
             parent.appendChild(charCountElem);
         }
-        const len = (txt || '').trim().length;
         charCountElem.innerHTML = len + '/2000';
         charCountElem.className = `ed_char_count ${ml.maxLength}${len > 2000 ? ' '+em.errorMessage : ''}`;
     },
