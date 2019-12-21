@@ -11,7 +11,7 @@ module.exports = new Plugin({
     load: async function() {
         ml = window.EDApi.findModule('maxLength');
         cta = window.EDApi.findModule('channelTextArea');
-        ta = window.EDApi.findModuleByDisplayName('ChannelTextArea').prototype;
+        ta = window.EDApi.findModuleByDisplayName('ChannelEditorContainer').prototype;
         gs = window.EDApi.findModule('getAllSettings');
         em = window.EDApi.findModule(m => m.checkbox && m.errorMessage);
         gc = window.EDApi.findModule('getChannel');
