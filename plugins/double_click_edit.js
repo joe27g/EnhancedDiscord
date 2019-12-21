@@ -26,7 +26,7 @@ module.exports = new Plugin({
         document.addEventListener("click", this.deleteListener);
 
         // allow editing in "locked" (read-only) channels
-        const prot = window.EDApi.findModuleByDisplayName("ChannelTextArea").prototype;
+        const prot = window.EDApi.findModuleByDisplayName("ChannelEditorContainer").prototype;
         window.EDApi.monkeyPatch(prot, 'render', b => {
             if (b.thisObject.props.type === 'edit')
                 b.thisObject.props.disabled = false;
