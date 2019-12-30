@@ -21,8 +21,8 @@ const get = moduleName => {
 
 const EDSettings = {
 	name: 'ED Settings (React)',
-    author: 'Joe 🎸#7070 & jakuski#9191',
-    description: 'Adds an EnhancedDiscord tab in user settings.',
+	author: 'Joe 🎸#7070 & jakuski#9191',
+	description: 'Adds an EnhancedDiscord tab in user settings.',
 	color: 'darkred',
 	async load () {
 		const discordConstants = EDApi.findModule("API_HOST");
@@ -30,8 +30,8 @@ const EDSettings = {
 			EDApi.findModule('getUserSettingsSections').default
 		);
 
-        if (!window.ED.classMaps) {
-            window.ED.classMaps = {};
+		if (!window.ED.classMaps) {
+			window.ED.classMaps = {};
 		}
 
 		if (!window.ED.discordComponents) {
@@ -120,14 +120,14 @@ const EDSettings = {
 		}];
 	},
 	_initClassMaps(obj) {
-        const divM = EDApi.findModule(m => m.divider && Object.keys(m).length === 1)
-        obj.headers = EDApi.findModule('defaultMarginh2');
-        obj.margins = EDApi.findModule('marginBottom8');
-        obj.divider = divM ? divM.divider : '';
-        obj.checkbox = EDApi.findModule('checkboxEnabled');
-        obj.buttons = EDApi.findModule('lookFilled');
-        obj.switchItem = EDApi.findModule('switchItem');
-        obj.alignment = EDApi.findModule('horizontalReverse');
+		const divM = EDApi.findModule(m => m.divider && Object.keys(m).length === 1)
+		obj.headers = EDApi.findModule('defaultMarginh2');
+		obj.margins = EDApi.findModule('marginBottom8');
+		obj.divider = divM ? divM.divider : '';
+		obj.checkbox = EDApi.findModule('checkboxEnabled');
+		obj.buttons = EDApi.findModule('lookFilled');
+		obj.switchItem = EDApi.findModule('switchItem');
+		obj.alignment = EDApi.findModule('horizontalReverse');
 		obj.description = EDApi.findModule('formText');
 		// New
 		obj.shadows = findModule("elevationHigh");
