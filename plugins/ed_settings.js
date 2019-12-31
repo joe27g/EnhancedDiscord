@@ -11,12 +11,19 @@ const getReact = (returnEntireReact = false) => { // WHY. THE. FUCK. https://git
 
 const join = (...args) => args.join(" ");
 
-const get = moduleName => {
-	switch(moduleName) {
-		case "animated": return findModule("createAnimatedComponent");
-		case "react": return findModule("createElement");
-		case "react-ce": return findModule("createElement").createElement;
+const shouldPluginRender = id => {
+	let shouldRender = true;
+
+	// BetterDiscord plugins settings render in their own modal activated in their listing.
+	if (window.ED.plugins[id].getSettingsPanel && typeof window.ED.plugins[id].getSettingsPanel == 'function') {
+		shouldRender = false;
 	}
+
+	if (!window.ED.plugins[id].config || window.ED.config[id].enabled === false || !window.ED.plugins[id].generateSettings) {
+		shouldRender = false;
+	}
+
+	return shouldRender;
 }
 
 const EDSettings = {
@@ -40,7 +47,6 @@ const EDSettings = {
 		
 		this._initClassMaps(window.ED.classMaps);
 		this._initDiscordComponents(window.ED.discordComponents);
-		this._noticeStore = new this.NoticeStoreMimic();
 		this.settingsSections = this._getDefaultSections(); // Easily allow plugins to add in their own sections if need be.
 
 		this.unpatch = EDApi.monkeyPatch(
@@ -48,11 +54,10 @@ const EDSettings = {
 			"generateSections",
 			data => {
 				const sections = data.originalMethod.call(data.thisObject);
+				// We use the devIndex as a base so that should Discord add more sections later on, our stuff shouldn't be going anywhere.
 				const devIndex = this._getDevIndex(sections, discordConstants);
 
 				sections.splice(devIndex + 2, 0, ...this.settingsSections);
-
-				console.log(sections)
 
 				return sections;
 			}
@@ -110,11 +115,7 @@ const EDSettings = {
 		},{
 			section: "ED/Settings",
 			label: "Settings",
-			element: this.components.SettingsPage,
-			notice: {
-				element: this.components.Notice,
-				store: this._noticeStore
-			}
+			element: this.components.SettingsPage
 		},{
 			section: "DIVIDER"
 		}];
@@ -158,64 +159,143 @@ const EDSettings = {
 	components: {
 		PluginsPage () {
 			const e = getReact();
-			const { FormSection, Divider } = ED.discordComponents;
+			const { FormSection, Divider, Flex } = ED.discordComponents;
 
 
 			return e(FormSection, {title: "EnhancedDiscord Plugins", tag: "h2"},
-				e(EDSettings.components.OpenPluginDirBtn),
+					e(Flex, {},
+						e(EDSettings.components.OpenPluginDirBtn)
+					),
 				e(Divider, {className: join(ED.classMaps.margins.marginTop20, ED.classMaps.margins.marginBottom20)})
 			)
 		},
 		SettingsPage () {
-			const e = getReact();
-			const { FormSection, SwitchItem } = ED.discordComponents;
+			const { createElement:e, Fragment } = getReact(true);
+			const { FormSection } = ED.discordComponents;
 
-			return e(FormSection, {title: "EnhancedDiscord Settings", tag: "h2"},
-				e(SwitchItem, {note: "Allows EnhancedDiscord to load BetterDiscord plugins natively. Reload (ctrl+r) for changes to take effect."}, "BetterDiscord Plugins")
+			return e(Fragment, null,
+				e(FormSection, {title: "EnhancedDiscord Settings", tag: "h2"},
+					e(module.exports.components.BDPluginToggle),
+					Object
+						.keys(ED.plugins)
+						.filter(shouldPluginRender)
+						.map((id, index) => e(module.exports.components.PluginSettings, {id, plugin: ED.plugins[id], index})),
+				)
 			)
 		},
-		Plugin () {
+		PluginListing () {
 			const e = getReact();
-			const { FormSection, SwitchItem } = ED.discordComponents;
+			const { FormSection, Switch } = ED.discordComponents;
 
 			return e("div", null, "xd")
 		},
-		BaseSettingsNotice (props) { // Component for other plugins to use
-			const e = getReact();
-			const noticeClassMap = findModule("resetButton");
+		PluginSettings (props) {
+			const { createElement:e, Fragment } = getReact(true);
+			const { Divider, Title } = ED.discordComponents;
+			const { _VariableTypeRenderer: VTR } = module.exports.components;
 
-			return e("div", {className: noticeClassMap.container}, "xd")
+
+			return e(Fragment, null,
+				e(Divider, { style:{ marginTop: props.index === 0 ? "0px" : undefined}, className: join(ED.classMaps.margins.marginTop8, ED.classMaps.margins.marginBottom20)}),
+				e(Title, {tag: "h2"}, props.plugin.name),
+				new VTR(props.plugin).render()
+			)
+		},
+		_VariableTypeRenderer: class {
+			static get DOMStringRenderer () {
+				const { createElement:e, Component } = getReact(true);
+
+				return class DOMString extends Component {
+					componentDidMount() {
+						this.props.listeners.forEach(listener => {
+							document.querySelector(listener.el).addEventListener(listener.type, listener.eHandler)
+						});
+					}
+					render () {
+						return e("div", {dangerouslySetInnerHTML:{__html: this.props.html}});
+					}
+				}
+			}
+			static get HTMLElementInstanceRenderer () {
+				const { createElement:e, Component, createRef } = getReact(true);
+
+				return class HTMLElementInstance extends Component {
+					constructor() {
+						super();
+
+						this.ref = createRef();
+					}
+					componentDidMount() {
+						this.ref.current.appendChild(this.props.instance)
+					}
+					render () {
+						return e("div", {ref: this.ref});
+					}
+				}
+			}
+			constructor(plugin) {
+				const { isValidElement } = getReact(true);
+				this._p = plugin;
+				let typeOf = null;
+
+				const settings = plugin.generateSettings();
+
+				if (typeof settings === "string") typeOf = "domstring";
+				if (isValidElement(settings)) typeOf = "react";
+				if (settings instanceof HTMLElement) typeOf = "htmlelement-instance";
+
+				if (typeOf === null) module.exports.error("Unable to figure out how to render value returned by Plugin.generateSettings for", plugin.name, ". Please check the plugins.md file in the ED github repo for more information.");
+
+				this.typeOf = typeOf;
+			}
+			render () {
+				const e = getReact();
+				const { DOMStringRenderer, HTMLElementInstanceRenderer } = this.constructor;
+
+				switch(this.typeOf) {
+					case "domstring": return e(DOMStringRenderer, {html: this._p.generateSettings(), listeners: this._p.settingListeners});
+					case "react": return this._p.generateSettings();
+					case "htmlelement-instance": return e(HTMLElementInstanceRenderer, {instance: this._p.generateSettings()})
+				}
+			}
+		},
+		BDPluginToggle () {
+			const { createElement:e, useState , useEffect } = getReact(true);
+			const { SwitchItem } = ED.discordComponents;
+
+			const [ enabled, setEnabled ] = useState(window.ED.config.bdPlugins);
+			useEffect(() => {
+				window.ED.config.bdPlugins = enabled;
+				window.ED.config = window.ED.config;
+			})
+
+			return e(SwitchItem, {
+				onChange: () => setEnabled(!enabled),
+				value: enabled,
+				hideBorder: true,
+				note: "Allows EnhancedDiscord to load BetterDiscord plugins natively. Reload (ctrl+r) for changes to take effect."
+			},
+				"BetterDiscord Plugins"
+			)
 		},
 		OpenPluginDirBtn () {
 			const { createElement:e, useState } = getReact(true);
 			const { Button } = ED.discordComponents;
 			const [ string, setString ] = useState("Open Plugins Directory");
 
-			return e("div", null,
-				e(Button, {size: Button.Sizes.SMALL, color: Button.Colors.GREEN, onClick: () => {
-					console.log("dab")
-				}}, string));
-		}
-	},
-	NoticeStoreMimic: class { // Used to mimic a Redux? store for form notices.
-		constructor() {
-			this._cb = null;
-			this._shouldShowNotice = false;
-		}
-		/* To be used by the component */
-		setState(shouldShow) {
-			this._shouldShowNotice = shouldShow;
-			if (this._cb != null) this._cb();
-		}
-		/* Methods used by Discord */
-		showNotice() {
-			return this._shouldShowNotice;
-		}
-		addChangeListener(fn) {
-			this._cb = fn;
-		}
-		removeChangeListener() {
-			this._cb = null;
+			return e(Button, {size: Button.Sizes.SMALL, color: Button.Colors.GREEN, onClick: () => {
+				setString("Opening...");
+				const sucess = require("electron").shell.openItem(
+					require("path").join(process.env.injDir, "plugins")
+				);
+
+				if (sucess) setString("Opened!");
+				else setString("Failed to open...");
+
+				setTimeout(() => {
+					setString("Open Plugins Directory")
+				}, 1500)
+			}}, string);
 		}
 	}
 }
