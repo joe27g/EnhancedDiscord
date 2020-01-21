@@ -3,16 +3,6 @@ const BD = require('../bd_shit');
 
 const edSettingsID = require("path").parse(__filename).name;
 
-/*
-
-to do list:
-
-documentation for ED.discordComponents
-plugins.md docs
-bump ed version to 2.7.0
-
-*/
-
 module.exports = new Plugin({
 	name: 'ED Settings (React)',
 	author: 'Joe 🎸#7070 & jakuski#9191',
