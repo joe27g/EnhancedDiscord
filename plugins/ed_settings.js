@@ -101,8 +101,13 @@ module.exports = new Plugin({
 
 		*/
 		return [{
-			section: "HEADER",
-			label: "EnhancedDiscord"
+			section: "CUSTOM",
+			element: () => {
+				const { join } = module.exports.utils;
+				const { header } = findModule("topPill");
+
+				return EDApi.React.createElement("div", { className: join(header, "ed-settings") }, "EnhancedDiscord")
+			}
 		},{
 			section: "ED/Plugins",
 			label: "Plugins",
