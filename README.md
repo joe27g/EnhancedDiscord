@@ -14,7 +14,7 @@ By default, this loads my theme, with some settings applied. More info [on its r
 You can download more quality plugins from the following repos:
 - [joe27g/EnhancedDiscord-Plugins](https://github.com/joe27g/EnhancedDiscord-Plugins)
 - [rauenzi/EnhancedDiscordPlugins](https://github.com/rauenzi/EnhancedDiscordPlugins)
-- [jakuski/ed_plugins](https://github.com/jakuski/ed_plugins)
+- [jakuski/ed_plugins](https://github.com/jakuski/ed_plugins) (These are deprecated and most do not work, however you can use these as a guide to creating your own plugins).
 
 If you enable "BD Plugins" in the EnhancedDiscord settings, you can also load BetterDiscord plugins. See the #faq in the support server for more details.
 *Note: some BD plugins are notorious for being laggy. In general, the fewer plugins you have, the faster your client will be.*
