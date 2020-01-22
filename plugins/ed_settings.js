@@ -1,251 +1,609 @@
 const Plugin = require('../plugin');
+const BD = require('../bd_shit');
 
-function makePluginToggle(opts = {}) {
-    const a = window.ED.classMaps.alignment;
-    const sw = window.ED.classMaps.switchItem;
-    const cb = window.ED.classMaps.checkbox;
-    const b = window.ED.classMaps.buttons;
-    const d = window.ED.classMaps.description;
-    const settingsButton = `<button type="button" class="${b.button} ${b.lookFilled} ${b.colorBrand} ed-plugin-settings" style="height:24px;margin-right:10px;"><div class="${b.contents}">Settings</div></button>`;
-
-    return `<div id="${opts.id}-wrap" class="${a.vertical} ${a.justifyStart} ${a.alignStretch} ${a.noWrap} ${sw.switchItem}" style="flex: 1 1 auto;">
-    <div class="${a.horizontal} ${a.justifyStart} ${a.alignStart} ${a.noWrap}" style="flex: 1 1 auto;">
-        <h3 class="${sw.titleDefault}" style="flex: 1 1 auto;">${opts.title}</h3>
-        ${opts.color ? ` <div class="status" style="background-color:${opts.color}; box-shadow:0 0 5px 2px ${opts.color};margin-left: 5px; border-radius: 50%; height: 10px; width: 10px; position: relative; top: 6px; margin-right: 8px;"></div>` : ''}
-        ${opts.showSettingsButton ? settingsButton : ''}
-        ${opts.id == 'bdPlugins' ? '' : `<button type="button" class="${b.button} ${b.lookFilled} ${b.colorBrand} ed-plugin-reload" style="height:24px;margin-right:10px;"><div class="${b.contents}">Reload</div></button>`}
-        <div id="${opts.id}" class="${cb.switchEnabled} ${cb.valueUnchecked} ${cb.sizeDefault} ${cb.themeDefault}">
-            <input type="checkbox" class="${cb.checkboxEnabled}" value="on">
-        </div>
-    </div>
-    <div class="${d.description} ${d.modeDefault}" style="flex: 1 1 auto;">${opts.desc ? opts.desc : '<i>No Description Provided</i<'}</div>
-    <div class="${window.ED.classMaps.divider} ${sw.dividerDefault}"></div>
-</div>`;
-}
+const edSettingsID = require("path").parse(__filename).name;
 
 module.exports = new Plugin({
-    name: 'ED Settings',
-    author: 'Joe 🎸#7070',
-    description: 'Adds an EnhancedDiscord tab in user settings.',
-    color: 'darkred',
+	name: 'ED Settings (React)',
+	author: 'Joe 🎸#7070 & jakuski#9191',
+	description: 'Adds an EnhancedDiscord tab in user settings.',
+	color: 'darkred',
+	async load () {
+		const discordConstants = EDApi.findModule("API_HOST");
+		const UserSettings = module.exports.utils.getComponentFromFluxContainer(
+			EDApi.findModule('getUserSettingsSections').default
+		);
 
-    load: async function() {
-        const parentThis = this; //Allow use of parent methods in sub functions
+		if (!window.ED.classMaps) {
+			window.ED.classMaps = {};
+		}
 
-        if (!window.ED.classMaps) {
-            window.ED.classMaps = {};
-        }
-        const tabsM = window.EDApi.findModule('topPill');
-        const divM = window.EDApi.findModule(m => m.divider && Object.keys(m).length === 1)
-        const contentM = window.ED.classMaps.headers = window.EDApi.findModule('defaultMarginh2');
-        const marginM = window.ED.classMaps.margins = window.EDApi.findModule('marginBottom8');
-        const div = window.ED.classMaps.divider = divM ? divM.divider : '';
-        const cbM = window.ED.classMaps.checkbox = window.EDApi.findModule('checkboxEnabled');
-        const buttM = window.ED.classMaps.buttons = window.EDApi.findModule('lookFilled');
-        const concentCol = window.EDApi.findModule('contentColumn');
-        window.ED.classMaps.switchItem = window.EDApi.findModule('switchItem');
-        window.ED.classMaps.alignment = window.EDApi.findModule('horizontalReverse');
-        window.ED.classMaps.description = window.EDApi.findModule('formText');
+		if (!window.ED.discordComponents) {
+			window.ED.discordComponents = {};
+		}
 
-        // use this function to trigger the loading of the settings tabs. No MutationObservers this way :)
-        const gss = window.EDApi.findModule('getUserSettingsSections').default.prototype;
-        window.EDApi.monkeyPatch(gss, 'render', function() {
+		this._initClassMaps(window.ED.classMaps);
+		this._initDiscordComponents(window.ED.discordComponents);
+		this.components = this._initReactComponents();
+		this.settingsSections = this._getDefaultSections(); // Easily allow plugins to add in their own sections if need be.
 
-            const tab = document.getElementsByClassName('ed-settings');
-            //console.log(tab);
-            if (!tab || tab.length < 1) {
-                const parent = document.querySelector('.' + tabsM.side);
-                if (!parent) {
-                    setTimeout(() => {arguments[0].thisObject.forceUpdate();}, 100);
-                    return arguments[0].callOriginalMethod(arguments[0].methodArguments);
-                }
-                const anchor = parent.querySelectorAll(`.${tabsM.separator}`)[3];
-                if (!anchor)
-                    return arguments[0].callOriginalMethod(arguments[0].methodArguments);
+		this.unpatch = EDApi.monkeyPatch(
+			UserSettings.prototype,
+			"generateSections",
+			data => {
+				const sections = data.originalMethod.call(data.thisObject);
+				// We use the devIndex as a base so that should Discord add more sections later on, our sections shouldn't move possibly fucking up the UI.
+				const devIndex = this._getDevSectionIndex(sections, discordConstants);
 
-                const header = document.createElement('div');
-                header.className = tabsM.header + ' ed-settings';
-                header.innerHTML = 'EnhancedDiscord';
-                anchor.parentNode.insertBefore(header, anchor.nextSibling);
+				sections.splice(devIndex + 2, 0, ...this.settingsSections);
 
-                const pluginsTab = document.createElement('div');
-                const tabClass = `${tabsM.item} ${tabsM.themed} ed-settings`;
-                pluginsTab.className = tabClass;
-                pluginsTab.innerHTML = 'Plugins';
-                header.parentNode.insertBefore(pluginsTab, header.nextSibling);
+				return sections;
+			}
+		)
+	},
+	unload () {
+		if (this.unpatch && typeof this.unpatch === "function") this.unpatch();
+	},
+	utils: {
+		join (...args) {
+			return args.join(" ")
+		},
+		getComponentFromFluxContainer (component) {
+			return (new component({})).render().type;
+		},
+		shouldPluginRender (id) {
+			let shouldRender = true;
 
-                const settingsTab = document.createElement('div');
-                settingsTab.className = tabClass;
-                settingsTab.innerHTML = 'Settings';
-                pluginsTab.parentNode.insertBefore(settingsTab, pluginsTab.nextSibling);
+			// BetterDiscord plugins settings render in their own modal activated in their listing.
+			if (window.ED.plugins[id].getSettingsPanel && typeof window.ED.plugins[id].getSettingsPanel == 'function') {
+				shouldRender = false;
+			}
+		
+			if (!window.ED.plugins[id].config || window.ED.config[id].enabled === false || !window.ED.plugins[id].generateSettings) {
+				shouldRender = false;
+			}
+		
+			return shouldRender;
+		}
+	},
+	_getDevSectionIndex(sections, constants) {
+		const indexOf = sections.indexOf(
+			sections.find(sect => sect.section === constants.UserSettingsSections.DEVELOPER_OPTIONS)
+		);
 
-                const sep = document.createElement('div');
-                sep.className = tabsM.separator;
-                settingsTab.parentNode.insertBefore(sep, settingsTab.nextSibling);
+		if (indexOf !== -1) return indexOf;
+		else return 28; // Hardcoded index fallback incase Discord mess with something
+	},
+	_getDefaultSections() {
+		/*
 
-                parent.onclick = function(e) {
-                    if (!e.target.className || e.target.className.indexOf(tabsM.item) == -1 || e.target.innerHTML === 'Change Log') return;
+		For future reference:
 
-                    for (const i in tab) {
-                        tab[i].className = (tab[i].className || '').replace(" " + tabsM.selected, '')
-                    }
-                }
+		normal sections / pages
+			section: [string] an id string of some sort, must be unique.
+			label: [string] self-explanatory
+			element: [optional] [react-renderable] the page that will be rendered on the right when the section is clicked
+			color: [optional] [string (hex)] a colour to be applied to the section (see the log out / discord nitro btn)
+			onClick: [optional] [function] a function to be executed whenever the element is clicked
 
-                pluginsTab.onclick = function(e) {
-                    const settingsPane = document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn} > div`);
-                    const otherTab = document.querySelector('.' + tabsM.item + '.' + tabsM.selected);
-                    if (otherTab) {
-                        otherTab.className = otherTab.className.replace(" " + tabsM.selected, '');
-                    }
-                    this.className += ` ${tabsM.selected}`;
+		special sections
+			headers
+				section: "HEADER"
+				label: [string]
+			divider
+				section: "DIVIDER"
+			custom element
+				section: "CUSTOM"
+				element: [react-renderable]
+		
+		all sections regardless of type can have the following
+			predicate: [function => boolean] determine whether the section should be shown
 
-                    if (settingsPane) {
-                        // ED Header
-                        settingsPane.innerHTML = `<h2 class="${contentM.h2} ${contentM.defaultColor} ${marginM.marginBottom8}">EnhancedDiscord Plugins</h2>`;
-                        // Open Plugins Folder Button
-                        settingsPane.innerHTML += `<button id="ed-openPluginsFolder" style="margin-bottom: 10px;" class="${buttM.button} ${buttM.lookFilled} ${buttM.colorGreen} ${buttM.sizeSmall} ${buttM.grow}"><div class="${buttM.contents}">Open Plugins Directory</div></button>`;
-                        // Divider
-                        settingsPane.innerHTML += `<div class="${div} ${marginM.marginBottom20}"></div>`
+		*/
+		return [{
+			section: "CUSTOM",
+			element: () => {
+				const { join } = module.exports.utils;
+				const { header } = findModule("topPill");
 
-                        for (const id in window.ED.plugins) {
-                            //if (id == 'ed_settings') continue;
+				return EDApi.React.createElement("div", { className: join(header, "ed-settings") }, "EnhancedDiscord")
+			}
+		},{
+			section: "ED/Plugins",
+			label: "Plugins",
+			element: this.components.PluginsPage
+		},{
+			section: "ED/Settings",
+			label: "Settings",
+			element: this.components.SettingsPage
+		},{
+			section: "DIVIDER"
+		}];
+	},
+	_initClassMaps(obj) {
+		const divM = EDApi.findModule(m => m.divider && Object.keys(m).length === 1)
+		obj.headers = EDApi.findModule('defaultMarginh2');
+		obj.margins = EDApi.findModule('marginBottom8');
+		obj.divider = divM ? divM.divider : '';
+		obj.checkbox = EDApi.findModule('checkboxEnabled');
+		obj.buttons = EDApi.findModule('lookFilled');
+		obj.switchItem = EDApi.findModule('switchItem');
+		obj.alignment = EDApi.findModule('horizontalReverse');
+		obj.description = EDApi.findModule('formText');
+		// New
+		obj.shadows = findModule("elevationHigh");
+	},
+	_initDiscordComponents(obj) {
+		obj.Textbox = EDApi.findModuleByDisplayName("TextInput");
+		obj.Select = EDApi.findModuleByDisplayName("SelectTempWrapper");
+		obj.Switch = EDApi.findModuleByDisplayName("SwitchItem");
+		obj.RadioGroup = EDApi.findModuleByDisplayName("RadioGroup");
+		obj.Title = EDApi.findModuleByDisplayName("FormTitle");
+		obj.Text = EDApi.findModuleByDisplayName("FormText");
+		obj.FormSection = EDApi.findModuleByDisplayName("FormSection");
+		obj.Icon = EDApi.findModuleByDisplayName("Icon");
+		obj.LoadingSpinner = EDApi.findModuleByDisplayName("Spinner");
+		obj.Card = EDApi.findModuleByDisplayName("FormNotice");
+		obj.Flex = EDApi.findModuleByDisplayName("Flex");
+		obj.Switch = EDApi.findModuleByDisplayName("Switch");
+		obj.SwitchItem = EDApi.findModuleByDisplayName("SwitchItem");
+		obj.Slider = EDApi.findModuleByDisplayName("Slider");
+		obj.Select = EDApi.findModuleByDisplayName("SelectTempWrapper");
+		obj.Tooltip = EDApi.findModuleByDisplayName("Tooltip");
+		obj.Button = findModule("Sizes");
 
-                            settingsPane.innerHTML += makePluginToggle({id, title: window.ED.plugins[id].name, desc: window.ED.plugins[id].description, color: window.ED.plugins[id].color || 'orange', showSettingsButton: typeof window.ED.plugins[id].getSettingsPanel == 'function'});
-                            if (!window.ED.plugins[id].settings || window.ED.plugins[id].settings.enabled !== false) {
-                                const cb = document.getElementById(id);
-                                if (cb && cb.className)
-                                    cb.className = cb.className.replace(cbM.valueUnchecked, cbM.valueChecked);
-                            }
-                        }
+		/*
+		Props: any valid props you can apply to a div element
+		*/
+		obj.Divider = props => {
+			props.className = props.className ? props.className + " " + ED.classMaps.divider : ED.classMaps.divider
+			return EDApi.React.createElement("div", Object.assign({}, props))
+		}
+	},
+	_initReactComponents () {
+		const { createElement:e, Component, Fragment, useState, useEffect, useReducer, createRef, isValidElement } = EDApi.React;
+		const { FormSection, Divider, Flex, Switch, Title, Text, Button, SwitchItem, Textbox, RadioGroup, Select, Slider } = ED.discordComponents;
+		const { margins } = ED.classMaps;
+		const { join } = module.exports.utils;
 
-                        document.getElementById("ed-openPluginsFolder").onclick = function () {
-                            const s = require("electron").shell.openItem(require("path").join(process.env.injDir, "plugins"))
-                            if (s === false) console.error("[EnhancedDiscord] Unable to open external folder.")
-                        }
-                    }
-                    e.stopPropagation(); // prevent from going to parent click handler
-                }
+		const PluginsPage = () => {
+			return e(FormSection, {title: "EnhancedDiscord Plugins", tag: "h2"},
+					e(Flex, {},
+						e(OpenPluginDirBtn)
+					),
+				e(Divider, {className: join(margins.marginTop20, margins.marginBottom20)}),
+				Object
+					.keys(ED.plugins)
+					.map(id => e(PluginListing, {id, plugin: ED.plugins[id]}))
+			)
+		}
 
-                settingsTab.onclick = function(e) {
-                    const settingsPane = document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn} > div`);
-                    const otherTab = document.querySelector('.' + tabsM.item + '.' + tabsM.selected);
-                    if (otherTab) {
-                        otherTab.className = otherTab.className.replace(" " + tabsM.selected, '');
-                    }
-                    this.className += ` ${tabsM.selected}`;
+		const SettingsPage = () => {
+			return e(Fragment, null,
+				e(FormSection, {title: "EnhancedDiscord Settings", tag: "h2"},
+					e(BDPluginToggle),
+					Object
+						.keys(ED.plugins)
+						.filter(module.exports.utils.shouldPluginRender)
+						.map((id, index) => e(PluginSettings, {id, index})),
+				)
+			)
+		}
 
-                    if (settingsPane) {
-                        settingsPane.innerHTML = `<h2 class="${contentM.h2} ${contentM.defaultColor}">EnhancedDiscord Configuration</h2><div class="${div} ${marginM.marginBottom20}"></div>`;
-                        settingsPane.innerHTML += makePluginToggle({id: 'bdPlugins', title: 'BD Plugins', desc: "Allows ED to load BD plugins natively. (Reload with ctrl+r after enabling/disabling.)"});
+		class PluginListing extends Component {
+			constructor(props) {
+				super(props);
 
-                        const bl = document.getElementById('bdPlugins');
-                        if (bl && window.ED.config.bdPlugins == true)
-                            bl.className = bl.className.replace(cbM.valueUnchecked, cbM.valueChecked);
-                        //console.log(st, at);
-                        for (const id in window.ED.plugins) {
-                            if (window.ED.plugins[id].getSettingsPanel && typeof window.ED.plugins[id].getSettingsPanel == 'function') continue;
-                            if (!window.ED.plugins[id].config || window.ED.config[id].enabled === false || !window.ED.plugins[id].generateSettings) continue;
+				this.state = {
+					reloadBtnText: "Reload"
+				}
 
-                            settingsPane.innerHTML += `<h2 class="${contentM.h2} ${contentM.defaultColor}">${window.ED.plugins[id].name}</h2>`;
+				this.showBDSettingsBtn = this.showBDSettingsBtn.bind(this);
+				this.openBDSettingsModal = this.openBDSettingsModal.bind(this);
+				this.canBeManagedByUser = this.canBeManagedByUser.bind(this);
+				this.isPluginEnabled = this.isPluginEnabled.bind(this);
+				this.handleReload = this.handleReload.bind(this);
+				this.handleToggle = this.handleToggle.bind(this);
+				this.handleLoad = this.handleLoad.bind(this);
+				this.handleUnload = this.handleUnload.bind(this);
+			}
+			showBDSettingsBtn () {
+				return typeof this.props.plugin.getSettingsPanel == "function";
+			}
+			openBDSettingsModal () {
+				BD.showSettingsModal(this.props.plugin);
+			}
+			isPluginEnabled() {
+				return this.props.plugin.settings.enabled !== false;
+			}
+			canBeManagedByUser () {
+				return !(this.props.id === edSettingsID)
+			}
+			handleReload () {
+				this.setState({reloadBtnText: "Reloading..."});
+				try {
+					this.props.plugin.reload();
+					this.setState({reloadBtnText: "Reloaded!"});
+				} catch (err) {
+					module.exports.error(err);
+					this.setState({reloadBtnText: `Failed to reload (${err.name} - see console.)`})
+				}
 
-                            settingsPane.innerHTML += window.ED.plugins[id].generateSettings();
+				setTimeout(
+					setState => setState({reloadBtnText: "Reload"}),
+					3000,
+					this.setState.bind(this)
+				)
+			}
+			handleToggle(event) {
+				if (event.currentTarget.checked) this.handleLoad();
+				else this.handleUnload();
 
-                            settingsPane.innerHTML += `<div class="${div}"></div>`;
-                            if (window.ED.plugins[id].settingListeners) {
-                                setTimeout(() => { // let shit render
-                                        for(const eventObject in window.ED.plugins[id].settingListeners){
-                                            const currentSettingListener = window.ED.plugins[id].settingListeners[eventObject];
-                                            //Check if plugin is using the old format
+				this.forceUpdate();
+			}
+			handleLoad () {
+				if (this.isPluginEnabled()) return;
 
-                                            if(Array.isArray(window.ED.plugins[id].settingListeners)){
-                                                const elem = settingsPane.querySelector(currentSettingListener.el);
-                                                if (elem)
-                                                    elem.addEventListener(currentSettingListener.type, currentSettingListener.eHandler);
-                                            } else {
-                                                const elem = settingsPane.querySelector(eventObject);
-                                                if (elem){
-                                                    parentThis.warn(`Plugin ${window.ED.plugins[id].name} is using a deprecated plugin format (New format: https://github.com/joe27g/EnhancedDiscord/blob/beta/plugins.md#advanced-plugin-functionality). Ignore this unless you're the plugin dev`)
-                                                    elem.onclick = window.ED.plugins[id].settingListeners[eventObject];
-                                                }
-                                            }
-                                        }
-                                }, 5);
-                            }
-                        }
-                    }
-                    e.stopPropagation(); // prevent from going to parent click handler
-                }
+				this.props.plugin.settings.enabled = true;
+				window.ED.plugins[this.props.id].settings = this.props.plugin.settings;
+				this.props.plugin.load();
+			}
+			handleUnload () {
+				if (!this.isPluginEnabled()) return;
 
-                document.querySelector(`.${concentCol.standardSidebarView} .${concentCol.contentColumn}`).onclick = function(e) {
-                    const parent = e.target.parentElement;
-                    if (e.target.className && ((parent.className.indexOf && parent.className.indexOf('ed-plugin-settings') > -1) || (e.target.className.indexOf && e.target.className.indexOf('ed-plugin-settings') > -1))) {
-                        const box = e.target.className === buttM.contents ? parent.nextElementSibling.nextElementSibling : e.target.nextElementSibling.nextElementSibling;
-                        if (!box || !box.id || !window.ED.plugins[box.id] || box.className.indexOf(cbM.valueChecked) == -1 || !window.ED.config.bdPlugins) return;
-                        return require('../bd_shit').showSettingsModal(window.ED.plugins[box.id]);
-                    }
+				this.props.plugin.settings.enabled = false;
+				window.ED.plugins[this.props.id].settings = this.props.plugin.settings;
+				this.props.plugin.unload();
+			}
+			render () {
+				const { plugin } = this.props;
+				const { MarginRight, ColorBlob } = this.constructor;
 
-                    if (e.target.className && ((parent.className.indexOf && parent.className.indexOf('ed-plugin-reload') > -1) || (e.target.className.indexOf && e.target.className.indexOf('ed-plugin-reload') > -1))) {
-                        const button = e.target.className === buttM.contents ? e.target : e.target.firstElementChild;
-                        const plugin = e.target.className === buttM.contents ? e.target.parentElement.nextElementSibling : e.target.nextElementSibling;
-                        //console.log(plugin);
-                        if (!plugin || !plugin.id || !window.ED.plugins[plugin.id] || plugin.className.indexOf(cbM.valueChecked) == -1) return;
-                        button.innerHTML = 'Reloading...';
-                        try {
-                            window.ED.plugins[plugin.id].reload();
-                            button.innerHTML = 'Reloaded!';
-                        } catch(err) {
-                            console.error(err);
-                            button.innerHTML = `Failed to reload (${err.name} - see console.)`;
-                        }
-                        setTimeout(() => {
-                            try { button.innerHTML = 'Reload'; } catch(err){/*do nothing*/}
-                        }, 3000);
-                        return;
-                    }
+				return e(Fragment, null,
+					e(Flex, { direction: Flex.Direction.VERTICAL},
+						e(Flex, {align: Flex.Align.CENTER},
+							e(Title, {tag: "h3", className: ""}, plugin.name),
+							e(ColorBlob, {color: plugin.color || "orange"}),
+							this.showBDSettingsBtn() && e(MarginRight, null, 
+								e(Button, {size: Button.Sizes.NONE, onClick: this.openBDSettingsModal}, "Settings")
+							),
+							e(MarginRight, null,
+								e(Button, {size: Button.Sizes.NONE, onClick: this.handleReload}, this.state.reloadBtnText)
+							),
+							this.canBeManagedByUser() && e(Switch, {value: this.isPluginEnabled(), onChange: this.handleToggle})
+						),
+						e(Text, {type: Text.Types.DESCRIPTION},
+							VariableTypeRenderer.render(plugin.description)
+						)
+					),
+					e(Divider, {className: join(margins.marginTop20, margins.marginBottom20)})
+				)
+			}
+		}
 
-                    if (e.target.tagName !== 'INPUT' || e.target.type !== 'checkbox' || !parent || !parent.className || !parent.id) return;
-                    const p = window.ED.plugins[parent.id];
-                    if (!p && parent.id !== 'bdPlugins') return;
-                    //console.log('settings for '+p.id, p.settings);
+		PluginListing.MarginRight = props => e("div", {style:{marginRight: "10px"}}, props.children);
+		PluginListing.ColorBlob = props => e("div", {style: {
+			backgroundColor: props.color,
+			boxShadow: `0 0 5px 2px ${props.color}`,
+			borderRadius: "50%",
+			height: "10px",
+			width: "10px",
+			marginRight: "8px"
+		}});
 
-                    if (parent.className.indexOf(cbM.valueChecked) > -1) {
-                        if (p) {
-                            if (p.settings.enabled === false) return;
+		const PluginSettings = props => {
+			const plugin = ED.plugins[props.id];
 
-                            p.settings.enabled = false;
-                            window.ED.plugins[parent.id].settings = p.settings;
-                            p.unload();
-                        }
-                        else {
-                            const edc = window.ED.config;
-                            if (!edc[parent.id]) return;
-                            edc[parent.id] = false;
-                            window.ED.config = edc;
-                        }
-                        parent.className = parent.className.replace(cbM.valueChecked, cbM.valueUnchecked);
-                    } else {
-                        if (p) {
-                            if (p.settings.enabled !== false) return;
+			return e(Fragment, null,
+				e(Divider, { style:{ marginTop: props.index === 0 ? "0px" : undefined}, className: join(margins.marginTop8, margins.marginBottom20)}),
+				e(Title, {tag: "h2"}, plugin.name),
+				VariableTypeRenderer.render(
+					plugin.generateSettings(),
+					plugin.settingsListeners,
+					props.id
+				)
+			)
+		}
 
-                            p.settings.enabled = true;
-                            window.ED.plugins[parent.id].settings = p.settings;
-                            p.load();
-                        }
-                        else {
-                            const edc = window.ED.config;
-                            if (edc[parent.id] === true) return;
-                            edc[parent.id] = true;
-                            window.ED.config = edc;
-                        }
-                        parent.className = parent.className.replace(cbM.valueUnchecked, cbM.valueChecked);
-                    }
-                }
-            }
-            return arguments[0].callOriginalMethod(arguments[0].methodArguments);
-        })
-    },
+		const BDPluginToggle = () => {
+			const [ enabled, setEnabled ] = useState(window.ED.config.bdPlugins);
 
-    unload: function() {
-        window.EDApi.findModule('getUserSettingsSections').default.prototype.render.unpatch();
-    }
+			useEffect(() => {
+				if (enabled === window.ED.config.bdPlugins) return; // Prevent unneccesary file write
+
+				window.ED.config.bdPlugins = enabled;
+				window.ED.config = window.ED.config;
+			});
+
+			return e(SwitchItem, {
+				onChange: () => setEnabled(!enabled),
+				value: enabled,
+				hideBorder: true,
+				note: "Allows EnhancedDiscord to load BetterDiscord plugins natively. Reload (ctrl+r) for changes to take effect."
+			},
+				"BetterDiscord Plugins"
+			);
+		}
+
+		const OpenPluginDirBtn = () => {
+			const [ string, setString ] = useState("Open Plugins Directory");
+
+			return e(Button, {size: Button.Sizes.SMALL, color: Button.Colors.GREEN, onClick: e => {
+				setString("Opening...");
+				const sucess = require("electron").shell.openItem(
+					e.shiftKey ?
+					process.env.injDir :
+					require("path").join(process.env.injDir, "plugins")
+				);
+
+				if (sucess) setString("Opened!");
+				else setString("Failed to open...");
+
+				setTimeout(() => {
+					setString("Open Plugins Directory")
+				}, 1500)
+			}}, string)
+		}
+
+		class VariableTypeRenderer {
+			static render (value, listeners, plugin) {
+				const { DOMStringRenderer, HTMLElementInstanceRenderer } = this;
+
+				let typeOf = null;
+
+				if (typeof value === "string") typeOf = "domstring";
+				if (isValidElement(value)) typeOf = "react";
+				if (value instanceof HTMLElement) typeOf = "htmlelement-instance";
+				if (Array.isArray(value)) typeOf = "auto";
+				if (value == null) typeOf = "blank";
+
+				if (typeOf === null) return module.exports.error("Unable to figure out how to render value ", value);
+
+				switch(typeOf) {
+					case "domstring": return e(DOMStringRenderer, {html: value, listeners});
+					case "react": return value;
+					case "htmlelement-instance": return e(HTMLElementInstanceRenderer, {instance: value});
+					case "auto": return DiscordUIGenerator.render(value, plugin);
+					case "blank": return e(Fragment);
+				}
+			}
+		}
+		VariableTypeRenderer.DOMStringRenderer = class DOMString extends Component {
+			componentDidMount() {
+				if (!this.props.listeners) return;
+
+				this.props.listeners.forEach(listener => {
+					document.querySelector(listener.el).addEventListener(listener.type, listener.eHandler)
+				});
+			}
+			render () {
+				return e("div", {dangerouslySetInnerHTML:{__html: this.props.html}});
+			}
+		}
+		VariableTypeRenderer.HTMLElementInstanceRenderer = class HTMLElementInstance extends Component {
+			constructor() {
+				super();
+				this.ref = createRef();
+			}
+			componentDidMount() {
+				this.ref.current.appendChild(this.props.instance)
+			}
+			render () {
+				return e("div", {ref: this.ref});
+			}
+		}
+
+		const DiscordUIGenerator = {
+			reactMarkdownRules: (() => {
+				const simpleMarkdown = findModule("markdownToReact");
+				const rules = _.clone(simpleMarkdown.defaultRules);
+
+				rules.paragraph.react = (node, output, state) => {
+					return e(Fragment, null, output(node.content, state))
+				}
+
+				rules.em.react = (node, output, state) => {
+					return e("i", null, output(node.content, state))
+				}
+
+				rules.link.react = (node, output, state) => {
+					return e("a", {
+						href: node.target,
+						target: "_blank",
+						rel: "noreferrer noopener"
+					}, output(node.content, state))
+				}
+
+				return rules;
+			})(),
+			render (ui, pluginID) {
+				const { _types } = DiscordUIGenerator;
+
+				return e("div", {},
+					ui.map(element => {
+						const component = _types[element.type];
+						if (!component) return module.exports.error("[DiscordUIGenerator] Invalid element type:", element.type);
+
+						return e(component, Object.assign({}, element, {pluginID}))
+					})
+				)
+			},
+			_parseMD (content) {
+				const { reactMarkdownRules } = DiscordUIGenerator;
+				const { markdownToReact } = findModule("markdownToReact");
+
+				return markdownToReact(content, reactMarkdownRules);
+			},
+			_loadData (props) {
+				return EDApi.loadData(props.pluginID, props.configName)
+			},
+			_saveData (props, data) {
+				return EDApi.saveData(props.pluginID, props.configName, data)
+			},
+			_cfgNameCheck(props, name) {
+				if (!props.configName || typeof props.configName !== "string") {
+					module.exports.error(`[DiscordUIGenerator] Input component (${name}) was not passed a configName value!`);
+					throw new Error("Stopping react render. Please fix above error");
+				}
+			},
+			_inputWrapper (props) {
+				const { _parseMD } = DiscordUIGenerator;
+
+				return e(Fragment, null,
+					props.title && e(Title, { tag: "h5"}, props.title),
+					props.children,
+					props.desc && e(Text, {type: Text.Types.DESCRIPTION, className: join(margins.marginTop8, margins.marginBottom20)}, _parseMD(props.desc))
+				)
+			},
+			_types: {
+				"std:title": props => {
+					return e(Title, { tag: props.tag || "h5" },
+						props.content
+					)
+				},
+				"std:description": props => {
+					const {_parseMD} = DiscordUIGenerator;
+
+					return e(Text, { type: props.descriptionType || "description" }, _parseMD(props.content))
+				},
+				"std:divider": props => {
+					return e(Divider, {style:{marginTop: props.top, marginBottom: props.bottom}})
+				},
+				"std:spacer": props => {
+					return e("div", {style: {marginBottom: props.space}})
+				},
+				"input:text": props => {
+					const {_loadData: load, _saveData: save, _cfgNameCheck, _inputWrapper} = DiscordUIGenerator;
+
+					_cfgNameCheck(props, "input:text");
+
+					const [value, setValue] = useState(load(props));
+
+					return e(_inputWrapper, {title: props.title, desc: props.desc},
+						e(Textbox, {
+							onChange: val => setValue(val),
+							onBlur: e => save(props, e.currentTarget.value),
+							value,
+							placeholder: props.placeholder,
+							size: props.mini ? "mini" : "default",
+							disabled: props.disabled,
+							type: props.number ? "number" : "text"
+						})
+					)
+				},
+				"input:boolean": props => {
+					const {_loadData: load, _saveData: save, _cfgNameCheck, _parseMD} = DiscordUIGenerator;
+
+					_cfgNameCheck(props, "input:boolean");
+
+					const [ enabled, toggle ] = useReducer((state) => {
+						const newState = !state;
+
+						save(props, newState);
+
+						return newState;
+					}, load(props))
+
+					return e(SwitchItem, {
+						onChange: toggle,
+						value: enabled,
+						hideBorder: props.hideBorder,
+						note: _parseMD(props.note),
+						size: props.mini ? SwitchItem.Sizes.MINI : SwitchItem.Sizes.DEFAULT,
+						disabled: props.disabled
+					},
+						props.title
+					)
+				},
+				"input:radio": props => {
+					const {_loadData: load, _saveData: save, _cfgNameCheck, _inputWrapper} = DiscordUIGenerator;
+
+					_cfgNameCheck(props, "input:radio");
+
+					const [ currentSetting, setSetting ] = useReducer((state, data) => {
+						const newState = data.value;
+
+						save(props, newState);
+
+						return newState;
+					}, load(props))
+
+					return e(_inputWrapper, {title: props.title, desc: props.desc},
+						e(RadioGroup, {
+							onChange: setSetting,
+							value: currentSetting,
+							size: props.size ? props.size : "10px",
+							disabled: props.disabled,
+							options: props.options
+						})
+					)
+				},
+				"input:select": props => {
+					const {_loadData: load, _saveData: save, _cfgNameCheck, _inputWrapper} = DiscordUIGenerator;
+
+					_cfgNameCheck(props, "input:select");
+
+					const [ currentSetting, setSetting ] = useReducer((state, data) => {
+						const newState = data.value;
+
+						save(props, newState);
+
+						return newState;
+					}, load(props))
+
+					return e(_inputWrapper, {title: props.title, desc: props.desc},
+						e(Select, {
+							onChange: setSetting,
+							value: currentSetting,
+							disabled: props.disabled,
+							options: props.options,
+							searchable: props.searchable || false
+						})
+					)
+				},
+				"input:slider": props => {
+					const {_loadData: load, _saveData: save, _cfgNameCheck, _inputWrapper} = DiscordUIGenerator;
+
+					_cfgNameCheck(props, "input:slider");
+
+					const [ currentSetting, setSetting ] = useReducer((state, data) => {
+						const newState = data;
+
+						save(props, newState);
+
+						return newState;
+					}, load(props) || props.defaultValue);
+
+					const defaultOnValueRender = e => {
+						return e.toFixed(0) + "%"
+					}
+
+					return e(_inputWrapper, {title: props.title, desc: props.desc},
+						e(Slider, {
+							onValueChange: setSetting,
+							onValueRender: props.formatTooltip ? props.formatTooltip : defaultOnValueRender,
+							initialValue: currentSetting,
+							defaultValue: props.highlightDefaultValue ? props.defaultValue : null,
+							minValue: props.minValue,
+							maxValue: props.maxValue,
+							disabled: props.disabled,
+							markers: props.markers,
+							stickToMarkers: props.stickToMarkers
+						})
+					)
+				}
+			}
+		}
+
+		return {
+			PluginsPage,
+			SettingsPage,
+			PluginListing,
+			PluginSettings,
+			BDPluginToggle,
+			OpenPluginDirBtn,
+			__VariableTypeRenderer: VariableTypeRenderer,
+			__DiscordUIGenerator: DiscordUIGenerator
+		}
+	}
 });

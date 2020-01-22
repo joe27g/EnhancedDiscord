@@ -77,18 +77,9 @@ You can also add your own section to EnhancedDiscord's settings in your plugin, 
 
 * **You must have a `config` for the following to work.** Set it to an empty object if you do not need it.
 
-* `generateSettings`: a function that is called when EnhancedDiscord settings are opened. This should return HTML to be placed in your setttings section.
-
-* `settingListeners`: an Object mapping selectors to eventlisteners.
-   * For example, if your `generateSettings` function has an element `<input type="checkbox" id="memez">`, you might use the following format:
-   ```js
-   settingListeners: [{
-		el: '#memez',
-		type: 'click'
-		eHandler: function() {
-			alert('some dumb text');
-		}
-   }]
-   ```
-
-#### For more examples, just browse the included plugins, namely `emoji_packs`.
+* `generateSettings`: a function that is called when EnhancedDiscord settings are opened. This should return any of the following:
+	* `DOMString` A HTML string paired with a `plugin.settingsListeners` property.
+	*  _`instanceof`_`HTMLElement` The value returned by any call to `document.createElement(...)`, you can modify this class before returning it, e.g. setting inner children by `HTMLElement.appendChild`
+	* `ReactNode` Any valid react element. **Make sure you call call React.createElement on your component**, if you return a function or a class this will not work.
+	* `DiscordUIElement[]` An array of elements for the ED's Discord UI generator to create. See the link below for more information
+	* ***[Click here for more information on creating settings user interface within EnhancedDiscord](https://gist.github.com/jakuski/995ae48530f3527285f4c23c3de74237)***
