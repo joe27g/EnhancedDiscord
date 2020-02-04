@@ -9,9 +9,9 @@ module.exports = new Plugin({
 	description: 'Adds an EnhancedDiscord tab in user settings.',
 	color: 'darkred',
 	async load () {
-		const discordConstants = EDApi.findModule("API_HOST");
+		const discordConstants = window.EDApi.findModule("API_HOST");
 		const UserSettings = module.exports.utils.getComponentFromFluxContainer(
-			EDApi.findModule('getUserSettingsSections').default
+			window.EDApi.findModule('getUserSettingsSections').default
 		);
 
 		if (!window.ED.classMaps) {
@@ -27,7 +27,7 @@ module.exports = new Plugin({
 		this.components = this._initReactComponents();
 		this.settingsSections = this._getDefaultSections(); // Easily allow plugins to add in their own sections if need be.
 
-		this.unpatch = EDApi.monkeyPatch(
+		this.unpatch = window.EDApi.monkeyPatch(
 			UserSettings.prototype,
 			"generateSections",
 			data => {
@@ -58,11 +58,11 @@ module.exports = new Plugin({
 			if (window.ED.plugins[id].getSettingsPanel && typeof window.ED.plugins[id].getSettingsPanel == 'function') {
 				shouldRender = false;
 			}
-		
-			if (!window.ED.plugins[id].config || window.ED.config[id].enabled === false || !window.ED.plugins[id].generateSettings) {
+
+			if (window.ED.config[id].enabled === false || !window.ED.plugins[id].generateSettings) {
 				shouldRender = false;
 			}
-		
+
 			return shouldRender;
 		}
 	},
@@ -95,7 +95,7 @@ module.exports = new Plugin({
 			custom element
 				section: "CUSTOM"
 				element: [react-renderable]
-		
+
 		all sections regardless of type can have the following
 			predicate: [function => boolean] determine whether the section should be shown
 
@@ -104,9 +104,9 @@ module.exports = new Plugin({
 			section: "CUSTOM",
 			element: () => {
 				const { join } = module.exports.utils;
-				const { header } = findModule("topPill");
+				const { header } = window.EDApi.findModule("topPill");
 
-				return EDApi.React.createElement("div", { className: join(header, "ed-settings") }, "EnhancedDiscord")
+				return window.EDApi.React.createElement("div", { className: join(header, "ed-settings") }, "EnhancedDiscord")
 			}
 		},{
 			section: "ED/Plugins",
@@ -121,49 +121,49 @@ module.exports = new Plugin({
 		}];
 	},
 	_initClassMaps(obj) {
-		const divM = EDApi.findModule(m => m.divider && Object.keys(m).length === 1)
-		obj.headers = EDApi.findModule('defaultMarginh2');
-		obj.margins = EDApi.findModule('marginBottom8');
+		const divM = window.EDApi.findModule(m => m.divider && Object.keys(m).length === 1)
+		obj.headers = window.EDApi.findModule('defaultMarginh2');
+		obj.margins = window.EDApi.findModule('marginBottom8');
 		obj.divider = divM ? divM.divider : '';
-		obj.checkbox = EDApi.findModule('checkboxEnabled');
-		obj.buttons = EDApi.findModule('lookFilled');
-		obj.switchItem = EDApi.findModule('switchItem');
-		obj.alignment = EDApi.findModule('horizontalReverse');
-		obj.description = EDApi.findModule('formText');
+		obj.checkbox = window.EDApi.findModule('checkboxEnabled');
+		obj.buttons = window.EDApi.findModule('lookFilled');
+		obj.switchItem = window.EDApi.findModule('switchItem');
+		obj.alignment = window.EDApi.findModule('horizontalReverse');
+		obj.description = window.EDApi.findModule('formText');
 		// New
-		obj.shadows = findModule("elevationHigh");
+		obj.shadows = window.EDApi.findModule("elevationHigh");
 	},
 	_initDiscordComponents(obj) {
-		obj.Textbox = EDApi.findModuleByDisplayName("TextInput");
-		obj.Select = EDApi.findModuleByDisplayName("SelectTempWrapper");
-		obj.Switch = EDApi.findModuleByDisplayName("SwitchItem");
-		obj.RadioGroup = EDApi.findModuleByDisplayName("RadioGroup");
-		obj.Title = EDApi.findModuleByDisplayName("FormTitle");
-		obj.Text = EDApi.findModuleByDisplayName("FormText");
-		obj.FormSection = EDApi.findModuleByDisplayName("FormSection");
-		obj.Icon = EDApi.findModuleByDisplayName("Icon");
-		obj.LoadingSpinner = EDApi.findModuleByDisplayName("Spinner");
-		obj.Card = EDApi.findModuleByDisplayName("FormNotice");
-		obj.Flex = EDApi.findModuleByDisplayName("Flex");
-		obj.Switch = EDApi.findModuleByDisplayName("Switch");
-		obj.SwitchItem = EDApi.findModuleByDisplayName("SwitchItem");
-		obj.Slider = EDApi.findModuleByDisplayName("Slider");
-		obj.Select = EDApi.findModuleByDisplayName("SelectTempWrapper");
-		obj.Tooltip = EDApi.findModuleByDisplayName("Tooltip");
-		obj.Button = findModule("Sizes");
+		obj.Textbox = window.EDApi.findModuleByDisplayName("TextInput");
+		obj.Select = window.EDApi.findModuleByDisplayName("SelectTempWrapper");
+		obj.Switch = window.EDApi.findModuleByDisplayName("SwitchItem");
+		obj.RadioGroup = window.EDApi.findModuleByDisplayName("RadioGroup");
+		obj.Title = window.EDApi.findModuleByDisplayName("FormTitle");
+		obj.Text = window.EDApi.findModuleByDisplayName("FormText");
+		obj.FormSection = window.EDApi.findModuleByDisplayName("FormSection");
+		obj.Icon = window.EDApi.findModuleByDisplayName("Icon");
+		obj.LoadingSpinner = window.EDApi.findModuleByDisplayName("Spinner");
+		obj.Card = window.EDApi.findModuleByDisplayName("FormNotice");
+		obj.Flex = window.EDApi.findModuleByDisplayName("Flex");
+		obj.Switch = window.EDApi.findModuleByDisplayName("Switch");
+		obj.SwitchItem = window.EDApi.findModuleByDisplayName("SwitchItem");
+		obj.Slider = window.EDApi.findModuleByDisplayName("Slider");
+		obj.Select = window.EDApi.findModuleByDisplayName("SelectTempWrapper");
+		obj.Tooltip = window.EDApi.findModuleByDisplayName("Tooltip");
+		obj.Button = window.EDApi.findModule("Sizes");
 
 		/*
 		Props: any valid props you can apply to a div element
 		*/
 		obj.Divider = props => {
-			props.className = props.className ? props.className + " " + ED.classMaps.divider : ED.classMaps.divider
-			return EDApi.React.createElement("div", Object.assign({}, props))
+			props.className = props.className ? props.className + " " + window.ED.classMaps.divider : window.ED.classMaps.divider
+			return window.EDApi.React.createElement("div", Object.assign({}, props))
 		}
 	},
 	_initReactComponents () {
-		const { createElement:e, Component, Fragment, useState, useEffect, useReducer, createRef, isValidElement } = EDApi.React;
-		const { FormSection, Divider, Flex, Switch, Title, Text, Button, SwitchItem, Textbox, RadioGroup, Select, Slider } = ED.discordComponents;
-		const { margins } = ED.classMaps;
+		const { createElement:e, Component, Fragment, useState, useEffect, useReducer, createRef, isValidElement } = window.EDApi.React;
+		const { FormSection, Divider, Flex, Switch, Title, Text, Button, SwitchItem, Textbox, RadioGroup, Select, Slider } = window.ED.discordComponents;
+		const { margins } = window.ED.classMaps;
 		const { join } = module.exports.utils;
 
 		const PluginsPage = () => {
@@ -173,8 +173,8 @@ module.exports = new Plugin({
 					),
 				e(Divider, {className: join(margins.marginTop20, margins.marginBottom20)}),
 				Object
-					.keys(ED.plugins)
-					.map(id => e(PluginListing, {id, plugin: ED.plugins[id]}))
+					.keys(window.ED.plugins)
+					.map(id => e(PluginListing, {id, plugin: window.ED.plugins[id]}))
 			)
 		}
 
@@ -183,7 +183,7 @@ module.exports = new Plugin({
 				e(FormSection, {title: "EnhancedDiscord Settings", tag: "h2"},
 					e(BDPluginToggle),
 					Object
-						.keys(ED.plugins)
+						.keys(window.ED.plugins)
 						.filter(module.exports.utils.shouldPluginRender)
 						.map((id, index) => e(PluginSettings, {id, index})),
 				)
@@ -264,7 +264,7 @@ module.exports = new Plugin({
 						e(Flex, {align: Flex.Align.CENTER},
 							e(Title, {tag: "h3", className: ""}, plugin.name),
 							e(ColorBlob, {color: plugin.color || "orange"}),
-							this.showBDSettingsBtn() && e(MarginRight, null, 
+							this.showBDSettingsBtn() && e(MarginRight, null,
 								e(Button, {size: Button.Sizes.NONE, onClick: this.openBDSettingsModal}, "Settings")
 							),
 							e(MarginRight, null,
@@ -292,7 +292,7 @@ module.exports = new Plugin({
 		}});
 
 		const PluginSettings = props => {
-			const plugin = ED.plugins[props.id];
+			const plugin = window.ED.plugins[props.id];
 
 			return e(Fragment, null,
 				e(Divider, { style:{ marginTop: props.index === 0 ? "0px" : undefined}, className: join(margins.marginTop8, margins.marginBottom20)}),
@@ -395,8 +395,8 @@ module.exports = new Plugin({
 
 		const DiscordUIGenerator = {
 			reactMarkdownRules: (() => {
-				const simpleMarkdown = findModule("markdownToReact");
-				const rules = _.clone(simpleMarkdown.defaultRules);
+				const simpleMarkdown = window.EDApi.findModule("markdownToReact");
+				const rules = window._.clone(simpleMarkdown.defaultRules);
 
 				rules.paragraph.react = (node, output, state) => {
 					return e(Fragment, null, output(node.content, state))
@@ -430,15 +430,15 @@ module.exports = new Plugin({
 			},
 			_parseMD (content) {
 				const { reactMarkdownRules } = DiscordUIGenerator;
-				const { markdownToReact } = findModule("markdownToReact");
+				const { markdownToReact } = window.EDApi.findModule("markdownToReact");
 
 				return markdownToReact(content, reactMarkdownRules);
 			},
 			_loadData (props) {
-				return EDApi.loadData(props.pluginID, props.configName)
+				return window.EDApi.loadData(props.pluginID, props.configName)
 			},
 			_saveData (props, data) {
-				return EDApi.saveData(props.pluginID, props.configName, data)
+				return window.EDApi.saveData(props.pluginID, props.configName, data)
 			},
 			_cfgNameCheck(props, name) {
 				if (!props.configName || typeof props.configName !== "string") {
