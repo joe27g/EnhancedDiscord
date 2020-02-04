@@ -273,7 +273,11 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static loadData(pluginName, key) {
-        if (!window.ED.config[pluginName]) window.ED.config[pluginName] = {};
+        if (!window.ED.config[pluginName]) {
+            const pl = window.ED.plugins[pluginName];
+            const def = pl.defaultSettings;
+            window.ED.config[pluginName] = def || {enabled: !pl.disabledByDefault}
+        }
         return window.ED.config[pluginName][key];
     }
 

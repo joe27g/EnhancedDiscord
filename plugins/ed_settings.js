@@ -59,7 +59,7 @@ module.exports = new Plugin({
 				shouldRender = false;
 			}
 
-			if (window.ED.config[id].enabled === false || !window.ED.plugins[id].generateSettings) {
+			if (window.ED.plugins[id].settings.enabled === false || !window.ED.plugins[id].generateSettings) {
 				shouldRender = false;
 			}
 

@@ -73,12 +73,7 @@ class Plugin {
         if (window.ED.config && window.ED.config[this.id])
             return window.ED.config[this.id];
 
-        const final = {};
-        if (this.config)
-            for (const key in this.config)
-                final[key] = this.config[key].default;
-        return this.settings = final;
-        //return final;
+        return this.defaultSettings || {enabled: !this.disabledByDefault}
     }
     set settings(newSets = {}) {
         //this.log(__dirname, process.env.injDir);
