@@ -57,10 +57,10 @@ module.exports = new Plugin({
     color: '#18770e',
 
     load: async function() {
-        this._cmClass = window.EDApi.findModule("contextMenu").contextMenu;
-        this._contClass = window.EDApi.findModule("embedWrapper").container;
-        ttM = window.EDApi.findModule('tooltipPointer');
-        iteM = window.EDApi.findModule('itemBase');
+        this._cmClass = EDApi.findModule("contextMenu").contextMenu;
+        this._contClass = EDApi.findModule("embedWrapper").container;
+        ttM = EDApi.findModule('tooltipPointer');
+        iteM = EDApi.findModule('itemBase');
         document.addEventListener("contextmenu", this.listener);
     },
     listener(e) {

@@ -26,7 +26,7 @@ class Plugin {
         this.unload();
         delete require.cache[require.resolve(`./plugins/${this.id}`)];
         const newPlugin = require(`./plugins/${this.id}`);
-        window.ED.plugins[this.id] = newPlugin;
+        ED.plugins[this.id] = newPlugin;
         newPlugin.id = this.id;
         newPlugin.load();
     }
@@ -70,8 +70,8 @@ class Plugin {
     }
     get settings() {
         //this.log('getting settings');
-        if (window.ED.config && window.ED.config[this.id])
-            return window.ED.config[this.id];
+        if (ED.config && ED.config[this.id])
+            return ED.config[this.id];
 
         return this.defaultSettings || {enabled: !this.disabledByDefault}
     }
@@ -79,9 +79,9 @@ class Plugin {
         //this.log(__dirname, process.env.injDir);
         //console.log(`setting settings for ${this.id} to`, newSets);
         try {
-            const gay = window.ED.config;
+            const gay = ED.config;
             gay[this.id] = newSets;
-            window.ED.config = gay;
+            ED.config = gay;
             //console.log(`set settings for ${this.id} to`, this.settings);
         } catch(err) {
             this.error(err);

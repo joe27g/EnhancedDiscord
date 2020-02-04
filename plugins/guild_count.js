@@ -9,12 +9,12 @@ module.exports = new Plugin({
     color: 'indigo',
 
     load: async function() {
-		sep = window.EDApi.findModule('guildSeparator');
-        ms = window.EDApi.findModule('modeSelectable');
-        gg = window.EDApi.findModule('getGuilds');
-        sub = window.EDApi.findModule('subscribe');
+		sep = EDApi.findModule('guildSeparator');
+        ms = EDApi.findModule('modeSelectable');
+        gg = EDApi.findModule('getGuilds');
+        sub = EDApi.findModule('subscribe');
 
-        window.EDApi.monkeyPatch(gg, 'getGuilds', {after: this.refreshCount, silent: true});
+        EDApi.monkeyPatch(gg, 'getGuilds', {after: this.refreshCount, silent: true});
         sub.subscribe('CONNECTION_OPEN', gg.getGuilds);
     },
     refreshCount: function(b) {

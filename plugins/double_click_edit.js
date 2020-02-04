@@ -9,12 +9,12 @@ module.exports = new Plugin({
 
     deletePressed: false,
     load: async function() {
-        contM = window.EDApi.findModule(m => m.container && m.containerCozy);
-        cM = window.EDApi.findModule('getChannelId');
-        eM = window.EDApi.findModule('startEditMessage');
-        dM = window.EDApi.findModule('deleteMessage');
-        mM = window.EDApi.findModule('getRawMessages');
-        ewM = window.EDApi.findModule('embedWrapper');
+        contM = EDApi.findModule(m => m.container && m.containerCozy);
+        cM = EDApi.findModule('getChannelId');
+        eM = EDApi.findModule('startEditMessage');
+        dM = EDApi.findModule('deleteMessage');
+        mM = EDApi.findModule('getRawMessages');
+        ewM = EDApi.findModule('embedWrapper');
         if (!cM || !eM || !dM || !ewM) {
             return this.error('Aborted loading - Failed to find required modules!');
         }
@@ -26,8 +26,8 @@ module.exports = new Plugin({
         document.addEventListener("click", this.deleteListener);
 
         // allow editing in "locked" (read-only) channels
-        const prot = window.EDApi.findModuleByDisplayName("ChannelEditorContainer").prototype;
-        window.EDApi.monkeyPatch(prot, 'render', b => {
+        const prot = EDApi.findModuleByDisplayName("ChannelEditorContainer").prototype;
+        EDApi.monkeyPatch(prot, 'render', b => {
             if (b.thisObject.props.type === 'edit')
                 b.thisObject.props.disabled = false;
             return b.callOriginalMethod(b.methodArguments);

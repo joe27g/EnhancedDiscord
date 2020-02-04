@@ -11,10 +11,10 @@ module.exports = new Plugin({
 
     load: async function() {
         ree = this;
-        cm = window.EDApi.findModule('contextMenu');
-        Dispatcher = window.EDApi.findModule("dispatch");
-        ImageResolver = window.EDApi.findModule("getUserAvatarURL");
-        ContextMenuActions = window.EDApi.findModule("closeContextMenu");
+        cm = EDApi.findModule('contextMenu');
+        Dispatcher = EDApi.findModule("dispatch");
+        ImageResolver = EDApi.findModule("getUserAvatarURL");
+        ContextMenuActions = EDApi.findModule("closeContextMenu");
 
         Dispatcher.subscribe("CONTEXT_MENU_OPEN", this.checkMenu);
     },

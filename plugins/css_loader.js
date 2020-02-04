@@ -72,10 +72,10 @@ module.exports = new Plugin({
         }
     },
     generateSettings: function() {
-        const d = window.ED.classMaps.description;
-        const b = window.ED.classMaps.buttons;
-        const id = window.EDApi.findModule('inputDefault');
-        const m = window.EDApi.findModule('marginTop8');
+        const d = ED.classMaps.description;
+        const b = ED.classMaps.buttons;
+        const id = EDApi.findModule('inputDefault');
+        const m = EDApi.findModule('marginTop8');
 
         const result = `<div class="${d.description} ${d.modeDefault}">Custom CSS Path<br>This can be relative to the EnhancedDiscord directory (e.g. <code class="inline">./big_gay.css</code>) or absolute (e.g. <code class="inline">C:/theme.css</code>.)</div><input type="text" class="${id.inputDefault}" value="${this.settings.path || this.config.path.default}" maxlength="2000" placeholder="${this.config.path.default}" id="custom-css-path"><button type="button" id="save-css-path" class="${b.button} ${b.lookFilled} ${b.colorBrand} ${m.marginTop8} ${m.marginBottom8}" style="height:24px;margin-right:10px;"><div class="${b.contents}">Save</div></button>`;
         return result;

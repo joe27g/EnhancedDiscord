@@ -7,7 +7,7 @@ module.exports = new Plugin({
     color: 'salmon',
 
     load: async function() {
-        const hcModules = window.EDApi.findAllModules('hasChanges');
+        const hcModules = EDApi.findAllModules('hasChanges');
         this._listener = function(e) {
           if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) && e.keyCode == 83) {
             e.preventDefault();

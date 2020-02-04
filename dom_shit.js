@@ -39,7 +39,7 @@ const c = {
 }
 // config util
 window.ED = { plugins: {}, version: '2.7.0' };
-Object.defineProperty(window.ED, 'config', {
+Object.defineProperty(ED, 'config', {
     get: function() {
         let conf;
         try{
@@ -86,10 +86,10 @@ function loadPlugin(plugin) {
     }
 }
 
-window.ED.localStorage = window.localStorage;
+ED.localStorage = window.localStorage;
 
 process.once("loaded", async () => {
-    c.log(`v${window.ED.version} is running. Validating plugins...`);
+    c.log(`v${ED.version} is running. Validating plugins...`);
 
     const pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));
     const plugins = {};
@@ -114,13 +114,13 @@ process.once("loaded", async () => {
         }
         plugins[id].settings; // this will set default settings in config if necessary
     }
-    window.ED.plugins = plugins;
+    ED.plugins = plugins;
     c.log(`Plugins validated.`);
 
 	while (!window.webpackJsonp)
 		await c.sleep(100); // wait until this is loaded in order to use it for modules
 
-    window.ED.webSocket = window._ws;
+    ED.webSocket = window._ws;
 
 	/* Add helper functions that make plugins easy to create */
 	window.req = window.webpackJsonp.push([[], {
@@ -129,17 +129,17 @@ process.once("loaded", async () => {
 	delete window.req.m['__extra_id__'];
 	delete window.req.c['__extra_id__'];
 
-    window.findModule = window.EDApi.findModule;
-    window.findModules = window.EDApi.findAllModules;
-    window.findRawModule = window.EDApi.findRawModule;
-    window.monkeyPatch = window.EDApi.monkeyPatch;
+    window.findModule = EDApi.findModule;
+    window.findModules = EDApi.findAllModules;
+    window.findRawModule = EDApi.findRawModule;
+    window.monkeyPatch = EDApi.monkeyPatch;
 
-    while (!window.EDApi.findModule('dispatch'))
+    while (!EDApi.findModule('dispatch'))
         await c.sleep(100);
 
     c.log(`Loading preload plugins...`);
     for (const id in plugins) {
-        if (window.ED.config[id] && window.ED.config[id].enabled == false) continue;
+        if (ED.config[id] && ED.config[id].enabled == false) continue;
         if (!plugins[id].preload) continue;
         loadPlugin(plugins[id]);
     }
@@ -158,7 +158,7 @@ process.once("loaded", async () => {
     })
     c.log(`Modules done loading (${Object.keys(window.req.c).length})`);
 
-    if (window.ED.config.bdPlugins) {
+    if (ED.config.bdPlugins) {
         await require('./bd_shit').setup(currentWindow);
         c.log(`Preparing BD plugins...`);
         for (const i in pluginFiles) {
@@ -185,25 +185,25 @@ process.once("loaded", async () => {
 
     c.log(`Loading plugins...`);
     for (const id in plugins) {
-        if (window.ED.config[id] && window.ED.config[id].enabled == false) continue;
+        if (ED.config[id] && ED.config[id].enabled == false) continue;
         if (plugins[id].preload) continue;
-        if (window.ED.config[id].enabled !== true && plugins[id].disabledByDefault) {
+        if (ED.config[id].enabled !== true && plugins[id].disabledByDefault) {
             plugins[id].settings.enabled = false; continue;
         }
         loadPlugin(plugins[id]);
     }
 
 
-    const ht = window.EDApi.findModule('hideToken')
+    const ht = EDApi.findModule('hideToken')
     // prevent client from removing token from localstorage when dev tools is opened, or reverting your token if you change it
-    window.EDApi.monkeyPatch(ht, 'hideToken', () => {});
+    EDApi.monkeyPatch(ht, 'hideToken', () => {});
     window.fixedShowToken = () => {
         // Only allow this to add a token, not replace it. This allows for changing of the token in dev tools.
-        if (!window.ED.localStorage || window.ED.localStorage.getItem("token")) return;
-        return window.ED.localStorage.setItem("token", '"'+ht.getToken()+'"');
+        if (!ED.localStorage || ED.localStorage.getItem("token")) return;
+        return ED.localStorage.setItem("token", '"'+ht.getToken()+'"');
     };
-    window.EDApi.monkeyPatch(ht, 'showToken', window.fixedShowToken);
-    if (!window.ED.localStorage.getItem("token") && ht.getToken())
+    EDApi.monkeyPatch(ht, 'showToken', window.fixedShowToken);
+    if (!ED.localStorage.getItem("token") && ht.getToken())
         window.fixedShowToken(); // prevent you from being logged out for no reason
 
     // change the console warning to be more fun
@@ -258,7 +258,7 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static getPlugin(name) {
-        const plugin = Object.values(window.ED.plugins).find(p => p.name == name);
+        const plugin = Object.values(ED.plugins).find(p => p.name == name);
         if (!plugin) return null;
         return plugin.bdplugin ? plugin.bdplugin : plugin;
     }
@@ -273,18 +273,18 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static loadData(pluginName, key) {
-        if (!window.ED.config[pluginName]) {
-            const pl = window.ED.plugins[pluginName];
+        if (!ED.config[pluginName]) {
+            const pl = ED.plugins[pluginName];
             const def = pl.defaultSettings;
-            window.ED.config[pluginName] = def || {enabled: !pl.disabledByDefault}
+            ED.config[pluginName] = def || {enabled: !pl.disabledByDefault}
         }
-        return window.ED.config[pluginName][key];
+        return ED.config[pluginName][key];
     }
 
     static saveData(pluginName, key, data) {
-        if (!window.ED.config[pluginName]) window.ED.config[pluginName] = {};
-        window.ED.config[pluginName][key] = data;
-        window.ED.config = window.ED.config;
+        if (!ED.config[pluginName]) ED.config[pluginName] = {};
+        ED.config[pluginName][key] = data;
+        ED.config = ED.config;
     }
 
     static getData(pluginName, key) {
@@ -444,7 +444,7 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
 	static isPluginEnabled(name) {
-		const plugins = Object.values(window.ED.plugins);
+		const plugins = Object.values(ED.plugins);
 		const plugin = plugins.find(p => p.id == name || p.name == name);
 		if (!plugin) return false;
 		return !(plugin.settings.enabled === false);
@@ -455,6 +455,6 @@ window.EDApi = window.BdApi = class EDApi {
 	}
 
 	static isSettingEnabled(id) {
-		return window.ED.config[id];
+		return ED.config[id];
 	}
 };

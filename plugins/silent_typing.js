@@ -8,9 +8,9 @@ module.exports = new Plugin({
     disabledByDefault: true,
 
     load: async function() {
-        window.EDApi.monkeyPatch(window.EDApi.findModule('startTyping'), 'startTyping', () => {});
+        EDApi.monkeyPatch(EDApi.findModule('startTyping'), 'startTyping', () => {});
     },
     unload: function() {
-        window.EDApi.findModule('startTyping').startTyping.unpatch();
+        EDApi.findModule('startTyping').startTyping.unpatch();
     }
 });

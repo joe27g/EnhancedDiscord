@@ -9,18 +9,18 @@ module.exports = new Plugin({
     color: 'violet',
 
     load: async function() {
-        ml = window.EDApi.findModule('maxLength');
-        cta = window.EDApi.findModule('channelTextArea');
-        ta = window.EDApi.findModuleByDisplayName('ChannelEditorContainer').prototype;
-        gs = window.EDApi.findModule('getAllSettings');
-        em = window.EDApi.findModule(m => m.checkbox && m.errorMessage);
-        gc = window.EDApi.findModule('getChannel');
-        gci = window.EDApi.findModule('getChannelId');
-        gcu = window.EDApi.findModule('getCurrentUser');
-        cm = window.EDApi.findModule('createBotMessage');
+        ml = EDApi.findModule('maxLength');
+        cta = EDApi.findModule('channelTextArea');
+        ta = EDApi.findModuleByDisplayName('ChannelEditorContainer').prototype;
+        gs = EDApi.findModule('getAllSettings');
+        em = EDApi.findModule(m => m.checkbox && m.errorMessage);
+        gc = EDApi.findModule('getChannel');
+        gci = EDApi.findModule('getChannelId');
+        gcu = EDApi.findModule('getCurrentUser');
+        cm = EDApi.findModule('createBotMessage');
 
-        window.EDApi.monkeyPatch(ta, 'render', {after: this.onRender, silent: true});
-        window.EDApi.findModule('dispatch').subscribe("MESSAGE_CREATE", this.msgListener);
+        EDApi.monkeyPatch(ta, 'render', {after: this.onRender, silent: true});
+        EDApi.findModule('dispatch').subscribe("MESSAGE_CREATE", this.msgListener);
     },
 
     onRender: function(b) {
@@ -75,6 +75,6 @@ module.exports = new Plugin({
 
     unload: function() {
         ta.render.unpatch();
-        window.EDApi.findModule('dispatch').unsubscribe("MESSAGE_CREATE", this.msgListener);
+        EDApi.findModule('dispatch').unsubscribe("MESSAGE_CREATE", this.msgListener);
     }
 });

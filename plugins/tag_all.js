@@ -11,12 +11,12 @@ module.exports = new Plugin({
     load: async function() {
         await this.sleep(1000); // wait for hidden channels to load
 
-        gg = window.EDApi.findModule('getGuild');
-        gc = window.EDApi.findModule('getChannels');
-        gu = window.EDApi.findModule('getCurrentUser');
-        cp = window.EDApi.findModule('computePermissions');
-        lg = window.EDApi.findModule('getLastSelectedGuildId');
-        gsc = window.EDApi.findModule('getChannel');
+        gg = EDApi.findModule('getGuild');
+        gc = EDApi.findModule('getChannels');
+        gu = EDApi.findModule('getCurrentUser');
+        cp = EDApi.findModule('computePermissions');
+        lg = EDApi.findModule('getLastSelectedGuildId');
+        gsc = EDApi.findModule('getChannel');
 
         this.lis = function(e) {
             let text = e.target.value;
@@ -41,11 +41,11 @@ module.exports = new Plugin({
             }
 
             const hiddenChans = [];
-            if (window.ED._hiddenChans) { // work with "hidden channels" plugin
-                for (const i in window.ED._hiddenChans) {
-                    const c = gsc.getChannel(window.ED._hiddenChans[i]);
+            if (ED._hiddenChans) { // work with "hidden channels" plugin
+                for (const i in ED._hiddenChans) {
+                    const c = gsc.getChannel(ED._hiddenChans[i]);
                     if (c && c.guild_id === guildID) {
-                        hiddenChans.push(gsc.getChannel(window.ED._hiddenChans[i]));
+                        hiddenChans.push(gsc.getChannel(ED._hiddenChans[i]));
                     }
                 }
             } else {

@@ -16,11 +16,11 @@ module.exports = new Plugin({
         // yeet
     },
     generateSettings: function() {
-        if (!window.ED.plugins.css_loader) return;
-        const d = window.ED.classMaps.description;
-        const b = window.ED.classMaps.buttons;
-        const id = window.EDApi.findModule('inputDefault');
-        const m = window.EDApi.findModule('marginTop8');
+        if (!ED.plugins.css_loader) return;
+        const d = ED.classMaps.description;
+        const b = ED.classMaps.buttons;
+        const id = EDApi.findModule('inputDefault');
+        const m = EDApi.findModule('marginTop8');
         if (!window.customCss || !window.customCss.innerHTML) return;
 
         const mm = window.customCss.innerHTML.match(/--bg: url\(([^)]+)\)/);
@@ -64,7 +64,7 @@ Used to darken the background by default. Change the alpha value (default 0.8) t
                     return;
                 }
                 const newPath = pathInput.value;
-                const cl = window.ED.plugins.css_loader;
+                const cl = ED.plugins.css_loader;
                 const st = cl.settings;
                 if (!st || !st.path) return;
                 const p = path.join(process.env.injDir, cl.config.path.parse(st.path));
@@ -116,7 +116,7 @@ Used to darken the background by default. Change the alpha value (default 0.8) t
                 if (!input) return;
                 const cont = this.firstElementChild;
 
-                const cl = window.ED.plugins.css_loader;
+                const cl = ED.plugins.css_loader;
                 const st = cl.settings;
                 if (!st || !st.path) return;
                 const p = path.join(process.env.injDir, cl.config.path.parse(st.path));

@@ -1,13 +1,13 @@
 const Plugin = require('../plugin');
 
 function makeToggle() {
-    const a = window.ED.classMaps.alignment;
-    const sw = window.ED.classMaps.switchItem;
-    const cb = window.ED.classMaps.checkbox;
-    const b = window.ED.classMaps.buttons;
-    const d = window.ED.classMaps.description;
+    const a = ED.classMaps.alignment;
+    const sw = ED.classMaps.switchItem;
+    const cb = ED.classMaps.checkbox;
+    const b = ED.classMaps.buttons;
+    const d = ED.classMaps.description;
 
-    return `<div class="${window.ED.classMaps.divider} ${sw.dividerDefault}"></div>
+    return `<div class="${ED.classMaps.divider} ${sw.dividerDefault}"></div>
 <div id="fc_online_wrap" class="${a.vertical} ${a.justifyStart} ${a.alignStretch} ${a.noWrap} ${sw.switchItem}" style="flex: 1 1 auto;">
     <div class="${a.horizontal} ${a.justifyStart} ${a.alignStart} ${a.noWrap}" style="flex: 1 1 auto;">
         <h3 class="${sw.titleDefault}" style="flex: 1 1 auto;">Online Friends</h3>
@@ -77,7 +77,7 @@ module.exports = new Plugin({
         el: '#fc_online',
         type: 'click',
         eHandler: function(e) {
-            const cb = window.ED.classMaps.checkbox;
+            const cb = ED.classMaps.checkbox;
             module.exports.settings = {onlineOnly: !(module.exports.settings || {}).onlineOnly};
             if (module.exports.settings.onlineOnly) {
                 this.classList.remove(cb.valueUnchecked.split(' ')[0]);

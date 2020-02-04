@@ -16,5 +16,12 @@
         "no-var": "error",
         "no-mixed-spaces-and-tabs": "warn",
         "prefer-const": "warn"
+    },
+    "globals": {
+        "ED": "readonly",
+        "EDApi": "readonly",
+        "findModule": "readonly",
+        "findModules": "readonly",
+        "monkeyPatch": "readonly"
     }
 }
