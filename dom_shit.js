@@ -38,7 +38,7 @@ const c = {
     }
 }
 // config util
-window.ED = { plugins: {}, version: '2.7.0' };
+window.ED = { plugins: {}, version: '2.7.1' };
 Object.defineProperty(ED, 'config', {
     get: function() {
         let conf;
@@ -187,7 +187,7 @@ process.once("loaded", async () => {
     for (const id in plugins) {
         if (ED.config[id] && ED.config[id].enabled == false) continue;
         if (plugins[id].preload) continue;
-        if (ED.config[id].enabled !== true && plugins[id].disabledByDefault) {
+        if (ED.config[id] && ED.config[id].enabled !== true && plugins[id].disabledByDefault) {
             plugins[id].settings.enabled = false; continue;
         }
         loadPlugin(plugins[id]);
