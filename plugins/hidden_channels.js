@@ -129,14 +129,14 @@ module.exports = new Plugin({
             return egg;
         });
 
-        gs = EDApi.findModuleByDisplayName("FluxContainer(GuildSettings)").prototype;
+        /*gs = EDApi.findModuleByDisplayName("FluxContainer(GuildSettings)").prototype;
         EDApi.monkeyPatch(gs, 'render', b => {
             const egg = b.callOriginalMethod(b.methodArguments);
             module.exports._editingChannel = null;
             module.exports._editingGuild = egg.props.guild.id;
             egg.props.canManageRoles = true;
             return egg;
-        });
+        });*/
 
         const cancan = EDApi.findModuleByProps('can', 'canUser').can;
         gsr = EDApi.findModuleByDisplayName("FluxContainer(GuildSettingsRoles)").prototype;
@@ -158,7 +158,7 @@ module.exports = new Plugin({
             const channel = module.exports._editingChannel ? getChannel(module.exports._editingChannel) : null;
             if (!guild && !channel) return egg;
             const hasPerm = cancan(268435456, guild ? { guildId: guild.id } : { channelId: channel.id });
-            if (hasPerm) return;
+            if (hasPerm) return egg;
 
             if (!egg.props.children || !egg.props.children[1]) return egg;
             egg.props.children[1].forEach(item => {item.disabled = true; item.props.disabled = true;});
