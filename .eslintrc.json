@@ -19,9 +19,6 @@
     },
     "globals": {
         "ED": "readonly",
-        "EDApi": "readonly",
-        "findModule": "readonly",
-        "findModules": "readonly",
-        "monkeyPatch": "readonly"
+        "EDApi": "readonly"
     }
 }
