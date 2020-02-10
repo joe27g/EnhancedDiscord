@@ -421,6 +421,8 @@ module.exports = new Plugin({
 
 				return e("div", {},
 					ui.map(element => {
+						if (isValidElement(element)) return element;
+
 						const component = _types[element.type];
 						if (!component) return module.exports.error("[DiscordUIGenerator] Invalid element type:", element.type);
 
