@@ -435,10 +435,24 @@ module.exports = new Plugin({
 				return markdownToReact(content, reactMarkdownRules);
 			},
 			_loadData (props) {
+				const plug = ED.plugins[props.pluginID];
+				if (!plug) return;
+				if (plug.customLoad) { // custom function for loading settings
+					return plug.customLoad(props.configName)
+				}
 				return EDApi.loadData(props.pluginID, props.configName)
 			},
 			_saveData (props, data) {
-				return EDApi.saveData(props.pluginID, props.configName, data)
+				const plug = ED.plugins[props.pluginID];
+				if (!plug) return;
+				if (plug.customSave) { // custom function for saving settings
+					return plug.customSave(props.configName, data)
+				}
+				const r = EDApi.saveData(props.pluginID, props.configName, data)
+				if (plug.onSettingsUpdate) { // custom function to run after settings have updated
+					plug.onSettingsUpdate(props.configName, data)
+				}
+				return r;
 			},
 			_cfgNameCheck(props, name) {
 				if (!props.configName || typeof props.configName !== "string") {
