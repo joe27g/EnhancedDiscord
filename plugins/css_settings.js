@@ -5,6 +5,7 @@ const propMap = {
     bg_color: 'bg',
     bg_opacity: 'bg-overlay'
 }
+let picker;
 
 module.exports = new Plugin({
     name: 'CSS Settings',
@@ -12,7 +13,9 @@ module.exports = new Plugin({
     description: 'Allows you to modify options for the default theme.',
     color: 'blue',
 
-    load: () => {},
+    load: () => {
+        picker = EDApi.findModuleByDisplayName("ColorPicker");
+    },
     unload: () => {},
 
     customLoad: function(prop) {
@@ -59,7 +62,6 @@ module.exports = new Plugin({
         }
     },
     customSave: function(prop, data) {
-        if (this._preview) console.log(this._preview);
         const updateObj = {};
         switch (prop) {
             case 'bg':
@@ -73,7 +75,7 @@ module.exports = new Plugin({
                 break;
             case 'bg_color':
                 updateObj.bg = data || 'transparent';
-                updateObj['bg-overlay'] = 'transparent';
+                //updateObj['bg-overlay'] = 'transparent';
                 break;
             case 'bg_opacity':
                 updateObj['bg-overlay'] = `rgba(0, 0, 0, ${(100 - data) / 100.0})`;
@@ -118,6 +120,9 @@ module.exports = new Plugin({
     generateSettings: function() {
         if (!ED.plugins.css_loader || !ED.customCss || !ED.customCss.innerHTML || !ED.customCss.innerHTML.includes("EnhancedDiscord Theme")) return;
 
+        const bgColor = this.customLoad('bg_color');
+        const bgColorDec = bgColor ? parseInt(bgColor.substr(1), 16) : null;
+
         return [{
             type: "input:text",
             configName: "bg",
@@ -133,32 +138,32 @@ module.exports = new Plugin({
             markers: [
                 0,10,20,30,40,50,60,69,80,90,100
             ],
-            stickToMarkers: true,
+            formatTooltip: e => e.toFixed(0)+'%',
             minValue: 0,
             maxValue: 100,
-        }, this._preview = EDApi.React.createElement('div', {
-            style: {
-                height: 24,
-                width: 24,
-                display: 'inline-block',
-                margin: '5px',
-                borderRadius: '5px',
-                backgroundImage: "url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScyJyBoZWlnaHQ9JzInPjxwYXRoIGQ9J00xLDBIMFYxSDJWMkgxJyBmaWxsPSdsaWdodGdyZXknLz48L3N2Zz4iKSwgdXJsKCJkYXRhOmltYWdlL3N2Zyt4bWwsPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxJyBoZWlnaHQ9JzEnPjxwYXRoIGQ9J00xLDBIMFYxSDJWMkgxJyBmaWxsPSd3aGl0ZScvPjwvc3ZnPg==)",
-                backgroundSize: '40%',
-                verticalAlign: 'top'
-            }
-        }, EDApi.React.createElement('div', {
-            style: {
-                width: '100%',
-                height: '100%',
-                borderRadius: '5px',
-                backgroundColor: this.customLoad('bg_color')
-            }
-        })), {
+        }, {
+            type: 'std:title',
+            content: 'Background Color'
+        }, EDApi.React.createElement(picker, {
+            onChange: value => {
+                const hexValue = '#'+value.toString(16).padStart(6, '0');
+                const inp = document.getElementById('ed_bg_color');
+                if (inp) inp.value = hexValue;
+                this.customSave('bg_color', hexValue);
+            },
+            colors: [3935501, 867347, 858428, 2428220, 4921153, 5581331, 2958879, 1389880, 0, 1381653],
+            defaultColor: 3553599,
+            customColor: bgColorDec,
+            value: bgColorDec
+        }), {
+            type: 'std:spacer',
+            space: 10
+        }, {
             type: "input:text",
+            id: 'ed_bg_color',
             configName: "bg_color",
-            title: "Background Color",
-            desc: "Set your background to a simple color rather than an image. See the list of [valid css colors](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value)."
+            desc: "Set your background to a simple color rather than an image. See the list of [valid css colors](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value).",
+            mini: true
         }];
     }
 });
