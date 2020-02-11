@@ -473,20 +473,20 @@ module.exports = new Plugin({
 			},
 			_types: {
 				"std:title": props => {
-					return e(Title, { tag: props.tag || "h5" },
+					return e(Title, { id: props.id, tag: props.tag || "h5" },
 						props.content
 					)
 				},
 				"std:description": props => {
 					const {_parseMD} = DiscordUIGenerator;
 
-					return e(Text, { type: props.descriptionType || "description" }, _parseMD(props.content))
+					return e(Text, { id: props.id, type: props.descriptionType || "description" }, _parseMD(props.content))
 				},
 				"std:divider": props => {
-					return e(Divider, {style:{marginTop: props.top, marginBottom: props.bottom}})
+					return e(Divider, {id: props.id, style:{marginTop: props.top, marginBottom: props.bottom}})
 				},
 				"std:spacer": props => {
-					return e("div", {style: {marginBottom: props.space}})
+					return e("div", {id: props.id, style: {marginBottom: props.space}})
 				},
 				"input:text": props => {
 					const {_loadData: load, _saveData: save, _cfgNameCheck, _inputWrapper} = DiscordUIGenerator;
@@ -497,6 +497,7 @@ module.exports = new Plugin({
 
 					return e(_inputWrapper, {title: props.title, desc: props.desc},
 						e(Textbox, {
+							id: props.id,
 							onChange: val => setValue(val),
 							onBlur: e => save(props, e.currentTarget.value),
 							value,
@@ -521,6 +522,7 @@ module.exports = new Plugin({
 					}, load(props))
 
 					return e(SwitchItem, {
+						id: props.id,
 						onChange: toggle,
 						value: enabled,
 						hideBorder: props.hideBorder,
@@ -546,6 +548,7 @@ module.exports = new Plugin({
 
 					return e(_inputWrapper, {title: props.title, desc: props.desc},
 						e(RadioGroup, {
+							id: props.id,
 							onChange: setSetting,
 							value: currentSetting,
 							size: props.size ? props.size : "10px",
@@ -569,6 +572,7 @@ module.exports = new Plugin({
 
 					return e(_inputWrapper, {title: props.title, desc: props.desc},
 						e(Select, {
+							id: props.id,
 							onChange: setSetting,
 							value: currentSetting,
 							disabled: props.disabled,
@@ -596,6 +600,7 @@ module.exports = new Plugin({
 
 					return e(_inputWrapper, {title: props.title, desc: props.desc},
 						e(Slider, {
+							id: props.id,
 							onValueChange: setSetting,
 							onValueRender: props.formatTooltip ? props.formatTooltip : defaultOnValueRender,
 							initialValue: currentSetting,
