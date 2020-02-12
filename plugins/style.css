@@ -1,17 +1,17 @@
 @import url(https://enhanceddiscord.com/theme_v2.css);
 
 .theme-dark {
-    --bg: url(https://i.imgur.com/ybRUHPc.jpg); /* background for the whole window. */
-    --bg-overlay: rgba(0, 0, 0, 0.8); /* overlay for the background, intended for darkening the picture to make text more readable. */
-    --accent: #900; /* prominent color in the UI */
-    --accent-bright: #f00; /* color of mention text and other miscellaneous text */
-    --accent-back: rgba(255, 0, 0, 0.15); /* mention background color and other miscellaneous items */
-    --accent-back-bright: rgba(255, 0, 0, 0.4); /* mention background while hovering & bot tag background */
-    --icon-color: rgba(250, 166, 26, 0.5); /* color of channel icons, home tab icons, etc. */
-    --link-color: #faa61a; /* color of all links */
-    --link-color-hover: #fad61a; /* color of all links while hovering */
-    --popup-background: #222; /* background of modals and popouts */
-    --popup-highlight: #333; /* color of headers and footers of modals and popouts */
-    --unread-color: var(--accent-bright); /* color of unread/selected server indicators. */
-    --typing-height: 25px; /* height of typing element and margin underneath chat to allow space for it. */
+    --bg: url(https://i.imgur.com/2WHzMbs.jpg);
+    --bg-overlay: rgba(0, 0, 0, 0.8);
+    --accent: #900;
+    --accent-bright: #f00;
+    --accent-back: rgba(255, 0, 0, 0.15);
+    --accent-back-bright: rgba(255, 0, 0, 0.4);
+    --icon-color: rgba(250, 166, 26, 0.5);
+    --link-color: #faa61a;
+    --link-color-hover: #fad61a;
+    --popup-background: #222;
+    --popup-highlight: #333;
+    --unread-color: var(--accent-bright);
+    --typing-height: 25px;
 }
