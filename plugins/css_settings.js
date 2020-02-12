@@ -118,7 +118,7 @@ module.exports = new Plugin({
     },
 
     generateSettings: function() {
-        if (!ED.plugins.css_loader || !ED.customCss || !ED.customCss.innerHTML || !ED.customCss.innerHTML.includes("EnhancedDiscord Theme")) return;
+        if (!ED.plugins.css_loader || !ED.customCss || !ED.customCss.innerHTML || (!ED.customCss.innerHTML.includes("enhanceddiscord.com/theme") && !ED.customCss.innerHTML.includes("EnhancedDiscord Theme"))) return;
 
         const els = [{
             type: "input:text",
@@ -130,8 +130,8 @@ module.exports = new Plugin({
             title: 'Background Color',
             configName: "bg_color",
             desc: "Set your background to a simple color rather than an image. See the list of [valid css colors](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value).",
-            colors: [3935501, 867347, 858428, 2428220, 4921153, 5581331, 2958879, 1389880, 0, 1381653],
-            defaultColor: 3553599
+            colors: [0x3C0D0D, 0x0D3C13, 0x0D193C, 0x250D3C, 0x4B1741, 0x552A13, 0x2D261F, 0x153538, 0x000000, 0x151515],
+            defaultColor: 0x36393F
         }, {
             type: "input:slider",
             configName: "bg_opacity",
@@ -150,71 +150,71 @@ module.exports = new Plugin({
             title: 'Accent Color',
             configName: "accent",
             desc: "Prominent color in the UI. Affects buttons, switches, mentions, etc.",
-            colors: [7573723], // TODO: need more defaults
-            defaultColor: 10027008
+            colors: [0x7390DB], // TODO: need more defaults
+            defaultColor: 0x990000
         }, {
             type: "input:colorpicker",
             title: 'Accent Background',
             configName: "accent-back",
             desc: "Background for mentions and other misc. things.",
             colors: [], // TODO: need more defaults
-            defaultColor: 6684672
+            defaultColor: 0x660000
         }, {
             type: "input:colorpicker",
             title: 'Bright Accent Color',
             configName: "accent-bright",
             desc: "Color of mentions while hovering and other misc. things.",
-            colors: [16777215], // TODO: need more defaults
-            defaultColor: 16711680
+            colors: [0xFFFFFF], // TODO: need more defaults
+            defaultColor: 0xFF0000
         }, {
             type: "input:colorpicker",
             title: 'Bright Accent Background',
             configName: "accent-back-bright",
             desc: "Background for mentions while hovering and other misc. things.",
             colors: [], // TODO: need more defaults
-            defaultColor: 8912896
+            defaultColor: 0x880000
         }, {
             type: "input:colorpicker",
             title: 'Icon Color',
             configName: "icon-color",
             desc: "Color of icons for channels, home sections, etc.",
             colors: [], // TODO: need more defaults
-            defaultColor: 16426522
+            defaultColor: 0xFAA61A
         }, {
             type: "input:colorpicker",
             title: 'Link Color',
             configName: "link-color",
             desc: "Color of links.",
             colors: [], // TODO: need more defaults
-            defaultColor: 16426522
+            defaultColor: 0xFAA61A
         }, {
             type: "input:colorpicker",
             title: 'Hovered Link Color',
             configName: "link-color-hover",
             desc: "Color of links while hovering over them.",
             colors: [], // TODO: need more defaults
-            defaultColor: 16438810
+            defaultColor: 0xFAD61A
         }, {
             type: "input:colorpicker",
             title: 'Popup Background',
             configName: "popup-background",
             desc: "Background color of modals and popups, such as pinned messages, context menus, and confirmation dialogs.",
             colors: [], // TODO: need more defaults
-            defaultColor: 2236962
+            defaultColor: 0x222222
         }, {
             type: "input:colorpicker",
             title: 'Popup Headers & Footers',
             configName: "popup-highlight",
             desc: "Background color of headers and footers on modals and popups.",
             colors: [], // TODO: need more defaults
-            defaultColor: 3355443
+            defaultColor: 0x333333
         }, {
             type: "input:colorpicker",
             title: 'Unread Color',
             configName: "unread-color",
             desc: "Color of channel/server unread or selected indicators.",
-            colors: [16777215], // TODO: need more defaults
-            defaultColor: 10027008
+            colors: [0xFFFFFF], // TODO: need more defaults
+            defaultColor: 0x990000
         }, {
             type: "input:text",
             configName: "typing-height",
