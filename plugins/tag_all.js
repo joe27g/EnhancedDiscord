@@ -1,7 +1,5 @@
 const Plugin = require('../plugin');
 
-let gg = {}, gc = {}, gu = {}, cp = {}, lg = {}, gsc = {};
-
 module.exports = new Plugin({
     name: 'TagAll',
     author: 'Joe 🎸#7070',
@@ -9,70 +7,74 @@ module.exports = new Plugin({
     color: 'yellow',
 
     load: async function() {
-        await this.sleep(1000); // wait for hidden channels to load
-
-        gg = EDApi.findModule('getGuild');
-        gc = EDApi.findModule('getChannels');
-        gu = EDApi.findModule('getCurrentUser');
-        cp = EDApi.findModule('computePermissions');
-        lg = EDApi.findModule('getLastSelectedGuildId');
-        gsc = EDApi.findModule('getChannel');
-
-        this.lis = function(e) {
-            let text = e.target.value;
-
-            const guildID = lg.getLastSelectedGuildId();
-            const g = gg.getGuild(guildID);
-
-            if (!guildID || !g || !text) return;
-
-            // mention unmentionable roles
-            const unMen = [];
-            for (const id in g.roles)
-                if (!g.roles[id].mentionable && !g.roles[id].managed) // ignore bot roles
-                    unMen.push(g.roles[id]);
-
-            const roles = unMen.map(r => r.name.toLowerCase().replace(/[-[\]/{}()*+?.\\^$|]/g, "\\$&"));
-            for (const i in roles) {
-                if (!roles[i]) continue; // empty role names
-                try {
-                    text = text.replace( new RegExp('@'+roles[i]+'([^#])', 'gi'), `<@&${unMen[i].id}>$1`);
-                } catch(err) {/*do nothing*/}
-            }
-
-            const hiddenChans = [];
-            if (ED._hiddenChans) { // work with "hidden channels" plugin
-                for (const i in ED._hiddenChans) {
-                    const c = gsc.getChannel(ED._hiddenChans[i]);
-                    if (c && c.guild_id === guildID) {
-                        hiddenChans.push(gsc.getChannel(ED._hiddenChans[i]));
+        const gg = EDApi.findModule('getGuild');
+        const lg = EDApi.findModule('getLastSelectedGuildId');
+        this._gdc = EDApi.findModule('getDefaultChannel');
+        this._txt = findModule('ReactMarkdown').defaultRules.text;
+        this._rtemp = [];
+        
+        monkeyPatch(this._txt, 'match', {
+            silent: true,
+            before: () => {
+                const guildID = lg.getLastSelectedGuildId();
+                const g = gg.getGuild(guildID);
+                if (!g || !g.roles) return;
+                
+                for (const id in g.roles) {
+                    if (!g.roles[id].mentionable) {
+                        g.roles[id].mentionable = true;
+                        this._rtemp.push(id);
                     }
                 }
-            } else {
-                const globalChans = gc.getChannels();
-                const me = gu.getCurrentUser();
+                /*const chanShit = gdc.getChannels(guildID);
+                //console.log(chanShit);
+                
+                if (!chanShit || !chanShit.HIDDEN) return;
+                monkeyPatch(gdc, 'getTextChannelNameDisambiguations', b => {
+                    const val = b.callOriginalMethod(b.methodArguments); 
+                    console.log(val);
+                            
+                    for (const i in chanShit.HIDDEN) {
+                        val[chanShit[i].id] = {id: chanShit[i].id, name: chanShit[i].name};
+                    }
 
-                const hiddenChans = [];
-                for (const id in globalChans) {
-                    if (globalChans[id].guild_id == guildID && !(cp.computePermissions(me, globalChans[id]) & 1024))
-                        hiddenChans.push(globalChans[id]);
+                    console.log(val);
+                    
+                    return val;
+                });*/
+            },
+            after: () => setTimeout(() => {
+                const guildID = lg.getLastSelectedGuildId();
+                const g = gg.getGuild(guildID);
+                
+                while (this._rtemp.length) {
+                    g.roles[this._rtemp.pop()].mentionable = false;
                 }
-            }
-            // mention channels you can't see
-            const chans = hiddenChans.map(c => c.name ? c.name.toLowerCase().replace(/[-[\]/{}()*+?.\\^$|]/g, "\\$&") : '');
-            for (const i in chans) {
-                if (!chans[i]) continue;
-                text = text.replace( new RegExp('#'+chans[i]+'(\\s)', 'gi'), `<#${hiddenChans[i].id}>$1`);
-            }
-            if (e.target.value == text) return;
+                /*if (gdc.getTextChannelNameDisambiguations.unpatch)
+                    gdc.getTextChannelNameDisambiguations.unpatch();*/
+            }),
+        })
 
-            e.target.value = text;
-        };
-        document.addEventListener("input", this.lis);
+
+        monkeyPatch(this._gdc, 'getTextChannelNameDisambiguations', b => {
+            const val = b.callOriginalMethod(b.methodArguments);
+            const guildID = lg.getLastSelectedGuildId();
+            if (!guildID) return val;
+            const chanShit = this._gdc.getChannels(guildID);
+            if (!chanShit || !chanShit.HIDDEN) return val;
+                    
+            for (const c of chanShit.HIDDEN) {
+                val[c.id] = {id: c.id, name: c.name};
+            }
+            
+            return val;
+        });
     },
 
     unload: function() {
-        document.removeEventListener("input", this.lis);
-        this.lis = null;
+        if (this._gdc.getTextChannelNameDisambiguations.unpatch)
+            this._gdc.getTextChannelNameDisambiguations.unpatch();
+        if (this._txt.match.unpatch)
+            this._txt.match.unpatch();
     }
 });
