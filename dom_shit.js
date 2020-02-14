@@ -38,7 +38,7 @@ const c = {
     }
 }
 // config util
-window.ED = { plugins: {}, version: '2.7.1' };
+window.ED = { plugins: {}, version: '2.8' };
 Object.defineProperty(ED, 'config', {
     get: function() {
         let conf;
