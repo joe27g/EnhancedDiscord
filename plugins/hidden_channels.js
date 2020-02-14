@@ -122,12 +122,12 @@ module.exports = new Plugin({
             return egg;
         });
 
-        ghp = EDApi.findModuleByDisplayName("FluxContainer(GuildHeaderPopout)").prototype;
+        /*ghp = EDApi.findModuleByDisplayName("FluxContainer(GuildHeaderPopout)").prototype;
         EDApi.monkeyPatch(ghp, 'render', b => {
             const egg = b.callOriginalMethod(b.methodArguments);
             egg.props.canAccessSettings = true;
             return egg;
-        });
+        });*/
 
         /*gs = EDApi.findModuleByDisplayName("FluxContainer(GuildSettings)").prototype;
         EDApi.monkeyPatch(gs, 'render', b => {
