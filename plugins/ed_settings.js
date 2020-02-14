@@ -329,7 +329,7 @@ module.exports = new Plugin({
 		const OpenPluginDirBtn = () => {
 			const [ string, setString ] = useState("Open Plugins Directory");
 
-			return e(Button, {size: Button.Sizes.SMALL, color: Button.Colors.GREEN, onClick: e => {
+			return e(Button, {size: Button.Sizes.SMALL, color: Button.Colors.GREEN, style: {margin: '0 5px', display: 'inline-block'}, onClick: e => {
 				setString("Opening...");
 				const sucess = require("electron").shell.openItem(
 					e.shiftKey ?
@@ -484,7 +484,7 @@ module.exports = new Plugin({
 					return e(Text, { id: props.id, type: props.descriptionType || "description" }, _parseMD(props.content))
 				},
 				"std:divider": props => {
-					return e(Divider, {id: props.id, style:{marginTop: props.top, marginBottom: props.bottom}})
+					return e(Divider, {id: props.id, style: {marginTop: props.top, marginBottom: props.bottom}})
 				},
 				"std:spacer": props => {
 					return e("div", {id: props.id, style: {marginBottom: props.space}})
@@ -508,6 +508,19 @@ module.exports = new Plugin({
 							type: props.number ? "number" : "text"
 						})
 					)
+				},
+				"input:button": props => {
+					const [ string, setString ] = useState(props.name);
+		
+					return e(Button, {
+						id: props.id,
+						size: Button.Sizes[(props.size || '').toUpperCase() || 'SMALL'],
+						color: Button.Colors[(props.color || '').toUpperCase() || 'BRAND'],
+						look: Button.Looks[(props.look || '').toUpperCase() || 'FILLED'],
+						style: {margin: '0 5px', display: 'inline-block'},
+						disabled: props.disabled,
+						onClick: () => props.onClick(setString)
+					}, string)
 				},
 				"input:colorpicker": props => {
 					// TODO: proper transparency support? would need to use different/modified component
