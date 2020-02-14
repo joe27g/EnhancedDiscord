@@ -272,19 +272,32 @@ window.EDApi = window.BdApi = class EDApi {
         });
     }
 
-    static loadData(pluginName, key) {
+    static loadPluginSettings(pluginName) {
+        const pl = ED.plugins[pluginName];
+        if (!pl) return null;
+
         if (!ED.config[pluginName]) {
-            const pl = ED.plugins[pluginName];
-            const def = pl.defaultSettings;
-            ED.config[pluginName] = def || {enabled: !pl.disabledByDefault}
+            this.savePluginSettings(pluginName, pl.defaultSettings || {enabled: !pl.disabledByDefault});
         }
-        return ED.config[pluginName][key];
+        return ED.config[pluginName];
+    }
+
+    static savePluginSettings(pluginName, data) {
+        const pl = ED.plugins[pluginName];
+        if (!pl) return null;
+        ED.config[pluginName] = data;
+        ED.config = ED.config;
+    }
+
+    static loadData(pluginName, key) {
+        if (!ED.plugins[pluginName]) return null;
+        return this.loadPluginSettings(pluginName)[key];
     }
 
     static saveData(pluginName, key, data) {
-        if (!ED.config[pluginName]) ED.config[pluginName] = {};
-        ED.config[pluginName][key] = data;
-        ED.config = ED.config;
+        const obj = this.loadPluginSettings(pluginName);
+        obj[key] = data;
+        return this.savePluginSettings(pluginName, obj);
     }
 
     static getData(pluginName, key) {
