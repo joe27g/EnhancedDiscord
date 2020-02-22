@@ -123,7 +123,8 @@ module.exports = new Plugin({
         });
     },
 
-    generateSettings: function() {
+    settingsSectionName: 'Theme Settings',
+    generateSettingsSection: function() {
         if (!ED.plugins.css_loader || !ED.customCss || !ED.customCss.innerHTML || (!ED.customCss.innerHTML.includes("enhanceddiscord.com/theme") && !ED.customCss.innerHTML.includes("EnhancedDiscord Theme"))) return;
 
         const els = [{

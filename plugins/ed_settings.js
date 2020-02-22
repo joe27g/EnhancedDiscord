@@ -34,9 +34,19 @@ module.exports = new Plugin({
 				const sections = data.originalMethod.call(data.thisObject);
 				// We use the devIndex as a base so that should Discord add more sections later on, our sections shouldn't move possibly fucking up the UI.
 				const devIndex = this._getDevSectionIndex(sections, discordConstants);
+				let workingIndex = devIndex + 2;
 
-				sections.splice(devIndex + 2, 0, ...this.settingsSections);
+				sections.splice(workingIndex, 0, ...this.settingsSections);
+				workingIndex += this.settingsSections.length;
 
+				const customSections = this._getPluginSections();
+				if (customSections.length) {
+					sections.splice(workingIndex, 0, ...customSections);
+					workingIndex += customSections.length;
+				}
+
+				sections.splice(workingIndex, 0, { section: "DIVIDER" });
+				
 				return sections;
 			}
 		)
@@ -99,7 +109,7 @@ module.exports = new Plugin({
 		all sections regardless of type can have the following
 			predicate: [function => boolean] determine whether the section should be shown
 
-		*/
+		*/	
 		return [{
 			section: "CUSTOM",
 			element: () => {
@@ -116,9 +126,21 @@ module.exports = new Plugin({
 			section: "ED/Settings",
 			label: "Settings",
 			element: this.components.SettingsPage
-		},{
-			section: "DIVIDER"
 		}];
+	},
+	_getPluginSections() {
+		const arr = [];
+		for (const key in ED.plugins) {
+			if (typeof ED.plugins[key].generateSettingsSection !== 'function') continue;
+
+			const label = ED.plugins[key].settingsSectionName || ED.plugins[key].name;
+			arr.push({
+				section: 'ED/'+key,
+				label,
+				element: () => EDApi.React.createElement(this.components.PluginSection, {id: key, label})
+			});
+		}
+		return arr;
 	},
 	_initClassMaps(obj) {
 		const divM = EDApi.findModule(m => m.divider && Object.keys(m).length === 1)
@@ -300,6 +322,19 @@ module.exports = new Plugin({
 				e(Title, {tag: "h2"}, plugin.name),
 				VariableTypeRenderer.render(
 					plugin.generateSettings(),
+					plugin.settingsListeners,
+					props.id
+				)
+			)
+		}
+
+		const PluginSection = props => {
+			const plugin = ED.plugins[props.id];
+
+			return e(Fragment, null,
+				e(Title, {tag: "h2"}, props.label),
+				VariableTypeRenderer.render(
+					plugin.generateSettingsSection(),
 					plugin.settingsListeners,
 					props.id
 				)
@@ -671,6 +706,7 @@ module.exports = new Plugin({
 			SettingsPage,
 			PluginListing,
 			PluginSettings,
+			PluginSection,
 			BDPluginToggle,
 			OpenPluginDirBtn,
 			__VariableTypeRenderer: VariableTypeRenderer,
