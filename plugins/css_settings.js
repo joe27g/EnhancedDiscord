@@ -47,12 +47,14 @@ module.exports = new Plugin({
                 } else if (prop === 'bg_color') {
                     return null;
                 }
-                if (prop == 'bg_opacity' && raw.startsWith('rgba(')) {
+                if (prop === 'bg_opacity' && raw.startsWith('rgba(')) {
                     const str = raw.substring(5, raw.length - 1).split(',').pop();
                     if (!str) return null;
                     return 100 - Math.round(parseFloat(str)*100);
-                } else if (prop == 'bg_opacity') {
+                } else if (prop === 'bg_opacity') {
                     return 100;
+                } else if (prop === 'gift-button' || prop === 'gif-picker') {
+                    return raw === 'none' ? false : true;
                 }
                 // TODO: proper transparency support?
                 return raw;
@@ -81,6 +83,10 @@ module.exports = new Plugin({
                 break;
             case 'typing-height':
                 finalValue = finalValue || 0;
+                break;
+            case 'gift-button':
+            case 'gif-picker':
+                finalValue = finalValue ? 'flex' : 'none';
                 break;
             default:
                 finalValue = data || 'transparent';
@@ -145,6 +151,16 @@ module.exports = new Plugin({
             formatTooltip: e => e.toFixed(0)+'%',
             minValue: 0,
             maxValue: 100,
+        }, {
+            type: "input:boolean",
+            title: "Nitro gift button",
+            configName: "gift-button",
+            note: "Show Nitro gift button in the chat textarea (next to emoji picker or gif picker)"
+        }, {
+            type: "input:boolean",
+            title: "GIF picker",
+            configName: "gif-picker",
+            note: "Show GIF picker button in the chat textarea (next to emoji picker)"
         }, {
             type: "input:colorpicker",
             title: 'Accent Color',
