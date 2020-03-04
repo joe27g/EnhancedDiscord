@@ -75,7 +75,7 @@ module.exports = new Plugin({
         });
 
         const clk = EDApi.findModuleByDisplayName("Clickable")
-        const icon = EDApi.findModuleByDisplayName("Icon");
+        //const icon = EDApi.findModuleByDisplayName("Icon");
 
         reb = EDApi.findModule(m => m.default && m.default.prototype && m.default.prototype.renderEditButton).default.prototype;
         EDApi.monkeyPatch(reb, "renderEditButton", function(b) {
