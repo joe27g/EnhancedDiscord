@@ -75,10 +75,10 @@ module.exports = new Plugin({
         });
 
         const clk = window.EDApi.findModuleByDisplayName("Clickable")
-        const icon = window.EDApi.findModuleByDisplayName("Icon");
+        //const icon = window.EDApi.findModuleByDisplayName("Icon");
 
         reb = window.EDApi.findModule(m => m.default && m.default.prototype && m.default.prototype.renderEditButton).default.prototype;
-        window.EDApi.monkeyPatch(reb, "renderEditButton", function(b) {
+        /*window.EDApi.monkeyPatch(reb, "renderEditButton", function(b) {
             return N(clk, {
                 className: ai.iconItem,
                 onClick: function() {
@@ -94,7 +94,7 @@ module.exports = new Plugin({
                 height: 16,
                 className: ai.actionIcon
             }));
-        });
+        });*/
 
         sv = window.EDApi.findModuleByDisplayName("SettingsView").prototype;
         window.EDApi.monkeyPatch(sv, 'getPredicateSections', {before: b => {
