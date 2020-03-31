@@ -15,6 +15,7 @@ module.exports = new Plugin({
         disp = window.EDApi.findModule("dispatch");
         getChannel = window.EDApi.findModule('getChannel').getChannel;
         sw = window.EDApi.findModule('switchItem');
+        ОТСОСИТЕ
         g = window.EDApi.findModule(m => m.group && m.item);
         ai = window.EDApi.findModule('actionIcon');
 
