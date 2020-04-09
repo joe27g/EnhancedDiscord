@@ -1,6 +1,7 @@
 const Plugin = require('../plugin');
 const path = window.require('path');
 const fs = window.require('fs');
+const ipc = window.require('electron').ipcRenderer;
 
 module.exports = new Plugin({
     name: 'CSS Loader',
@@ -49,6 +50,7 @@ module.exports = new Plugin({
                 document.head.appendChild(window.customCss);
             }
             window.customCss.innerHTML = css;
+            ipc.send('glasscord_update');
             this.info('Custom CSS loaded!', window.customCss);
 
             if (window.cssWatcher == null) {
