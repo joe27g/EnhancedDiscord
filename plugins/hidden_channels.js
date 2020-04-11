@@ -74,11 +74,11 @@ module.exports = new Plugin({
             return b.callOriginalMethod(b.methodArguments);
         });
 
-        const clk = EDApi.findModuleByDisplayName("Clickable")
-        const icon = EDApi.findModuleByDisplayName("Icon");
+        const clk = window.EDApi.findModuleByDisplayName("Clickable")
+        //const icon = window.EDApi.findModuleByDisplayName("Icon");
 
-        reb = EDApi.findModule(m => m.default && m.default.prototype && m.default.prototype.renderEditButton).default.prototype;
-        EDApi.monkeyPatch(reb, "renderEditButton", function(b) {
+        reb = window.EDApi.findModule(m => m.default && m.default.prototype && m.default.prototype.renderEditButton).default.prototype;
+        /*window.EDApi.monkeyPatch(reb, "renderEditButton", function(b) {
             return N(clk, {
                 className: ai.iconItem,
                 onClick: function() {
@@ -94,7 +94,7 @@ module.exports = new Plugin({
                 height: 16,
                 className: ai.actionIcon
             }));
-        });
+        });*/
 
         sv = EDApi.findModuleByDisplayName("SettingsView").prototype;
         EDApi.monkeyPatch(sv, 'getPredicateSections', {before: b => {
