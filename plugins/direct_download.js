@@ -7,20 +7,22 @@ const fs = require('fs');
 let ttM = {}, iteM = {};
 
 function saveAs(url, filename, fileExtension) {
-    const userChosenPath = dialog.showSaveDialog({ defaultPath: filename, title: 'Where would you like to store the stolen memes?', buttonLabel: 'Steal this meme', filters: [{ name: "Stolen meme", extensions: [fileExtension] }] });
-    if (userChosenPath) {
-        download(url, userChosenPath, () => {
-            const wrap = document.createElement('div');
-            wrap.className = 'theme-dark';
-            const gay = document.createElement('div');
-            gay.style = "position: fixed; bottom: 10%; left: calc(50% - 88px);"
-            gay.className = `${ttM.tooltip} ${ttM.tooltipTop} ${ttM.tooltipBlack}`;
-            gay.innerHTML = 'Successfully downloaded | ' + userChosenPath;
-            document.body.appendChild(wrap);
-            wrap.appendChild(gay);
-            setTimeout(() => wrap.remove(), 2000);
-        });
-    }
+    dialog.showSaveDialog({ defaultPath: filename, title: 'Where would you like to store the stolen memes?', buttonLabel: 'Steal this meme', filters: [{ name: "Stolen meme", extensions: [fileExtension] }] })
+    .then(e => {
+        if (!e.canceled) {
+            download(url, e.filePath, () => {
+                const wrap = document.createElement('div');
+                wrap.className = 'theme-dark';
+                const gay = document.createElement('div');
+                gay.style = "position: fixed; bottom: 10%; left: calc(50% - 88px);"
+                gay.className = `${ttM.tooltip} ${ttM.tooltipTop} ${ttM.tooltipBlack}`;
+                gay.innerHTML = 'Successfully downloaded | ' + e.filePath;
+                document.body.appendChild(wrap);
+                wrap.appendChild(gay);
+                setTimeout(() => wrap.remove(), 2000);
+            });
+        }
+    });
 }
 function download (url, dest, cb) {
     const file = fs.createWriteStream(dest);
@@ -40,7 +42,7 @@ function addMenuItem(url, text, filename = true, fileExtension) {
     if (!cmGroups || cmGroups.length == 0) return;
 
     const newCmItem = document.createElement('div');
-    newCmItem.className = iteM.item;
+    newCmItem.className = `${iteM.item} ${iteM.clickable}`;
     newCmItem.innerHTML = text;
 
     const lastGroup = cmGroups[cmGroups.length-1];
@@ -69,15 +71,28 @@ module.exports = new Plugin({
     },
     onContextMenu(e) {
         const messageGroup = e.target.closest('.'+this._contClass);
+        const parentElem = e.target.parentElement;
+        const guildWrapper = EDApi.findModule('acronym').wrapper;
+        const memberAvatar = EDApi.findModule('nameAndDecorators').avatar;
 
-        if (e.target.localName != "a" && e.target.localName != "img" && e.target.localName != "video" && !messageGroup && !e.target.className.includes("guildIcon") && !e.target.className.includes("image-")) return;
+        if (e.target.localName != "a" && e.target.localName != "img" && e.target.localName != "video" && !messageGroup && !e.target.className.includes(guildWrapper) && !parentElem.className.includes(memberAvatar) && !e.target.className.includes("avatar-")) return;
 
         let saveLabel = "Download",
             url = e.target.poster || e.target.style.backgroundImage.substring(e.target.style.backgroundImage.indexOf(`"`) + 1, e.target.style.backgroundImage.lastIndexOf(`"`)) || e.target.href || e.target.src;
 
-        if (e.target.className.includes("guildIcon")) saveLabel = "Download Icon";
-        else if (e.target.className.includes("image-")) saveLabel = "Download Avatar";
-
+        if (e.target.className.includes(guildWrapper)) {
+            saveLabel = "Download Icon";
+            if (e.target.firstChild.src) { // Make sure guild box has an icon
+                url = e.target.firstChild.src;
+            }
+        }
+        else if (e.target.className.includes("avatar-") || parentElem.className.includes(memberAvatar)) {
+            saveLabel = "Download Avatar";
+            
+            if (parentElem.className.includes(memberAvatar)) {
+                url = e.target.firstChild.firstChild.firstChild.src;
+            }
+        }
 
         if (!url || e.target.classList.contains("emote") || url.includes("youtube.com/watch?v=") || url.includes("youtu.be/") || url.lastIndexOf("/") > url.lastIndexOf(".")) return;
 
