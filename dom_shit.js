@@ -88,13 +88,13 @@ function loadPlugin(plugin) {
 
 ED.localStorage = window.localStorage;
 
-process.once("loaded", async () => {
+process.once('loaded', async () => {
     c.log(`v${ED.version} is running. Validating plugins...`);
 
     const pluginFiles = fs.readdirSync(path.join(process.env.injDir, 'plugins'));
     const plugins = {};
     for (const i in pluginFiles) {
-        if (!pluginFiles[i].endsWith('.js') || pluginFiles[i].endsWith(".plugin.js")) continue;
+        if (!pluginFiles[i].endsWith('.js') || pluginFiles[i].endsWith('.plugin.js')) continue;
         let p;
         const pName = pluginFiles[i].replace(/\.js$/, '');
         try {
@@ -162,7 +162,7 @@ process.once("loaded", async () => {
         await require('./bd_shit').setup(currentWindow);
         c.log(`Preparing BD plugins...`);
         for (const i in pluginFiles) {
-            if (!pluginFiles[i].endsWith('.js') || !pluginFiles[i].endsWith(".plugin.js")) continue;
+            if (!pluginFiles[i].endsWith('.js') || !pluginFiles[i].endsWith('.plugin.js')) continue;
             let p;
             const pName = pluginFiles[i].replace(/\.js$/, '');
             try {
@@ -199,22 +199,22 @@ process.once("loaded", async () => {
     EDApi.monkeyPatch(ht, 'hideToken', () => {});
     window.fixedShowToken = () => {
         // Only allow this to add a token, not replace it. This allows for changing of the token in dev tools.
-        if (!ED.localStorage || ED.localStorage.getItem("token")) return;
-        return ED.localStorage.setItem("token", '"'+ht.getToken()+'"');
+        if (!ED.localStorage || ED.localStorage.getItem('token')) return;
+        return ED.localStorage.setItem('token', '"'+ht.getToken()+'"');
     };
     EDApi.monkeyPatch(ht, 'showToken', window.fixedShowToken);
-    if (!ED.localStorage.getItem("token") && ht.getToken())
+    if (!ED.localStorage.getItem('token') && ht.getToken())
         window.fixedShowToken(); // prevent you from being logged out for no reason
 
     // change the console warning to be more fun
     const wc = require('electron').remote.getCurrentWebContents();
-    wc.removeAllListeners("devtools-opened");
-    wc.on("devtools-opened", () => {
-        console.log("%cHold Up!", "color: #FF5200; -webkit-text-stroke: 2px black; font-size: 72px; font-weight: bold;");
-        console.log("%cIf you're reading this, you're probably smarter than most Discord developers.", "font-size: 16px;");
-        console.log("%cPasting anything in here could actually improve the Discord client.", "font-size: 18px; font-weight: bold; color: red;");
-        console.log("%cUnless you understand exactly what you're doing, keep this window open to browse our bad code.", "font-size: 16px;");
-        console.log("%cIf you don't understand exactly what you're doing, you should come work with us: https://discordapp.com/jobs", "font-size: 16px;");
+    wc.removeAllListeners('devtools-opened');
+    wc.on('devtools-opened', () => {
+        console.log('%cHold Up!', 'color: #FF5200; -webkit-text-stroke: 2px black; font-size: 72px; font-weight: bold;');
+        console.log('%cIf you\'re reading this, you\'re probably smarter than most Discord developers.', 'font-size: 16px;');
+        console.log('%cPasting anything in here could actually improve the Discord client.', 'font-size: 18px; font-weight: bold; color: red;');
+        console.log('%cUnless you understand exactly what you\'re doing, keep this window open to browse our bad code.', 'font-size: 16px;');
+        console.log('%cIf you don\'t understand exactly what you\'re doing, you should come work with us: https://discordapp.com/jobs', 'font-size: 16px;');
     });
 })
 
@@ -226,11 +226,11 @@ window.EDApi = window.BdApi = class EDApi {
     static get ReactDOM() { return this.findModuleByProps('findDOMNode'); }
 
     static escapeID(id) {
-        return id.replace(/^[^a-z]+|[^\w-]+/gi, "");
+        return id.replace(/^[^a-z]+|[^\w-]+/gi, '');
     }
 
     static injectCSS(id, css) {
-        const style = document.createElement("style");
+        const style = document.createElement('style');
 		style.id = this.escapeID(id);
 		style.innerHTML = css;
 		document.head.append(style);
@@ -243,10 +243,10 @@ window.EDApi = window.BdApi = class EDApi {
 
     static linkJS(id, url) {
         return new Promise(resolve => {
-			const script = document.createElement("script");
+			const script = document.createElement('script');
 			script.id = this.escapeID(id);
 			script.src = url;
-			script.type = "text/javascript";
+			script.type = 'text/javascript';
 			script.onload = resolve;
 			document.head.append(script);
 		});
@@ -264,12 +264,42 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static alert(title, body) {
-        const ModalStack = this.findModuleByProps("push", "update", "pop", "popWithKey");
-        const AlertModal = this.findModule(m => m.prototype && m.prototype.handleCancel && m.prototype.handleSubmit && m.prototype.handleMinorConfirm);
-        if (!ModalStack || !AlertModal) return window.alert(body);
-        ModalStack.push(function(props) {
-            return EDApi.React.createElement(AlertModal, Object.assign({title, body}, props));
-        });
+        return this.showConfirmationModal(title, body, {cancelText: null});
+    }
+
+    /**
+     * Shows a generic but very customizable confirmation modal with optional confirm and cancel callbacks.
+     * @param {string} title - title of the modal
+     * @param {(string|ReactElement|Array<string|ReactElement>)} children - a single or mixed array of react elements and strings. Every string is wrapped in Discord's `Markdown` component so strings will show and render properly.
+     * @param {object} [options] - options to modify the modal
+     * @param {boolean} [options.danger=false] - whether the main button should be red or not
+     * @param {string} [options.confirmText=Okay] - text for the confirmation/submit button
+     * @param {string} [options.cancelText=Cancel] - text for the cancel button
+     * @param {callable} [options.onConfirm=NOOP] - callback to occur when clicking the submit button
+     * @param {callable} [options.onCancel=NOOP] - callback to occur when clicking the cancel button
+     * @param {string} [options.key] - key used to identify the modal. If not provided, one is generated and returned
+     * @returns {string} - the key used for this modal
+     */
+    static showConfirmationModal(title, content, options = {}) {
+        const ModalStack = this.findModuleByProps('push', 'update', 'pop', 'popWithKey');
+        const Markdown = this.findModuleByDisplayName('Markdown');
+        const ConfirmationModal = this.findModule(m => m.defaultProps && m.key && m.key() == 'confirm-modal');
+        if (!ModalStack || !ConfirmationModal || !Markdown) return window.alert(content);
+
+        const emptyFunction = () => {};
+        const {onConfirm = emptyFunction, onCancel = emptyFunction, confirmText = 'Okay', cancelText = 'Cancel', danger = false, key = undefined} = options;
+
+        if (!Array.isArray(content)) content = [content];
+        content = content.map(c => typeof(c) === 'string' ? this.React.createElement(Markdown, null, c) : c);
+        return ModalStack.push(ConfirmationModal, {
+            header: title,
+            children: content,
+            red: danger,
+            confirmText: confirmText,
+            cancelText: cancelText,
+            onConfirm: onConfirm,
+            onCancel: onCancel
+        }, key);
     }
 
     static loadPluginSettings(pluginName) {
@@ -286,7 +316,7 @@ window.EDApi = window.BdApi = class EDApi {
         const pl = ED.plugins[pluginName];
         if (!pl) return null;
         ED.config[pluginName] = data;
-        ED.config = ED.config;
+        ED.config = ED.config; // eslint-disable-line no-self-assign
     }
 
     static loadData(pluginName, key) {
@@ -311,31 +341,31 @@ window.EDApi = window.BdApi = class EDApi {
     static getInternalInstance(node) {
         if (!(node instanceof window.jQuery) && !(node instanceof Element)) return undefined;
         if (node instanceof window.jQuery) node = node[0];
-        return node[Object.keys(node).find(k => k.startsWith("__reactInternalInstance"))];
+        return node[Object.keys(node).find(k => k.startsWith('__reactInternalInstance'))];
     }
 
     static showToast(content, options = {}) {
-        if (!document.querySelector(".toasts")) {
-            const toastWrapper = document.createElement("div");
-            toastWrapper.classList.add("toasts");
-            const boundingElement = document.querySelector(".chat-3bRxxu form, #friends, .noChannel-Z1DQK7, .activityFeed-28jde9");
-            toastWrapper.style.setProperty("left", boundingElement ? boundingElement.getBoundingClientRect().left + "px" : "0px");
-            toastWrapper.style.setProperty("width", boundingElement ? boundingElement.offsetWidth + "px" : "100%");
-            toastWrapper.style.setProperty("bottom", (document.querySelector(".chat-3bRxxu form") ? document.querySelector(".chat-3bRxxu form").offsetHeight : 80) + "px");
-            document.querySelector("." + this.findModule('app').app).appendChild(toastWrapper);
+        if (!document.querySelector('.toasts')) {
+            const toastWrapper = document.createElement('div');
+            toastWrapper.classList.add('toasts');
+            const boundingElement = document.querySelector('.chat-3bRxxu form, #friends, .noChannel-Z1DQK7, .activityFeed-28jde9');
+            toastWrapper.style.setProperty('left', boundingElement ? boundingElement.getBoundingClientRect().left + 'px' : '0px');
+            toastWrapper.style.setProperty('width', boundingElement ? boundingElement.offsetWidth + 'px' : '100%');
+            toastWrapper.style.setProperty('bottom', (document.querySelector('.chat-3bRxxu form') ? document.querySelector('.chat-3bRxxu form').offsetHeight : 80) + 'px');
+            document.querySelector('.' + this.findModule('app').app).appendChild(toastWrapper);
         }
-        const {type = "", icon = true, timeout = 3000} = options;
-        const toastElem = document.createElement("div");
-        toastElem.classList.add("toast");
-        if (type) toastElem.classList.add("toast-" + type);
-        if (type && icon) toastElem.classList.add("icon");
+        const {type = '', icon = true, timeout = 3000} = options;
+        const toastElem = document.createElement('div');
+        toastElem.classList.add('toast');
+        if (type) toastElem.classList.add('toast-' + type);
+        if (type && icon) toastElem.classList.add('icon');
         toastElem.innerText = content;
-        document.querySelector(".toasts").appendChild(toastElem);
+        document.querySelector('.toasts').appendChild(toastElem);
         setTimeout(() => {
-            toastElem.classList.add("closing");
+            toastElem.classList.add('closing');
             setTimeout(() => {
                 toastElem.remove();
-                if (!document.querySelectorAll(".toasts .toast").length) document.querySelector(".toasts").remove();
+                if (!document.querySelectorAll('.toasts .toast').length) document.querySelector('.toasts').remove();
             }, 300);
         }, timeout);
     }
@@ -415,27 +445,26 @@ window.EDApi = window.BdApi = class EDApi {
                 callOriginalMethod: () => data.returnValue = data.originalMethod.apply(data.thisObject, data.methodArguments)
             };
             if (instead) {
-                const tempRet = EDApi.suppressErrors(instead, "`instead` callback of " + what[methodName].displayName)(data);
+                const tempRet = EDApi.suppressErrors(instead, '`instead` callback of ' + what[methodName].displayName)(data);
                 if (tempRet !== undefined) data.returnValue = tempRet;
             }
             else {
-                if (before) EDApi.suppressErrors(before, "`before` callback of " + what[methodName].displayName)(data);
+                if (before) EDApi.suppressErrors(before, '`before` callback of ' + what[methodName].displayName)(data);
                 data.callOriginalMethod();
-                if (after) EDApi.suppressErrors(after, "`after` callback of " + what[methodName].displayName)(data);
+                if (after) EDApi.suppressErrors(after, '`after` callback of ' + what[methodName].displayName)(data);
             }
             if (once) cancel();
             return data.returnValue;
         };
         what[methodName].__monkeyPatched = true;
-        what[methodName].displayName = "patched " + (what[methodName].displayName || methodName);
+        what[methodName].displayName = 'patched ' + (what[methodName].displayName || methodName);
         what[methodName].unpatch = cancel;
         return cancel;
     }
 
     static testJSON(data) {
         try {
-            JSON.parse(data);
-            return true;
+            return JSON.parse(data);
         }
         catch (err) {
             return false;
@@ -445,7 +474,7 @@ window.EDApi = window.BdApi = class EDApi {
     static suppressErrors(method, description) {
         return (...params) => {
             try { return method(...params);	}
-            catch (e) { console.error("Error occurred in " + description, e); }
+            catch (e) { console.error('Error occurred in ' + description, e); }
         };
     }
 
@@ -470,4 +499,62 @@ window.EDApi = window.BdApi = class EDApi {
 	static isSettingEnabled(id) {
 		return ED.config[id];
 	}
+};
+
+window.BdApi.Plugins = new class AddonAPI {
+
+    get folder() {return path.join(process.env.injDir, 'plugins');}
+
+    isEnabled(name) {
+        const plugins = Object.values(ED.plugins);
+		const plugin = plugins.find(p => p.id == name || p.name == name);
+		if (!plugin) return false;
+		return !(plugin.settings.enabled === false);
+    }
+
+    enable(name) {
+        const plugin = ED.plugins[name];
+        if (!plugin || plugin.settings.enabled !== false) return;
+        plugin.settings.enabled = true;
+        ED.plugins[name].settings = plugin.settings;
+        plugin.load();
+    }
+
+    disable(name) {
+        const plugin = ED.plugins[name];
+        if (!plugin || plugin.settings.enabled === false) return;
+        plugin.settings.enabled = false;
+        ED.plugins[name].settings = plugin.settings;
+        plugin.unload();
+    }
+
+    toggle(name) {
+        if (this.isEnabled(name)) this.disable(name);
+        else this.enable(name);
+    }
+
+    reload(name) {
+        const plugin = ED.plugins[name];
+        if (!plugin) return;
+        plugin.reload();
+    }
+
+    get(name) {
+        return ED.plugins[name] || null;
+    }
+
+    getAll() {
+        return Object.values(ED.plugins);
+    }
+};
+
+window.BdApi.Themes = new class AddonAPI {
+    get folder() {return '';}
+    isEnabled() {}
+    enable() {}
+    disable() {}
+    toggle() {}
+    reload() {}
+    get() {return null;}
+    getAll() {return [];}
 };

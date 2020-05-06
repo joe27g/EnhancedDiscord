@@ -9,6 +9,7 @@
         "ecmaVersion": 8
     },
     "rules": {
+        "quotes": ["warn", "single", {"allowTemplateLiterals": true}],
         "no-console": "off",
         "no-unused-vars": "warn",
         "no-useless-escape": "warn",
