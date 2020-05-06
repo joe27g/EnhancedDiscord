@@ -4,6 +4,8 @@ const Module = require('module').Module;
 const originalRequire = Module._extensions['.js'];
 const EDPlugin = require('./plugin');
 
+const splitRegex = /[^\S\r\n]*?(?:\r\n|\n)[^\S\r\n]*?\*[^\S\r\n]?/;
+const escapedAtRegex = /^\\@/;
 module.exports = class BDManager {
 
     static async setup(currentWindow) {
@@ -44,14 +46,46 @@ module.exports = class BDManager {
     }
 
     static extractMeta(content) {
+        const firstLine = content.split('\n')[0];
+        const hasOldMeta = firstLine.includes('//META');
+        if (hasOldMeta) return BDManager.parseOldMeta(content);
+        const hasNewMeta = firstLine.includes('/**');
+        if (hasNewMeta) return BDManager.parseNewMeta(content);
+        throw new Error('META was not found.');
+    }
+
+    static parseOldMeta(content) {
         const meta = content.split('\n')[0];
         const rawMeta = meta.substring(meta.lastIndexOf('//META') + 6, meta.lastIndexOf('*//'));
         if (meta.indexOf('META') < 0) throw new Error('META was not found.');
-        if (!EDApi.testJSON(rawMeta)) throw new Error('META could not be parsed.');
-
-        const parsed = JSON.parse(rawMeta);
+        const parsed = EDApi.testJSON(rawMeta);
+        if (!parsed) throw new Error('META could not be parsed.');
         if (!parsed.name) throw new Error('META missing name data.');
+        parsed.format = 'json';
         return parsed;
+    }
+
+    static parseNewMeta(content) {
+        const block = content.split('/**', 2)[1].split('*/', 1)[0];
+        const out = {};
+        let field = '';
+        let accum = '';
+        for (const line of block.split(splitRegex)) {
+            if (line.length === 0) continue;
+            if (line.charAt(0) === '@' && line.charAt(1) !== ' ') {
+                out[field] = accum;
+                const l = line.indexOf(' ');
+                field = line.substr(1, l - 1);
+                accum = line.substr(l + 1);
+            }
+            else {
+                accum += ' ' + line.replace('\\n', '\n').replace(escapedAtRegex, '@');
+            }
+        }
+        out[field] = accum.trim();
+        delete out[''];
+        out.format = 'jsdoc';
+        return out;
     }
 
     static pluginRequire() {
@@ -121,9 +155,9 @@ module.exports = class BDManager {
     }
 
     static showSettingsModal(plugin) {
-        const baseModalClasses = EDApi.findModule(m => m.modal && m.inner && !m.sizeMedium) || {modal: "modal-36zFtW", inner: "inner-2VEzy9"};
-        const modalClasses = EDApi.findModuleByProps("modal", "sizeMedium") || {modal: "backdrop-1wrmKb", sizeMedium: "sizeMedium-ctncE5", content: "content-2KoCOZ", header: "header-2nhbou", footer: "footer-30ewN8", close: "close-hhyjWJ", inner: "inner-2Z5QZX"};
-        const backdrop = EDApi.findModuleByProps("backdrop") || {backdrop: "backdrop-1wrmKb"};
+        const baseModalClasses = EDApi.findModule(m => m.modal && m.inner && !m.sizeMedium) || {modal: 'modal-36zFtW', inner: 'inner-2VEzy9'};
+        const modalClasses = EDApi.findModuleByProps('modal', 'sizeMedium') || {modal: 'backdrop-1wrmKb', sizeMedium: 'sizeMedium-ctncE5', content: 'content-2KoCOZ', header: 'header-2nhbou', footer: 'footer-30ewN8', close: 'close-hhyjWJ', inner: 'inner-2Z5QZX'};
+        const backdrop = EDApi.findModuleByProps('backdrop') || {backdrop: 'backdrop-1wrmKb'};
         const modalHTML = `<div id="bd-settingspane-container" class="theme-dark">
                 <div class="backdrop ${backdrop.backdrop}" style="background-color: rgb(0, 0, 0); opacity: 0.85;"></div>
                 <div class="modal ${baseModalClasses.modal}" style="opacity: 1;">

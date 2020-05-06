@@ -264,12 +264,42 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static alert(title, body) {
+        return this.showConfirmationModal(title, body, {cancelText: null});
+    }
+
+    /**
+     * Shows a generic but very customizable confirmation modal with optional confirm and cancel callbacks.
+     * @param {string} title - title of the modal
+     * @param {(string|ReactElement|Array<string|ReactElement>)} children - a single or mixed array of react elements and strings. Every string is wrapped in Discord's `Markdown` component so strings will show and render properly.
+     * @param {object} [options] - options to modify the modal
+     * @param {boolean} [options.danger=false] - whether the main button should be red or not
+     * @param {string} [options.confirmText=Okay] - text for the confirmation/submit button
+     * @param {string} [options.cancelText=Cancel] - text for the cancel button
+     * @param {callable} [options.onConfirm=NOOP] - callback to occur when clicking the submit button
+     * @param {callable} [options.onCancel=NOOP] - callback to occur when clicking the cancel button
+     * @param {string} [options.key] - key used to identify the modal. If not provided, one is generated and returned
+     * @returns {string} - the key used for this modal
+     */
+    static showConfirmationModal(title, content, options = {}) {
         const ModalStack = this.findModuleByProps("push", "update", "pop", "popWithKey");
-        const AlertModal = this.findModule(m => m.prototype && m.prototype.handleCancel && m.prototype.handleSubmit && m.prototype.handleMinorConfirm);
-        if (!ModalStack || !AlertModal) return window.alert(body);
-        ModalStack.push(function(props) {
-            return EDApi.React.createElement(AlertModal, Object.assign({title, body}, props));
-        });
+        const Markdown = this.findModuleByDisplayName("Markdown");
+        const ConfirmationModal = this.findModule(m => m.defaultProps && m.key && m.key() == "confirm-modal");
+        if (!ModalStack || !ConfirmationModal || !Markdown) return window.alert(content);
+
+        const emptyFunction = () => {};
+        const {onConfirm = emptyFunction, onCancel = emptyFunction, confirmText = "Okay", cancelText = "Cancel", danger = false, key = undefined} = options;
+
+        if (!Array.isArray(content)) content = [content];
+        content = content.map(c => typeof(c) === "string" ? this.React.createElement(Markdown, null, c) : c);
+        return ModalStack.push(ConfirmationModal, {
+            header: title,
+            children: content,
+            red: danger,
+            confirmText: confirmText,
+            cancelText: cancelText,
+            onConfirm: onConfirm,
+            onCancel: onCancel
+        }, key);
     }
 
     static loadPluginSettings(pluginName) {
@@ -286,7 +316,7 @@ window.EDApi = window.BdApi = class EDApi {
         const pl = ED.plugins[pluginName];
         if (!pl) return null;
         ED.config[pluginName] = data;
-        ED.config = ED.config;
+        ED.config = ED.config; // eslint-disable-line no-self-assign
     }
 
     static loadData(pluginName, key) {
@@ -434,8 +464,7 @@ window.EDApi = window.BdApi = class EDApi {
 
     static testJSON(data) {
         try {
-            JSON.parse(data);
-            return true;
+            return JSON.parse(data);
         }
         catch (err) {
             return false;
@@ -470,4 +499,62 @@ window.EDApi = window.BdApi = class EDApi {
 	static isSettingEnabled(id) {
 		return ED.config[id];
 	}
+};
+
+window.BdApi.Plugins = new class AddonAPI {
+
+    get folder() {return path.join(process.env.injDir, 'plugins');}
+
+    isEnabled(name) {
+        const plugins = Object.values(ED.plugins);
+		const plugin = plugins.find(p => p.id == name || p.name == name);
+		if (!plugin) return false;
+		return !(plugin.settings.enabled === false);
+    }
+
+    enable(name) {
+        const plugin = ED.plugins[name];
+        if (!plugin || plugin.settings.enabled !== false) return;
+        plugin.settings.enabled = true;
+        ED.plugins[name].settings = plugin.settings;
+        plugin.load();
+    }
+
+    disable(name) {
+        const plugin = ED.plugins[name];
+        if (!plugin || plugin.settings.enabled === false) return;
+        plugin.settings.enabled = false;
+        ED.plugins[name].settings = plugin.settings;
+        plugin.unload();
+    }
+
+    toggle(name) {
+        if (this.isEnabled(name)) this.disable(name);
+        else this.enable(name);
+    }
+
+    reload(name) {
+        const plugin = ED.plugins[name];
+        if (!plugin) return;
+        plugin.reload();
+    }
+
+    get(name) {
+        return ED.plugins[name] || null;
+    }
+
+    getAll() {
+        return Object.values(ED.plugins);
+    }
+};
+
+window.BdApi.Themes = new class AddonAPI {
+    get folder() {return '';}
+    isEnabled() {}
+    enable() {}
+    disable() {}
+    toggle() {}
+    reload() {}
+    get() {return null;}
+    getAll() {return [];}
 };
