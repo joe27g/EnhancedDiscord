@@ -320,14 +320,14 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static loadData(pluginName, key) {
-        if (!ED.config[pluginName]) window.ED.config[pluginName] = {};
+        if (!ED.config[pluginName]) ED.config[pluginName] = {};
         return ED.config[pluginName][key];
     }
 
     static saveData(pluginName, key, data) {
-        if (!ED.config[pluginName]) window.ED.config[pluginName] = {};
+        if (!ED.config[pluginName]) ED.config[pluginName] = {};
         ED.config[pluginName][key] = data;
-        ED.config = window.ED.config;
+        ED.config = ED.config;
     }
 
     static getData(pluginName, key) {
