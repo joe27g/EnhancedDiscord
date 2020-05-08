@@ -7,11 +7,11 @@ module.exports = new Plugin({
     color: 'white',
 
     load: async function() {
-        window.EDApi.monkeyPatch(window.EDApi.findModule('track'), 'track', () => {});
-        window.EDApi.monkeyPatch(window.EDApi.findModule('submitLiveCrashReport'), 'submitLiveCrashReport', () => {});
+        EDApi.monkeyPatch(EDApi.findModule('track'), 'track', () => {});
+        EDApi.monkeyPatch(EDApi.findModule('submitLiveCrashReport'), 'submitLiveCrashReport', () => {});
     },
     unload: async function() {
-        window.EDApi.findModule('track').track.unpatch();
-        window.EDApi.findModule('submitLiveCrashReport').submitLiveCrashReport.unpatch();
+        EDApi.findModule('track').track.unpatch();
+        EDApi.findModule('submitLiveCrashReport').submitLiveCrashReport.unpatch();
     }
 });

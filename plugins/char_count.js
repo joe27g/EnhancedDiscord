@@ -1,7 +1,5 @@
 const Plugin = require('../plugin');
 
-let ml = {}, cta = {}, ta, gs, em, gc, gci, gcu, cm;
-
 module.exports = new Plugin({
     name: 'Character Count',
     author: 'Joe 🎸#7070',
@@ -9,72 +7,36 @@ module.exports = new Plugin({
     color: 'violet',
 
     load: async function() {
-        ml = window.EDApi.findModule('maxLength');
-        cta = window.EDApi.findModule('channelTextArea');
-        ta = window.EDApi.findModuleByDisplayName('ChannelEditorContainer').prototype;
-        gs = window.EDApi.findModule('getAllSettings');
-        em = window.EDApi.findModule(m => m.checkbox && m.errorMessage);
-        gc = window.EDApi.findModule('getChannel');
-        gci = window.EDApi.findModule('getChannelId');
-        gcu = window.EDApi.findModule('getCurrentUser');
-        cm = window.EDApi.findModule('createBotMessage');
+        this._rm = EDApi.findRawModule(m => m.displayName == "SlateCharacterCount");
+        this._cc = EDApi.findModule('characterCount') || {};
+        this._c = findModule('ActionTypes');
+        
+        monkeyPatch(this._rm.exports, 'default', {
+            silent: true,
+            before: () => {
+                this._c.MAX_MESSAGE_LENGTH = 0; // this forces the char count element to appear
+            },
+            after: () => setTimeout(() => {
+                this._c.MAX_MESSAGE_LENGTH = 2000;
+                const cc = document.querySelector(`.${this._cc.characterCount} > span`);
+                if (!cc) return;
 
-        window.EDApi.monkeyPatch(ta, 'render', {after: this.onRender, silent: true});
-        window.EDApi.findModule('dispatch').subscribe("MESSAGE_CREATE", this.msgListener);
+                const num = parseInt(cc.innerHTML);
+                if (isNaN(num)) return; // empty message
+
+                const posNum = Math.abs(num); // this combined with the max length being 0 = actual char count
+                cc.innerHTML = posNum || '';
+
+                if (posNum > 2000) {
+                    cc.parentElement.classList.add(this._cc.error);
+                } else {
+                    cc.parentElement.classList.remove(this._cc.error);
+                }
+            })
+        });
     },
-
-    onRender: function(b) {
-        const ctaElem = document.querySelector('.' + cta.channelTextArea);
-        if (!ctaElem) return;
-        if (!gs.useRichChatTextBox) return module.exports.inputListener(ctaElem); // legacy support
-        const txt = b.thisObject.props.textValue;
-        const parent = ctaElem.parentElement;
-        let charCountElem = parent.querySelector('.' + ml.maxLength);
-        const len = (txt || '').trim().length;
-        if (!len && charCountElem)
-            charCountElem.remove();
-        if (!len) return;
-        if (!charCountElem) {
-            charCountElem = document.createElement('div');
-            charCountElem.style = "bottom:3px;right:5px;";
-            parent.appendChild(charCountElem);
-        }
-        charCountElem.innerHTML = len + '/2000';
-        charCountElem.className = `ed_char_count ${ml.maxLength}${len > 2000 ? ' '+em.errorMessage : ''}`;
-    },
-
-    msgListener: function(event) {
-        // if message is not by current user or in different channel, cancel
-        if (event.message.author.id !== gcu.getCurrentUser().id || event.message.channel_id !== gci.getChannelId()) return;
-        const charCounters = document.querySelectorAll('.ed_char_count');
-        charCounters.forEach(cc => cc.remove());
-    },
-
-    inputListener: function(elem) {
-        if (!elem) return;
-        const taElem = elem.querySelector('textarea');
-        if (!taElem) return;
-        const parent = elem.parentElement;
-        if (!parent || !elem.className || !elem.className.includes(cta.channelTextArea)) return;
-        let charCountElem = parent.querySelector('.' + ml.maxLength);
-        if (!charCountElem) {
-            charCountElem = document.createElement('div');
-            charCountElem.style = "bottom:3px;right:5px;";
-            parent.appendChild(charCountElem);
-        }
-        const chan = gc.getChannel(gci.getChannelId());
-        let len = (taElem.value || '').trim().length;
-        if (chan && taElem.value) {
-            const msgObj = cm.parse(chan, taElem.value);
-            if (msgObj && msgObj.content)
-                len = msgObj.content.trim().length;
-        }
-        charCountElem.innerHTML = len + '/2000';
-        charCountElem.className = `ed_char_count ${ml.maxLength}${len > 2000 ? ' '+em.errorMessage : ''}`;
-    },
-
     unload: function() {
-        ta.render.unpatch();
-        window.EDApi.findModule('dispatch').unsubscribe("MESSAGE_CREATE", this.msgListener);
+        if (this._rm.exports.default.unpatch)
+            this._rm.exports.default.unpatch();
     }
 });

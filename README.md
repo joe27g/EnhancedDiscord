@@ -9,39 +9,31 @@ Support server:
 > **Using EnhancedDiscord, or any other client mod, is against [Discord's Terms of Service](https://discordapp.com/terms). Use it at your own risk.**
 > *It's very unlikely any action will be taken against you, but we take no responsibility if anything happens.*
 
-By default, this loads my theme, with some settings applied. More info [on its repo](https://github.com/joe27g/Discord-Theme). To change this, edit `plugins/style.css` or change the theme location in settings.
+### Installing
 
-You can download more quality plugins from the following repos:
-- [joe27g/EnhancedDiscord-Plugins](https://github.com/joe27g/EnhancedDiscord-Plugins)
-- [rauenzi/EnhancedDiscordPlugins](https://github.com/rauenzi/EnhancedDiscordPlugins)
-- [jakuski/ed_plugins](https://github.com/jakuski/ed_plugins)
+Go to https://enhanceddiscord.com and hit the 'Download' button, or if you're lazy, click [here](https://enhanceddiscord.com/EnhancedDiscord.exe).
 
-If you enable "BD Plugins" in the EnhancedDiscord settings, you can also load BetterDiscord plugins. See the #faq in the support server for more details.
-*Note: some BD plugins are notorious for being laggy. In general, the fewer plugins you have, the faster your client will be.*
+For more info, including installing on Linux or MacOS, see the [installation wiki page](https://github.com/joe27g/EnhancedDiscord/wiki/Installation).
 
-### Installing the easy way:
+### Themes
 
-*Currently, only Windows and Ubuntu 18.04+ are supported for the new installer, due to lack of devices to compile on*
+By default, the official [EnhancedDiscord theme](https://github.com/joe27g/Discord-Theme) is loaded along with a plugin that allows you to change settings of it in **User Settings** > EnhancedDiscord > **Settings**. For more info on how to change/edit your theme, see the [FAQ](https://github.com/joe27g/EnhancedDiscord/wiki/FAQ).
 
-Go to https://enhanceddiscord.com/ and hit the 'Download' button, or if you're lazy, click [here](https://enhanceddiscord.com/EnhancedDiscord.exe).
+### Plugins
 
-If you're having errors (especially related to `InteropServices`), you may need to download [.NET Framework 4.7.1](https://www.microsoft.com/en-us/download/details.aspx?id=56116).
-
-If you're on Linux or MacOS consider using [this install script](https://github.com/Cr3atable/LinuxED) that is specifically made for Unix.  
-LinuxED is unaffiliated with EnhancedDiscord so please do not request support for this script in an issue.
-
-### Installing the hard way:
-
-If the installer doesn't work for you, and you choose not to use LinuxED, you can also install it manually in just a few minutes.
-To do so, see the [advanced installation guide](/advanced_installation.md).
-
-### Explanation of files:
-
-From now on, please refer to https://enhanceddiscord.com for explanations of included plugins.
+A list of included plugins and their purpose is included on the [plugins wiki page](https://github.com/joe27g/EnhancedDiscord/wiki/Plugins). It also includes some sources for finding new ED plugins.
 
 ### Custom plugins
 
-To create your own plugin, check out [the plugin readme](/plugins.md).
+For info about how to create your own plugins, check out the [custom plugins wiki page](https://github.com/joe27g/EnhancedDiscord/wiki/Custom-plugins).
+
+### Having issues?
+
+First, check out the [FAQ](https://github.com/joe27g/EnhancedDiscord/wiki/FAQ) to see if your issue is listed there. If not, ask in #support in the support server (link below.)
+
+### Suggestions? Comments?
+
+Feel free to chat in our [support server](https://discord.gg/XAvh9tq). We have a #suggestions channel as well as many others to discuss EnhancedDiscord and other topics.
 
 ### Contributing
 

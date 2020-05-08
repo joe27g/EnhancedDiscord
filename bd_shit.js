@@ -4,6 +4,8 @@ const Module = require('module').Module;
 const originalRequire = Module._extensions['.js'];
 const EDPlugin = require('./plugin');
 
+const splitRegex = /[^\S\r\n]*?(?:\r\n|\n)[^\S\r\n]*?\*[^\S\r\n]?/;
+const escapedAtRegex = /^\\@/;
 module.exports = class BDManager {
 
     static async setup(currentWindow) {
@@ -25,14 +27,14 @@ module.exports = class BDManager {
 
         fs.readFile(path.join(process.env.injDir, 'bd.css'), (err, text) => {
             if (err) return console.error(err);
-            window.EDApi.injectCSS('BDManager', text);
+            EDApi.injectCSS('BDManager', text);
         })
 
         Module._extensions['.js'] = this.pluginRequire();
     }
 
     static destroy() {
-        window.EDApi.clearCSS('BDManager');
+        EDApi.clearCSS('BDManager');
         this.observer.disconnect();
         this.currentWindow.webContents.removeEventListener('did-navigate-in-page', BDManager.onSwitch);
         this.jqueryElement.remove();
@@ -44,14 +46,46 @@ module.exports = class BDManager {
     }
 
     static extractMeta(content) {
+        const firstLine = content.split('\n')[0];
+        const hasOldMeta = firstLine.includes('//META');
+        if (hasOldMeta) return BDManager.parseOldMeta(content);
+        const hasNewMeta = firstLine.includes('/**');
+        if (hasNewMeta) return BDManager.parseNewMeta(content);
+        throw new Error('META was not found.');
+    }
+
+    static parseOldMeta(content) {
         const meta = content.split('\n')[0];
         const rawMeta = meta.substring(meta.lastIndexOf('//META') + 6, meta.lastIndexOf('*//'));
         if (meta.indexOf('META') < 0) throw new Error('META was not found.');
-        if (!window.EDApi.testJSON(rawMeta)) throw new Error('META could not be parsed.');
-
-        const parsed = JSON.parse(rawMeta);
+        const parsed = EDApi.testJSON(rawMeta);
+        if (!parsed) throw new Error('META could not be parsed.');
         if (!parsed.name) throw new Error('META missing name data.');
+        parsed.format = 'json';
         return parsed;
+    }
+
+    static parseNewMeta(content) {
+        const block = content.split('/**', 2)[1].split('*/', 1)[0];
+        const out = {};
+        let field = '';
+        let accum = '';
+        for (const line of block.split(splitRegex)) {
+            if (line.length === 0) continue;
+            if (line.charAt(0) === '@' && line.charAt(1) !== ' ') {
+                out[field] = accum;
+                const l = line.indexOf(' ');
+                field = line.substr(1, l - 1);
+                accum = line.substr(l + 1);
+            }
+            else {
+                accum += ' ' + line.replace('\\n', '\n').replace(escapedAtRegex, '@');
+            }
+        }
+        out[field] = accum.trim();
+        delete out[''];
+        out.format = 'jsdoc';
+        return out;
     }
 
     static pluginRequire() {
@@ -68,7 +102,7 @@ module.exports = class BDManager {
     }
 
     static fireEvent(event, ...args) {
-        const plugins = Object.values(window.ED.plugins);
+        const plugins = Object.values(ED.plugins);
         for (let p = 0; p < plugins.length; p++) {
             const plugin = plugins[p];
             if (!plugin[event] || typeof plugin[event] !== 'function') continue;
@@ -109,21 +143,21 @@ module.exports = class BDManager {
         window.bdplugins = window.bdthemes = window.pluginCookie = window.themeCookie = window.settingsCookie = {};
         window.bdpluginErrors = window.bdthemeErrors = [];
 
-        window.bdPluginStorage = {get: window.EDApi.getData, set: window.EDApi.setData};
-        window.Utils = {monkeyPatch: window.EDApi.monkeyPatch, suppressErrors: window.EDApi.suppressErrors, escapeID: window.EDApi.escapeID};
+        window.bdPluginStorage = {get: EDApi.getData, set: EDApi.setData};
+        window.Utils = {monkeyPatch: EDApi.monkeyPatch, suppressErrors: EDApi.suppressErrors, escapeID: EDApi.escapeID};
 
         window.BDV2 = class V2 {
-            static get WebpackModules() {return {find: window.EDApi.findModule, findAll: window.EDApi.findAllModules, findByUniqueProperties: window.EDApi.findModuleByProps, findByDisplayName: window.EDApi.findModuleByDisplayName};}
-            static getInternalInstance(node) {return window.EDApi.getInternalInstance(node);}
-            static get react() {return window.EDApi.React;}
-            static get reactDom() {return window.EDApi.ReactDOM;}
+            static get WebpackModules() {return {find: EDApi.findModule, findAll: EDApi.findAllModules, findByUniqueProperties: EDApi.findModuleByProps, findByDisplayName: EDApi.findModuleByDisplayName};}
+            static getInternalInstance(node) {return EDApi.getInternalInstance(node);}
+            static get react() {return EDApi.React;}
+            static get reactDom() {return EDApi.ReactDOM;}
         };
     }
 
     static showSettingsModal(plugin) {
-        const baseModalClasses = window.EDApi.findModule(m => m.modal && m.inner && !m.sizeMedium) || {modal: "modal-36zFtW", inner: "inner-2VEzy9"};
-        const modalClasses = window.EDApi.findModuleByProps("modal", "sizeMedium") || {modal: "backdrop-1wrmKb", sizeMedium: "sizeMedium-ctncE5", content: "content-2KoCOZ", header: "header-2nhbou", footer: "footer-30ewN8", close: "close-hhyjWJ", inner: "inner-2Z5QZX"};
-        const backdrop = window.EDApi.findModuleByProps("backdrop") || {backdrop: "backdrop-1wrmKb"};
+        const baseModalClasses = EDApi.findModule(m => m.modal && m.inner && !m.sizeMedium) || {modal: 'modal-36zFtW', inner: 'inner-2VEzy9'};
+        const modalClasses = EDApi.findModuleByProps('modal', 'sizeMedium') || {modal: 'backdrop-1wrmKb', sizeMedium: 'sizeMedium-ctncE5', content: 'content-2KoCOZ', header: 'header-2nhbou', footer: 'footer-30ewN8', close: 'close-hhyjWJ', inner: 'inner-2Z5QZX'};
+        const backdrop = EDApi.findModuleByProps('backdrop') || {backdrop: 'backdrop-1wrmKb'};
         const modalHTML = `<div id="bd-settingspane-container" class="theme-dark">
                 <div class="backdrop ${backdrop.backdrop}" style="background-color: rgb(0, 0, 0); opacity: 0.85;"></div>
                 <div class="modal ${baseModalClasses.modal}" style="opacity: 1;">
@@ -146,7 +180,7 @@ module.exports = class BDManager {
 
         const panel = plugin.getSettingsPanel();
         if (!panel) return;
-        const modal = window.$(window.EDApi.formatString(modalHTML, {modalTitle: `${plugin.name} Settings`, id: `plugin-settings-${plugin.name}`}));
+        const modal = window.$(EDApi.formatString(modalHTML, {modalTitle: `${plugin.name} Settings`, id: `plugin-settings-${plugin.name}`}));
         if (typeof panel == 'string') modal.find('.plugin-settings').html(panel);
         else modal.find('.plugin-settings').append(panel);
         modal.find('.backdrop, .close-button, .done-button').on('click', () => {

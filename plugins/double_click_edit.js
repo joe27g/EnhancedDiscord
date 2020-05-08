@@ -1,5 +1,4 @@
 const Plugin = require('../plugin');
-let contM = {}, cM, eM, dM, mM, ewM = {}, ree;
 
 module.exports = new Plugin({
     name: 'Double-Click Edit',
@@ -8,78 +7,45 @@ module.exports = new Plugin({
     color: '#ff5900',
 
     deletePressed: false,
-    load: async function() {
-        contM = window.EDApi.findModule(m => m.container && m.containerCozy);
-        cM = window.EDApi.findModule('getChannelId');
-        eM = window.EDApi.findModule('startEditMessage');
-        dM = window.EDApi.findModule('deleteMessage');
-        mM = window.EDApi.findModule('getRawMessages');
-        ewM = window.EDApi.findModule('embedWrapper');
-        if (!cM || !eM || !dM || !ewM) {
-            return this.error('Aborted loading - Failed to find required modules!');
-        }
-        ree = this;
-
-        document.addEventListener("dblclick", this.editListener, false);
+    load: function() {
+        this._mm = findRawModule(m => m.displayName == "Message");
+        this._edm = EDApi.findModule('startEditMessage');
+        monkeyPatch(this._mm.exports, 'default', {
+            silent: true,
+            before: e => e.methodArguments[0].onClick = () => this.handleClick(e.methodArguments[0])
+        });
+        
         document.addEventListener("keydown", this.keyDownListener);
         document.addEventListener("keyup", this.keyUpListener);
-        document.addEventListener("click", this.deleteListener);
-
-        // allow editing in "locked" (read-only) channels
-        const prot = window.EDApi.findModuleByDisplayName("ChannelEditorContainer").prototype;
-        window.EDApi.monkeyPatch(prot, 'render', b => {
-            if (b.thisObject.props.type === 'edit')
-                b.thisObject.props.disabled = false;
-            return b.callOriginalMethod(b.methodArguments);
-        });
     },
-    unload: async function() {
-        document.removeEventListener("dblclick", this.editListener);
+    unload: function() {
+        if (this._mm.exports.default)
+            this._mm.exports.default.unpatch();
         document.removeEventListener("keydown", this.keyDownListener);
         document.removeEventListener("keyup", this.keyUpListener);
-        document.removeEventListener("click", this.deleteListener);
     },
 
-    editListener: function(e) {
-        const messageElem = e.target.closest('.'+contM.container);
-        if (!messageElem) return;
-        let msgObj;
-        try {
-            msgObj = messageElem.__reactInternalInstance$.return.return.memoizedProps.message;
-        } catch(err) {
-            ree.error(err);
-        }
-        if (!msgObj) return;
-        const channelId = cM.getChannelId();
-        if (!channelId) return;
-        const newMsgObj = mM.getMessage(msgObj.channel_id, msgObj.id);
-        return eM.startEditMessage(channelId, msgObj.id, newMsgObj.content || '');
+    handleDoubleClick: function(message) {
+        const msgObj = message.childrenMessageContent.props.message;
+        return this._edm.startEditMessage(msgObj.channel_id, msgObj.id, msgObj.content || '');
     },
-    deleteListener: function(e) {
-        if (!ree.deletePressed) return;
 
-        let messageElem = e.target.closest('.'+contM.container);
-        const wrapperElem = e.target.closest('.'+ewM.container);
-        if (!messageElem && wrapperElem)
-            messageElem = wrapperElem.parentElement.firstElementChild;
-        if (!messageElem) return;
-        let msgObj;
-        try {
-            msgObj = messageElem.__reactInternalInstance$.return.return.memoizedProps.message;
-        } catch(err) {
-            ree.error(err);
-        }
-        if (!msgObj) return;
-        const channelId = cM.getChannelId();
-        if (!channelId) return;
-        return dM.deleteMessage(channelId, msgObj.id);
+    handleClick: function(message) {
+        if (Date.now() - message._lastClick < 250)
+            return this.handleDoubleClick(message);
+        message._lastClick = Date.now();
+        console.log(this.deletePressed);
+        if (!this.deletePressed) return;
+        const msgObj = message.childrenMessageContent.props.message;
+        return this._edm.deleteMessage(msgObj.channel_id, msgObj.id);
     },
-    keyUpListener: function(e) {
+
+    keyUpListener: e => {
         if (e.keyCode == 46)
-            ree.deletePressed = false;
+            module.exports.deletePressed = false;
     },
-    keyDownListener: function(e) {
+    keyDownListener: e => {
         if (e.keyCode == 46)
-            ree.deletePressed = true;
+            module.exports.deletePressed = true;
     }
 });

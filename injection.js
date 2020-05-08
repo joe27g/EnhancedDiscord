@@ -2,15 +2,15 @@ const electron = require('electron');
 const path = require('path');
 
 electron.session.defaultSession.webRequest.onHeadersReceived(function(details, callback) {
-    if (!details.responseHeaders["content-security-policy-report-only"] && !details.responseHeaders["content-security-policy"]) return callback({cancel: false});
-    delete details.responseHeaders["content-security-policy-report-only"];
-    delete details.responseHeaders["content-security-policy"];
+    if (!details.responseHeaders['content-security-policy-report-only'] && !details.responseHeaders['content-security-policy']) return callback({cancel: false});
+    delete details.responseHeaders['content-security-policy-report-only'];
+    delete details.responseHeaders['content-security-policy'];
     callback({cancel: false, responseHeaders: details.responseHeaders});
 });
 
 class BrowserWindow extends electron.BrowserWindow {
     constructor(originalOptions) {
-        if (!originalOptions || !originalOptions.webPreferences || !originalOptions.title) return super(originalOptions);
+        if (!originalOptions || !originalOptions.webPreferences || !originalOptions.title) return super(originalOptions); // eslint-disable-line constructor-super
         const originalPreloadScript = originalOptions.webPreferences.preload;
 
         // Make sure Node integration is enabled

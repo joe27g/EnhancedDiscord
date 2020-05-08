@@ -1,6 +1,6 @@
 const Plugin = require('../plugin');
 
-let sep = {}, ms = {}, gg, sub;
+let sep = {}, ms = {}, kb = {}, gg, sub;
 
 module.exports = new Plugin({
     name: 'Server Count',
@@ -9,17 +9,21 @@ module.exports = new Plugin({
     color: 'indigo',
 
     load: async function() {
-		sep = window.EDApi.findModule('guildSeparator');
-        ms = window.EDApi.findModule('modeSelectable');
-        gg = window.EDApi.findModule('getGuilds');
-        sub = window.EDApi.findModule('subscribe');
+		sep = EDApi.findModule('guildSeparator');
+        ms = EDApi.findModule('modeSelectable');
+        kb = EDApi.findModule('keybind');
+        gg = EDApi.findModule('getGuilds');
+        sub = EDApi.findModule('subscribe');
 
-        window.EDApi.monkeyPatch(gg, 'getGuilds', {after: this.refreshCount, silent: true});
-        sub.subscribe('CONNECTION_OPEN', gg.getGuilds);
+        sub.subscribe('CONNECTION_OPEN', this.refreshCount);
+        sub.subscribe('GUILD_CREATE', this.refreshCount);
+        sub.subscribe('GUILD_DELETE', this.refreshCount);
+        sub.subscribe('GUILD_JOIN', this.refreshCount);
+        this.refreshCount();
     },
-    refreshCount: function(b) {
+    refreshCount: function() {
         if (!sep) return;
-        const num = Object.keys(b.returnValue).length;
+        const num = Object.keys(gg.getGuilds()).length;
 
         let guildCount = document.getElementById('ed_guild_count');
         if (guildCount) {
@@ -31,11 +35,11 @@ module.exports = new Plugin({
         const separator = document.querySelector(`.${sep.guildSeparator}`);
         if (separator) {
             guildCount = document.createElement('div');
-            guildCount.className = `${ms ? ms.description+' ' : ''}${sep.listItem}`;
+            guildCount.className = `${ms ? ms.description+' ' : ''}${sep.listItem} ${kb.keybind}`;
             guildCount.innerHTML = num + ' Servers';
             guildCount.id = 'ed_guild_count';
             try {
-                separator.parentElement.insertAdjacentElement('beforebegin', guildCount);
+                separator.parentElement.parentElement.insertBefore(guildCount, separator.parentElement)
                 this._num = num;
             } catch(err) {
                 this.error(err);
@@ -44,10 +48,12 @@ module.exports = new Plugin({
         return;
     },
     unload: function() {
-        gg.getGuilds.unpatch();
         const guildCount = document.getElementById('ed_guild_count');
-        if (guildCount)
-            guildCount.remove();
-        sub.unsubscribe('CONNECTION_OPEN', gg.getGuilds);
+        if (guildCount) guildCount.remove();
+
+        sub.unsubscribe('CONNECTION_OPEN', this.refreshCount);
+        sub.unsubscribe('GUILD_CREATE', this.refreshCount);
+        sub.unsubscribe('GUILD_DELETE', this.refreshCount);
+        sub.unsubscribe('GUILD_JOIN', this.refreshCount);
     }
 });

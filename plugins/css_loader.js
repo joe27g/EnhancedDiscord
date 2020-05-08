@@ -1,6 +1,7 @@
 const Plugin = require('../plugin');
-const path = window.require('path');
-const fs = window.require('fs');
+const path = require('path');
+const fs = require('fs');
+const readFile = require('util').promisify(fs.readFile);
 
 module.exports = new Plugin({
     name: 'CSS Loader',
@@ -9,114 +10,73 @@ module.exports = new Plugin({
     preload: true, //load this before Discord has finished starting up
     color: 'blue',
 
-    config: {
-        path: {
-            default: './plugins/style.css',
-            parse: function(filePath) {
-                if (!filePath || !filePath.endsWith('.css')) {
-                    return false;
-                }
-                if (path.isAbsolute(filePath)) {
-                    if (!fs.existsSync(filePath)) {
-                        return false;
-                    }
-                    return path.relative(process.env.injDir, filePath);
-                } else {
-                    const p = path.join(process.env.injDir, filePath);
-                    if (!fs.existsSync(p)) {
-                        return false;
-                    }
-                    return path.relative(process.env.injDir, p);
-                }
+    defaultSettings: {path: './plugins/style.css'},
+    resetSettings: function(toastText) {
+        EDApi.showToast(toastText);
+        this.settings = this.defaultSettings;
+    },
+    onSettingsUpdate: function() {
+        const filePath = (this.settings || {}).path;
+        if (!filePath) {
+            return this.resetSettings('Empty path. Settings have been reset.');
+        }
+        if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+            return this.resetSettings('Invalid file path. Must be a local CSS file (stored on your computer, not a URL.)');
+        }
+        if (!filePath.endsWith('.css')) {
+            return this.resetSettings('Invalid file path. Must be a CSS file.');
+        }
+        if (path.isAbsolute(filePath)) {
+            if (!fs.existsSync(filePath)) {
+                return this.resetSettings('Invalid file path. File does not exist.');
+            }
+        } else {
+            const p = path.join(process.env.injDir, filePath);
+            if (!fs.existsSync(p)) {
+                return this.resetSettings('Invalid file path. File does not exist.');
             }
         }
+        return this.reload();
     },
 
     load: async function() {
-        function readFile(path, encoding = 'utf-8') {
-            return new Promise((resolve, reject) => {
-                fs.readFile(path, encoding, (err, data) => {
-                    if (err) reject(err);
-                    else resolve(data);
-                });
-            });
-        }
-        const cssPath = path.join(process.env.injDir, this.settings.path || this.config.path.default);
+        const filePath = (this.settings || {}).path;
+        if (!filePath) return;
+        const cssPath = path.isAbsolute(filePath) ? filePath : path.join(process.env.injDir, filePath);
 
         readFile(cssPath).then(css => {
-            if (!window.customCss) {
-                window.customCss = document.createElement('style');
-                document.head.appendChild(window.customCss);
+            if (!ED.customCss) {
+                ED.customCss = document.createElement('style');
+                document.head.appendChild(ED.customCss);
             }
-            window.customCss.innerHTML = css;
-            this.info('Custom CSS loaded!', window.customCss);
+            ED.customCss.innerHTML = css;
+            this.info('Custom CSS loaded!', ED.customCss);
 
-            if (window.cssWatcher == null) {
-                window.cssWatcher = fs.watch(cssPath, { encoding: 'utf-8' },
+            if (ED.cssWatcher == null) {
+                ED.cssWatcher = fs.watch(cssPath, { encoding: 'utf-8' },
                 eventType => {
                     if (eventType == 'change') {
-                        readFile(cssPath).then(newCss => window.customCss.innerHTML = newCss);
+                        readFile(cssPath).then(newCss => ED.customCss.innerHTML = newCss);
                     }
                 });
             }
         }).catch(() => console.info('Custom CSS not found. Skipping...'));
     },
     unload: function() {
-        if (window.customCss) {
-            document.head.removeChild(window.customCss);
-            window.customCss = null;
+        if (ED.customCss) {
+            document.head.removeChild(ED.customCss);
+            ED.customCss = null;
         }
-        if (window.cssWatcher) {
-            window.cssWatcher.close();
-            window.cssWatcher = null;
+        if (ED.cssWatcher) {
+            ED.cssWatcher.close();
+            ED.cssWatcher = null;
         }
     },
-    generateSettings: function() {
-        const d = window.ED.classMaps.description;
-        const b = window.ED.classMaps.buttons;
-        const id = window.EDApi.findModule('inputDefault');
-        const m = window.EDApi.findModule('marginTop8');
-
-        const result = `<div class="${d.description} ${d.modeDefault}">Custom CSS Path<br>This can be relative to the EnhancedDiscord directory (e.g. <code class="inline">./big_gay.css</code>) or absolute (e.g. <code class="inline">C:/theme.css</code>.)</div><input type="text" class="${id.inputDefault}" value="${this.settings.path || this.config.path.default}" maxlength="2000" placeholder="${this.config.path.default}" id="custom-css-path"><button type="button" id="save-css-path" class="${b.button} ${b.lookFilled} ${b.colorBrand} ${m.marginTop8} ${m.marginBottom8}" style="height:24px;margin-right:10px;"><div class="${b.contents}">Save</div></button>`;
-        return result;
-    },
-    settingListeners: [
-        {
-            el: '#save-css-path',
-            type: 'click',
-            eHandler: function() {
-                //console.log(this, e.target);
-                const pathInput = document.getElementById('custom-css-path');
-                if (!pathInput) return;
-                if (pathInput.value && module.exports.config.path.parse(pathInput.value) == false) {
-                    const cont = this.firstElementChild;
-                    cont.innerHTML = 'Invalid file.';
-                    setTimeout(() => {
-                        try { cont.innerHTML = 'Save'; } catch(err){/*do nothing*/}
-                    }, 3000);
-                    return;
-                }
-                const newPath = module.exports.config.path.parse(pathInput.value) || module.exports.config.path.default;
-                const s = module.exports.settings;
-                if (s.path == newPath) {
-                    const cont = this.firstElementChild;
-                    cont.innerHTML = 'Path was already saved.';
-                    setTimeout(() => {
-                        try { cont.innerHTML = 'Save'; } catch(err){/*do nothing*/}
-                    }, 3000);
-                    return;
-                }
-                s.path = newPath;
-                module.exports.settings = s;
-                module.exports.unload();
-                module.exports.load();
-                const cont = this.firstElementChild;
-                cont.innerHTML = 'Saved!';
-                setTimeout(() => {
-                    try { cont.innerHTML = 'Save'; } catch(err){/*do nothing*/}
-                }, 3000);
-            }
-        }
-    ]
-
+    generateSettings: function() { return [{
+        type: "input:text",
+        configName: "path",
+        title: "Custom CSS Path",
+        desc: "This can be relative to the EnhancedDiscord directory (e.g. `./big_gay.css`) or absolute (e.g. `C:/theme.css`.)",
+        placeholder: this.defaultSettings.path
+    }]}
 });
