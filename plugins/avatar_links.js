@@ -60,7 +60,9 @@ module.exports = new Plugin({
             reactData.return &&
             reactData.return.return &&
             reactData.return.return.memoizedProps &&
-            reactData.return.return.memoizedProps.guild
+            reactData.return.return.memoizedProps.guild &&
+            !reactData.return.return.memoizedProps.channel
+
         ) {
             props = reactData.return.return.memoizedProps;
             label = "Copy Icon URL";
