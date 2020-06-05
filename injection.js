@@ -1,5 +1,6 @@
 const electron = require('electron');
 const path = require('path');
+electron.app.commandLine.appendSwitch("no-force-async-hooks-checks");
 
 electron.session.defaultSession.webRequest.onHeadersReceived(function(details, callback) {
     if (!details.responseHeaders["content-security-policy-report-only"] && !details.responseHeaders["content-security-policy"]) return callback({cancel: false});
