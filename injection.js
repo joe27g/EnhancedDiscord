@@ -1,5 +1,6 @@
 const electron = require('electron');
 const path = require('path');
+electron.app.commandLine.appendSwitch("no-force-async-hooks-checks");
 
 electron.session.defaultSession.webRequest.onHeadersReceived(function(details, callback) {
     if (!details.responseHeaders['content-security-policy-report-only'] && !details.responseHeaders['content-security-policy']) return callback({cancel: false});
@@ -15,6 +16,8 @@ class BrowserWindow extends electron.BrowserWindow {
 
         // Make sure Node integration is enabled
         originalOptions.webPreferences.nodeIntegration = true;
+        // Make sure remote module is enabled
+	originalOptions.webPreferences.enableRemoteModule = true;
         originalOptions.webPreferences.preload = path.join(process.env.injDir, 'dom_shit.js');
         originalOptions.webPreferences.transparency = true;
 
