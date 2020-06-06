@@ -221,20 +221,12 @@ module.exports = new Plugin({
 					reloadBtnText: "Reload"
 				}
 
-				this.showBDSettingsBtn = this.showBDSettingsBtn.bind(this);
-				this.openBDSettingsModal = this.openBDSettingsModal.bind(this);
 				this.canBeManagedByUser = this.canBeManagedByUser.bind(this);
 				this.isPluginEnabled = this.isPluginEnabled.bind(this);
 				this.handleReload = this.handleReload.bind(this);
 				this.handleToggle = this.handleToggle.bind(this);
 				this.handleLoad = this.handleLoad.bind(this);
 				this.handleUnload = this.handleUnload.bind(this);
-			}
-			showBDSettingsBtn () {
-				return typeof this.props.plugin.getSettingsPanel == "function";
-			}
-			openBDSettingsModal () {
-				BD.showSettingsModal(this.props.plugin);
 			}
 			isPluginEnabled() {
 				return this.props.plugin.settings.enabled !== false;
@@ -287,9 +279,6 @@ module.exports = new Plugin({
 						e(Flex, {align: Flex.Align.CENTER},
 							e(Title, {tag: "h3", className: ""}, plugin.name),
 							e(ColorBlob, {color: plugin.color || "orange"}),
-							this.showBDSettingsBtn() && e(MarginRight, null,
-								e(Button, {size: Button.Sizes.NONE, onClick: this.openBDSettingsModal}, "Settings")
-							),
 							e(MarginRight, null,
 								e(Button, {size: Button.Sizes.NONE, onClick: this.handleReload}, this.state.reloadBtnText)
 							),

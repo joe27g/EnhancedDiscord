@@ -558,3 +558,22 @@ window.BdApi.Themes = new class AddonAPI {
     get() {return null;}
     getAll() {return [];}
 };
+
+window.BdApi.loadData = function(pluginName, key) {
+    const pl = Object.values(ED.plugins).find(p => p.name === pluginName);
+    if (!pl) return null;
+    const id = pl.id;
+
+    if (!ED.plugins[id]) return null;
+    return this.loadPluginSettings(id)[key];
+}
+
+window.BdApi.saveData = function(pluginName, key, data) {
+    const pl = Object.values(ED.plugins).find(p => p.name === pluginName);
+    if (!pl) return null;
+    const id = pl.id;
+
+    const obj = this.loadPluginSettings(id);
+    obj[key] = data;
+    return this.savePluginSettings(id, obj);
+}
