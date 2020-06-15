@@ -173,7 +173,7 @@ module.exports = new Plugin({
 		obj.Select = EDApi.findModuleByDisplayName("SelectTempWrapper");
 		obj.Tooltip = EDApi.findModuleByDisplayName("Tooltip");
 		obj.Button = EDApi.findModule("Sizes");
-		obj.ColorPicker = EDApi.findModuleByDisplayName("ColorPicker")
+		//obj.ColorPicker = EDApi.findModuleByDisplayName("ColorPicker");
 
 		/*
 		Props: any valid props you can apply to a div element
@@ -185,7 +185,7 @@ module.exports = new Plugin({
 	},
 	_initReactComponents () {
 		const { createElement:e, Component, Fragment, useState, useEffect, useReducer, createRef, isValidElement } = EDApi.React;
-		const { FormSection, Divider, Flex, Switch, Title, Text, Button, SwitchItem, Textbox, RadioGroup, Select, Slider, ColorPicker } = ED.discordComponents;
+		const { FormSection, Divider, Flex, Switch, Title, Text, Button, SwitchItem, Textbox, RadioGroup, Select, Slider /*, ColorPicker*/ } = ED.discordComponents;
 		const { margins } = ED.classMaps;
 		const { join } = module.exports.utils;
 
@@ -567,7 +567,7 @@ module.exports = new Plugin({
 
 					return e("div",
 						e(Title, { tag: "h5" }, props.title),
-						e(ColorPicker, {
+						/*e(ColorPicker, {
 							onChange: value => {
 								const hexValue = '#'+value.toString(16).padStart(6, '0');
 								const inp = document.getElementById('ed_'+props.configName);
@@ -578,7 +578,7 @@ module.exports = new Plugin({
 							defaultColor: props.defaultColor,
 							customColor: props.currentColor,
 							value: props.currentColor
-						}),
+						}),*/
 						e("div", {style: {marginBottom: 10}}),
 						e(_inputWrapper, {desc: props.desc},
 							e(Textbox, {
