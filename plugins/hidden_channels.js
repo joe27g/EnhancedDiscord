@@ -186,7 +186,7 @@ module.exports = new Plugin({
         }
     },
     attachHiddenChanNotice: function () {
-        const messagesWrapper = document.querySelector(`.${EDApi.findModule("messages").messagesWrapper}`);
+        const messagesWrapper = document.querySelector(`.${EDApi.findModule("messagesWrapper").messagesWrapper}`);
         if (!messagesWrapper) return;
 
         messagesWrapper.firstChild.style.display = "none"; // Remove messages shit.
