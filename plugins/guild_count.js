@@ -16,6 +16,9 @@ module.exports = new Plugin({
         sub = EDApi.findModule('subscribe');
 
         sub.subscribe('CONNECTION_OPEN', this.refreshCount);
+        sub.subscribe('CONNECTION_RESUMED', this.refreshCount);
+        sub.subscribe('DISPATCH_APPLICATION_STATE_UPDATE', this.refreshCount);
+        sub.subscribe('CHANNEL_PRELOAD', this.refreshCount);
         sub.subscribe('GUILD_CREATE', this.refreshCount);
         sub.subscribe('GUILD_DELETE', this.refreshCount);
         sub.subscribe('GUILD_JOIN', this.refreshCount);

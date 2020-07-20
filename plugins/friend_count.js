@@ -45,6 +45,7 @@ module.exports = new Plugin({
 
         sub.subscribe('CONNECTION_OPEN', this.addFriendCount);
         sub.subscribe('CONNECTION_RESUMED', this.addFriendCount);
+        sub.subscribe('DISPATCH_APPLICATION_STATE_UPDATE', this.addFriendCount);
         sub.subscribe('PRESENCE_UPDATE', this.addFriendCount);
         sub.subscribe('RELATIONSHIP_ADD', this.addFriendCount);
         sub.subscribe('RELATIONSHIP_REMOVE', this.addFriendCount);
