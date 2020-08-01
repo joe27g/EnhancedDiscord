@@ -29,7 +29,7 @@ module.exports = new Plugin({
             const hidden = [], allChans = getAllChannels();
             for (const i in allChans) {
                 if (allChans[i].guild_id === b.methodArguments[0]) {
-                    if (allChans[i].type !== 4 && !can(1024, getUser(), getChannel(allChans[i].id))) {
+                    if (allChans[i].type !== 4 && !can({data: 1024n}, getUser(), getChannel(allChans[i].id))) {
                         hidden.push(allChans[i]);
                     }
                 }
@@ -39,7 +39,7 @@ module.exports = new Plugin({
         });
         chanM = EDApi.findModule(m => m.prototype && m.prototype.isManaged);
         chanM.prototype.isHidden = function() {
-            return [0, 4, 5].includes(this.type) && !can(1024, getUser(), this);
+            return [0, 4, 5].includes(this.type) && !can({data: 1024n}, getUser(), this);
         }
 
         g_cat = EDApi.findModule(m => m.getCategories && !m.EMOJI_NAME_RE);
@@ -142,7 +142,7 @@ module.exports = new Plugin({
         gsr = EDApi.findModuleByDisplayName("FluxContainer(GuildSettingsRoles)").prototype;
         EDApi.monkeyPatch(gsr, 'render', b => {
             const egg = b.callOriginalMethod(b.methodArguments);
-            const hasPerm = cancan(268435456, { guildId: egg.props.guild.id });
+            const hasPerm = cancan({data: 268435456n}, { guildId: egg.props.guild.id });
             if (hasPerm) return;
             setTimeout(() => {
                 document.querySelectorAll('.'+sw.switchItem).forEach(elem => elem.classList.add(sw.disabled));
@@ -157,7 +157,7 @@ module.exports = new Plugin({
             const guild = module.exports._editingGuild ? getGuild(module.exports._editingGuild) : null;
             const channel = module.exports._editingChannel ? getChannel(module.exports._editingChannel) : null;
             if (!guild && !channel) return egg;
-            const hasPerm = cancan(268435456, guild ? { guildId: guild.id } : { channelId: channel.id });
+            const hasPerm = cancan({data: 268435456n}, guild ? { guildId: guild.id } : { channelId: channel.id });
             if (hasPerm) return egg;
 
             if (!egg.props.children || !egg.props.children[1]) return egg;
