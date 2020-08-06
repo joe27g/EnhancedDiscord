@@ -1,6 +1,7 @@
 const path = window.require('path');
 const fs = window.require('fs');
 const electron = window.require('electron');
+electron.contextBridge.exposeInMainWorld = (key, val) => window[key] = val; // Expose DiscordNative
 const Module =  window.require('module').Module;
 Module.globalPaths.push(path.resolve(electron.remote.app.getAppPath(), 'node_modules'));
 const currentWindow = electron.remote.getCurrentWindow();

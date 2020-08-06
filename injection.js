@@ -17,7 +17,9 @@ class BrowserWindow extends electron.BrowserWindow {
         // Make sure Node integration is enabled
         originalOptions.webPreferences.nodeIntegration = true;
         // Make sure remote module is enabled
-	originalOptions.webPreferences.enableRemoteModule = true;
+        originalOptions.webPreferences.enableRemoteModule = true;
+        // Make sure context isolation is disabled
+        originalOptions.webPreferences.contextIsolation = false;
         originalOptions.webPreferences.preload = path.join(process.env.injDir, 'dom_shit.js');
         originalOptions.webPreferences.transparency = true;
 
