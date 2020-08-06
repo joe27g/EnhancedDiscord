@@ -2,9 +2,6 @@ const Plugin = require('../plugin');
 
 let getChannel, g_dc, g_cat, ha, disp, chanM, fm, reb, sv, cs, csp, ghp, gs, gsr, pf, sw = {}, g = {}, ai = {};
 
-// copied from Discord's minified JS
-function N(e,o,l,n){let r;r||(r="function"==typeof Symbol&&Symbol.for&&Symbol.for("react.element")||60103);const t=e&&e.defaultProps,f=arguments.length-3;if(o||0===f||(o={children:void 0}),o&&t)for(const e in t)void 0===o[e]&&(o[e]=t[e]);else o||(o=t||{});if(1===f)o.children=n;else if(f>1){const e=new Array(f);for(let o=0;o<f;o++)e[o]=arguments[o+3];o.children=e}return{$$typeof:r,type:e,key:void 0===l?null:""+l,ref:null,props:o,_owner:null}}
-
 module.exports = new Plugin({
     name: 'Hidden Channels',
     description: 'Shows hidden channels and lets you view server permissions.',
@@ -75,11 +72,14 @@ module.exports = new Plugin({
         });
 
         const clk = window.EDApi.findModuleByDisplayName("Clickable")
-        //const icon = window.EDApi.findModuleByDisplayName("Icon");
+        const Tooltip = window.EDApi.findModule('TooltipContainer').TooltipContainer;
+        const { Messages } = window.EDApi.findModule('Messages');
+        const getIcon = window.EDApi.findModule(m => m.id && typeof m.keys === 'function' && m.keys().includes('./Gear'));
+        const Gear = getIcon('./Gear').default;
 
         reb = window.EDApi.findModule(m => m.default && m.default.prototype && m.default.prototype.renderEditButton).default.prototype;
-        /*window.EDApi.monkeyPatch(reb, "renderEditButton", function(b) {
-            return N(clk, {
+        window.EDApi.monkeyPatch(reb, "renderEditButton", function(b) {
+            return window.EDApi.React.createElement(Tooltip, { text: Messages.EDIT_CHANNEL }, window.EDApi.React.createElement(clk, {
                 className: ai.iconItem,
                 onClick: function() {
                     module.exports._editingGuild = null;
@@ -88,13 +88,12 @@ module.exports = new Plugin({
                 },
                 onMouseEnter: b.thisObject.props.onMouseEnter,
                 onMouseLeave: b.thisObject.props.onMouseLeave
-            }, void 0, N(icon, {
-                name: "Gear",
+            }, window.EDApi.React.createElement(Gear, {
                 width: 16,
                 height: 16,
                 className: ai.actionIcon
-            }));
-        });*/
+            })));
+        });
 
         sv = EDApi.findModuleByDisplayName("SettingsView").prototype;
         EDApi.monkeyPatch(sv, 'getPredicateSections', {before: b => {
