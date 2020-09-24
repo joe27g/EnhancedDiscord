@@ -1,11 +1,14 @@
 const path = window.require('path');
 const fs = window.require('fs');
 const electron = window.require('electron');
-electron.contextBridge.exposeInMainWorld = (key, val) => window[key] = val; // Expose DiscordNative
 const Module =  window.require('module').Module;
 Module.globalPaths.push(path.resolve(electron.remote.app.getAppPath(), 'node_modules'));
 const currentWindow = electron.remote.getCurrentWindow();
-if (currentWindow.__preload) require(currentWindow.__preload);
+if (currentWindow.__preload) {
+    process.electronBinding("command_line").appendSwitch("preload", currentWindow.__preload)
+    electron.contextBridge.exposeInMainWorld = (key, val) => window[key] = val; // Expose DiscordNative
+    require(currentWindow.__preload);
+}
 
 //Get inject directory
 if (!process.env.injDir) process.env.injDir = __dirname;
