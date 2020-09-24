@@ -281,26 +281,27 @@ window.EDApi = window.BdApi = class EDApi {
      * @param {string} [options.key] - key used to identify the modal. If not provided, one is generated and returned
      * @returns {string} - the key used for this modal
      */
-    static showConfirmationModal(title, content, options = {}) {
-        const ModalStack = this.findModuleByProps('push', 'update', 'pop', 'popWithKey');
+    static showConfirmationModal(title, content, options = {}) {		
+		const ModalStack = this.findModuleByProps('push', 'update', 'pop', 'popWithKey');
         const Markdown = this.findModuleByDisplayName('Markdown');
-        const ConfirmationModal = this.findModule(m => m.defaultProps && m.key && m.key() == 'confirm-modal');
-        if (!ModalStack || !ConfirmationModal || !Markdown) return window.alert(content);
+        const ConfirmationModal = this.findModuleByDisplayName("ConfirmModal");
+        if (!ModalActions || !ConfirmationModal || !Markdown) return window.alert(content);
 
         const emptyFunction = () => {};
         const {onConfirm = emptyFunction, onCancel = emptyFunction, confirmText = 'Okay', cancelText = 'Cancel', danger = false, key = undefined} = options;
 
         if (!Array.isArray(content)) content = [content];
         content = content.map(c => typeof(c) === 'string' ? this.React.createElement(Markdown, null, c) : c);
-        return ModalStack.push(ConfirmationModal, {
-            header: title,
-            children: content,
-            red: danger,
-            confirmText: confirmText,
-            cancelText: cancelText,
-            onConfirm: onConfirm,
-            onCancel: onCancel
-        }, key);
+        return ModalActions.openModal(props => {
+            return this.React.createElement(ConfirmationModal, Object.assign({
+                header: title,
+                red: danger,
+                confirmText: confirmText,
+                cancelText: cancelText,
+                onConfirm: onConfirm,
+                onCancel: onCancel
+            }, props), content);
+        }, {modalKey: key});
     }
 
     static loadPluginSettings(pluginName) {
@@ -345,15 +346,21 @@ window.EDApi = window.BdApi = class EDApi {
         return node[Object.keys(node).find(k => k.startsWith('__reactInternalInstance'))];
     }
 
-    static showToast(content, options = {}) {
-        if (!document.querySelector('.toasts')) {
+    static showToast(content, options = {}) {	
+		if (!document.querySelector('.toasts')) {
+            const container = document.querySelector('.sidebar-2K8pFh + div') || null;
+            const memberlist = container ? container.querySelector('.membersWrap-2h-GB4') : null;
+            const form = container ? container.querySelector('form') : null;
+            const left = container ? container.getBoundingClientRect().left : 310;
+            const right = memberlist ? memberlist.getBoundingClientRect().left : 0;
+            const width = right ? right - container.getBoundingClientRect().left : Utils.screenWidth - left - 240;
+            const bottom = form ? form.offsetHeight : 80;
             const toastWrapper = document.createElement('div');
             toastWrapper.classList.add('toasts');
-            const boundingElement = document.querySelector('.chat-3bRxxu form, #friends, .noChannel-Z1DQK7, .activityFeed-28jde9');
-            toastWrapper.style.setProperty('left', boundingElement ? boundingElement.getBoundingClientRect().left + 'px' : '0px');
-            toastWrapper.style.setProperty('width', boundingElement ? boundingElement.offsetWidth + 'px' : '100%');
-            toastWrapper.style.setProperty('bottom', (document.querySelector('.chat-3bRxxu form') ? document.querySelector('.chat-3bRxxu form').offsetHeight : 80) + 'px');
-            document.querySelector('.' + this.findModule('app').app).appendChild(toastWrapper);
+            toastWrapper.style.setProperty('left', left + 'px');
+            toastWrapper.style.setProperty('width', width + 'px');
+            toastWrapper.style.setProperty('bottom', bottom + 'px');
+            document.querySelector('#app-mount').appendChild(toastWrapper);
         }
         const {type = '', icon = true, timeout = 3000} = options;
         const toastElem = document.createElement('div');
