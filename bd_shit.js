@@ -112,7 +112,7 @@ module.exports = class BDManager {
                 content += `\nmodule.exports = ${meta.name};`;
                 moduleWrap._compile(content, filename);
             }
-            
+            if (moduleWrap.exports.default) moduleWrap.exports = moduleWrap.exports.default;
             moduleWrap.exports = BDManager.convertPlugin(new moduleWrap.exports());
         };
     }
@@ -130,7 +130,10 @@ module.exports = class BDManager {
     static convertPlugin(plugin) {
         const newPlugin = new EDPlugin({
             name: plugin.getName(),
-            load: function() {plugin.start();},
+            load: function() {
+				if (plugin.load) plugin.load();
+				plugin.start();
+			},
             unload: function() {plugin.stop();},
             config: {},
             bdplugin: plugin
