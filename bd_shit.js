@@ -28,7 +28,7 @@ module.exports = class BDManager {
         fs.readFile(path.join(process.env.injDir, 'bd.css'), (err, text) => {
             if (err) return console.error(err);
             EDApi.injectCSS('BDManager', text);
-        })
+        });
 
         Module._extensions['.js'] = this.pluginRequire();
     }
@@ -89,8 +89,8 @@ module.exports = class BDManager {
     }
 
     static isEmpty(obj) {
-        if (obj == null || obj == undefined || obj == "") return true;
-        if (typeof(obj) !== "object") return false;
+        if (obj == null || obj == undefined || obj == '') return true;
+        if (typeof(obj) !== 'object') return false;
         if (Array.isArray(obj)) return obj.length == 0;
         for (const key in obj) {
             if (obj.hasOwnProperty(key)) return false;
