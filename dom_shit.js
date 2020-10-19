@@ -43,7 +43,7 @@ const c = {
 };
 
 // config util
-window.ED = { plugins: {}, version: '2.8' };
+window.ED = { plugins: {}, version: '2.8.1' };
 Object.defineProperty(ED, 'config', {
     get: function() {
         let conf;
@@ -326,14 +326,22 @@ window.EDApi = window.BdApi = class EDApi {
     }
 
     static loadData(pluginName, key) {
-        if (!ED.plugins[pluginName]) return null;
-        return this.loadPluginSettings(pluginName)[key];
+        const pl = ED.plugins[pluginName] || Object.values(ED.plugins).find(p => p.name === pluginName);
+        if (!pl) return null;
+        const id = pl.id;
+    
+        if (!ED.plugins[id]) return null;
+        return this.loadPluginSettings(id)[key];
     }
 
     static saveData(pluginName, key, data) {
-        const obj = this.loadPluginSettings(pluginName);
+        const pl = ED.plugins[pluginName] || Object.values(ED.plugins).find(p => p.name === pluginName);
+        if (!pl) return null;
+        const id = pl.id;
+    
+        const obj = this.loadPluginSettings(id);
         obj[key] = data;
-        return this.savePluginSettings(pluginName, obj);
+        return this.savePluginSettings(id, obj);
     }
 
     static getData(pluginName, key) {
@@ -569,23 +577,4 @@ window.BdApi.Themes = new class AddonAPI {
     reload() {}
     get() {return null;}
     getAll() {return [];}
-};
-
-window.BdApi.loadData = function(pluginName, key) {
-    const pl = Object.values(ED.plugins).find(p => p.name === pluginName);
-    if (!pl) return null;
-    const id = pl.id;
-
-    if (!ED.plugins[id]) return null;
-    return this.loadPluginSettings(id)[key];
-};
-
-window.BdApi.saveData = function(pluginName, key, data) {
-    const pl = Object.values(ED.plugins).find(p => p.name === pluginName);
-    if (!pl) return null;
-    const id = pl.id;
-
-    const obj = this.loadPluginSettings(id);
-    obj[key] = data;
-    return this.savePluginSettings(id, obj);
 };
