@@ -149,7 +149,7 @@ module.exports = new Plugin({
 		obj.divider = divM ? divM.divider : '';
 		obj.checkbox = EDApi.findModule('checkboxEnabled');
 		obj.buttons = EDApi.findModule('lookFilled');
-		obj.switchItem = EDApi.findModule('switchItem');
+		obj.switch = EDApi.findModule('switch');
 		obj.alignment = EDApi.findModule('horizontalReverse');
 		obj.description = EDApi.findModule('formText');
 		// New
@@ -158,7 +158,6 @@ module.exports = new Plugin({
 	_initDiscordComponents(obj) {
 		obj.Textbox = EDApi.findModuleByDisplayName("TextInput");
 		obj.Select = EDApi.findModuleByDisplayName("SelectTempWrapper");
-		obj.Switch = EDApi.findModuleByDisplayName("SwitchItem");
 		obj.RadioGroup = EDApi.findModuleByDisplayName("RadioGroup");
 		obj.Title = EDApi.findModuleByDisplayName("FormTitle");
 		obj.Text = EDApi.findModuleByDisplayName("FormText");
@@ -250,8 +249,8 @@ module.exports = new Plugin({
 					this.setState.bind(this)
 				)
 			}
-			handleToggle(event) {
-				if (event.currentTarget.checked) this.handleLoad();
+			handleToggle(newStatus) {
+				if (newStatus) this.handleLoad();
 				else this.handleUnload();
 
 				this.forceUpdate();
@@ -282,7 +281,7 @@ module.exports = new Plugin({
 							e(MarginRight, null,
 								e(Button, {size: Button.Sizes.NONE, onClick: this.handleReload}, this.state.reloadBtnText)
 							),
-							this.canBeManagedByUser() && e(Switch, {value: this.isPluginEnabled(), onChange: this.handleToggle})
+							this.canBeManagedByUser() && e(Switch, {checked: this.isPluginEnabled(), onChange: this.handleToggle})
 						),
 						e(Text, {type: Text.Types.DESCRIPTION},
 							VariableTypeRenderer.render(plugin.description)
@@ -601,7 +600,6 @@ module.exports = new Plugin({
 						value: enabled,
 						hideBorder: props.hideBorder,
 						note: _parseMD(props.note),
-						size: props.mini ? SwitchItem.Sizes.MINI : SwitchItem.Sizes.DEFAULT,
 						disabled: props.disabled
 					},
 						props.title
