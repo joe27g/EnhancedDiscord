@@ -28,7 +28,7 @@ module.exports = class BDManager {
         fs.readFile(path.join(process.env.injDir, 'bd.css'), (err, text) => {
             if (err) return console.error(err);
             EDApi.injectCSS('BDManager', text);
-        })
+        });
 
         Module._extensions['.js'] = this.pluginRequire();
     }
@@ -89,8 +89,8 @@ module.exports = class BDManager {
     }
 
     static isEmpty(obj) {
-        if (obj == null || obj == undefined || obj == "") return true;
-        if (typeof(obj) !== "object") return false;
+        if (obj == null || obj == undefined || obj == '') return true;
+        if (typeof(obj) !== 'object') return false;
         if (Array.isArray(obj)) return obj.length == 0;
         for (const key in obj) {
             if (obj.hasOwnProperty(key)) return false;
@@ -112,7 +112,7 @@ module.exports = class BDManager {
                 content += `\nmodule.exports = ${meta.name};`;
                 moduleWrap._compile(content, filename);
             }
-            
+            if (moduleWrap.exports.default) moduleWrap.exports = moduleWrap.exports.default;
             moduleWrap.exports = BDManager.convertPlugin(new moduleWrap.exports());
         };
     }
@@ -130,7 +130,10 @@ module.exports = class BDManager {
     static convertPlugin(plugin) {
         const newPlugin = new EDPlugin({
             name: plugin.getName(),
-            load: function() {plugin.start();},
+            load: function() {
+				if (plugin.load) plugin.load();
+				plugin.start();
+			},
             unload: function() {plugin.stop();},
             config: {},
             bdplugin: plugin
