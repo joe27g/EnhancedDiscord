@@ -354,7 +354,7 @@ module.exports = new Plugin({
 
 			return e(Button, {size: Button.Sizes.SMALL, color: Button.Colors.GREEN, style: {margin: '0 5px', display: 'inline-block'}, onClick: e => {
 				setString("Opening...");
-				const sucess = require("electron").shell.openItem(
+				const sucess = require("electron").shell.openPath(
 					e.shiftKey ?
 					process.env.injDir :
 					require("path").join(process.env.injDir, "plugins")
