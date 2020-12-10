@@ -27,7 +27,8 @@ module.exports = new Plugin({
         // Make sure it's already in the DOM
         await new Promise(r => {setTimeout(r, 5)});
         const theMenu = document.querySelector('.'+cm.menu);
-        const reactData = theMenu.__reactInternalInstance$;
+
+        const reactData = theMenu[Object.keys(theMenu).find(key => key.startsWith("__reactInternalInstance") || key.startsWith("__reactFiber"))];
 
         let label = "";
         let url = "";
