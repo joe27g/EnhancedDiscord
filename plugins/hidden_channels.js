@@ -137,7 +137,7 @@ module.exports = new Plugin({
             return egg;
         });*/
 
-        const cancan = EDApi.findModuleByProps('can', 'canUser').can;
+        const cancan = EDApi.findModuleByProps('can').can;
         gsr = EDApi.findModuleByDisplayName("FluxContainer(GuildSettingsRoles)").prototype;
         EDApi.monkeyPatch(gsr, 'render', b => {
             const egg = b.callOriginalMethod(b.methodArguments);
