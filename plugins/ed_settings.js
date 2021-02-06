@@ -420,7 +420,7 @@ module.exports = new Plugin({
 		const DiscordUIGenerator = {
 			reactMarkdownRules: (() => {
 				const simpleMarkdown = EDApi.findModule("markdownToReact");
-				const rules = window._.clone(simpleMarkdown.defaultRules);
+				const rules = require("electron").webFrame.top.context.window._.clone(simpleMarkdown.defaultRules);
 
 				rules.paragraph.react = (node, output, state) => {
 					return e(Fragment, null, output(node.content, state))

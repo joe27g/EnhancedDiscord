@@ -1,7 +1,8 @@
 const Plugin = require('../plugin');
 
 // contains modified code from https://stackoverflow.com/a/47820271
-const { dialog } = require('electron').remote;
+const ipcRenderer = require('electron').ipcRenderer;
+const { dialog } = JSON.parse(ipcRenderer.sendSync('main-process-utils'));
 const http = require('https');
 const fs = require('fs');
 let ttM = {}, iteM = {};
