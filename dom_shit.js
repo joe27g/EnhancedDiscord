@@ -168,27 +168,32 @@ process.once('loaded', async () => {
     c.log(`Modules done loading (${Object.keys(window.req.c).length})`);
 
     if (ED.config.bdPlugins) {
-        await require('./bd_shit').setup(currentWindow);
-        c.log(`Preparing BD plugins...`);
-        for (const i in pluginFiles) {
-            if (!pluginFiles[i].endsWith('.js') || !pluginFiles[i].endsWith('.plugin.js')) continue;
-            let p;
-            const pName = pluginFiles[i].replace(/\.js$/, '');
-            try {
-                p = require(path.join(process.env.injDir, 'plugins', pName));
-                if (typeof p.name !== 'string' || typeof p.load !== 'function') {
-                    throw new Error('Plugin must have a name and load() function.');
+        try {
+            await require('./bd_shit').setup(currentWindow);
+            c.log(`Preparing BD plugins...`);
+            for (const i in pluginFiles) {
+                if (!pluginFiles[i].endsWith('.js') || !pluginFiles[i].endsWith('.plugin.js')) continue;
+                let p;
+                const pName = pluginFiles[i].replace(/\.js$/, '');
+                try {
+                    p = require(path.join(process.env.injDir, 'plugins', pName));
+                    if (typeof p.name !== 'string' || typeof p.load !== 'function') {
+                        throw new Error('Plugin must have a name and load() function.');
+                    }
+                    plugins[pName] = Object.assign(p, {id: pName});
                 }
-                plugins[pName] = Object.assign(p, {id: pName});
+                catch (err) {
+                    c.warn(`Failed to load ${pluginFiles[i]}: ${err}\n${err.stack}`, p);
+                }
             }
-            catch (err) {
-                c.warn(`Failed to load ${pluginFiles[i]}: ${err}\n${err.stack}`, p);
+            for (const id in plugins) {
+                if (!plugins[id] || !plugins[id].name || typeof plugins[id].load !== 'function') {
+                    c.info(`Skipping invalid plugin: ${id}`); delete plugins[id]; continue;
+                }
             }
         }
-        for (const id in plugins) {
-            if (!plugins[id] || !plugins[id].name || typeof plugins[id].load !== 'function') {
-                c.info(`Skipping invalid plugin: ${id}`); delete plugins[id]; continue;
-            }
+        catch (err) {
+            c.error('Failed to load BD plugins');
         }
     }
 
@@ -214,6 +219,8 @@ process.once('loaded', async () => {
     EDApi.monkeyPatch(ht, 'showToken', window.fixedShowToken);
     if (!ED.localStorage.getItem('token') && ht.getToken())
         window.fixedShowToken(); // prevent you from being logged out for no reason
+    // expose stuff for devtools
+    Object.assign(electron.webFrame.top.context.window, {ED, EDApi, BdApi});
 });
 
 
