@@ -16,7 +16,7 @@ module.exports = new Plugin({
         ai = EDApi.findModule('actionIcon');
 
         const getUser = EDApi.findModule('getCurrentUser').getCurrentUser;
-        const getAllChannels = EDApi.findModule('getChannels').getChannels;
+        const getAllChannels = EDApi.findModule('getMutableGuildChannels').getMutableGuildChannels;
         const can = EDApi.findModule('computePermissions').can;
 
         g_dc = EDApi.findModule('getDefaultChannel');
