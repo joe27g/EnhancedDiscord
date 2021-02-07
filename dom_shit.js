@@ -123,8 +123,11 @@ process.once('loaded', async () => {
     ED.plugins = plugins;
     c.log(`Plugins validated.`);
 
-    //while (electron.webFrame.top.context.window.webpackJsonp === 'undefined')
-		await c.sleep(250); // wait until this is loaded in order to use it for modules
+    do {
+        await c.sleep(100);
+    }
+    while (!electron.webFrame.top.context.window.webpackJsonp);
+    
 
     ED.webSocket = window._ws;
 
