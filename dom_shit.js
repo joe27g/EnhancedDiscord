@@ -123,12 +123,12 @@ process.once('loaded', async () => {
     ED.plugins = plugins;
     c.log(`Plugins validated.`);
 
-    do {
+    // work-around to wait for webpack
+    while (true) {
         await c.sleep(100);
-    }
-    while (!electron.webFrame.top.context.window.webpackJsonp);
+        if(electron.webFrame.top.context.window && electron.webFrame.top.context.window.webpackJsonp) break;
+    };
     
-
     ED.webSocket = window._ws;
 
     /* Add helper functions that make plugins easy to create */
@@ -193,7 +193,7 @@ process.once('loaded', async () => {
             }
         }
         catch (err) {
-            c.error(`Failed to load BD plugins support: ${err}\n${err.stack}`);
+            c.warn(`Failed to load BD plugins support: ${err}\n${err.stack}`);
         }
     }
 
