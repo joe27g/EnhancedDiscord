@@ -24,8 +24,8 @@ module.exports = class BDManager {
         this.observer.observe(document, {childList: true, subtree: true});
 
         //this.currentWindow.webContents.on('did-navigate-in-page', BDManager.onSwitch);
-        electron.ipcRenderer.invoke('bd-navigate-page-listener', BDManager.onSwitch);
-        
+        try { electron.ipcRenderer.invoke('bd-navigate-page-listener', BDManager.onSwitch); }
+        catch(err) { throw new Error(`Could not add navigate page listener. ${err}\n${err.stack}`); };
 
         fs.readFile(path.join(process.env.injDir, 'bd.css'), (err, text) => {
             if (err) return console.error(err);
@@ -39,7 +39,8 @@ module.exports = class BDManager {
         EDApi.clearCSS('BDManager');
         this.observer.disconnect();
         //this.currentWindow.webContents.removeEventListener('did-navigate-in-page', BDManager.onSwitch);
-        electron.ipcRenderer.invoke('remove-bd-navigate-page-listener', BDManager.onSwitch);
+        try { electron.ipcRenderer.invoke('remove-bd-navigate-page-listener', BDManager.onSwitch); }
+        catch(err) { throw new Error(`Could not remove navigate page listener. ${err}\n${err.stack}`); };
         this.jqueryElement.remove();
         Module._extensions['.js'] = originalRequire;
     }
