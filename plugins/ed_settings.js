@@ -354,7 +354,7 @@ module.exports = new Plugin({
 
 			return e(Button, {size: Button.Sizes.SMALL, color: Button.Colors.GREEN, style: {margin: '0 5px', display: 'inline-block'}, onClick: e => {
 				setString("Opening...");
-				const sucess = require("electron").shell.openItem(
+				const sucess = require("electron").shell.openPath(
 					e.shiftKey ?
 					process.env.injDir :
 					require("path").join(process.env.injDir, "plugins")
@@ -420,7 +420,7 @@ module.exports = new Plugin({
 		const DiscordUIGenerator = {
 			reactMarkdownRules: (() => {
 				const simpleMarkdown = EDApi.findModule("markdownToReact");
-				const rules = window._.clone(simpleMarkdown.defaultRules);
+				const rules = require("electron").webFrame.top.context.window._.clone(simpleMarkdown.defaultRules);
 
 				rules.paragraph.react = (node, output, state) => {
 					return e(Fragment, null, output(node.content, state))

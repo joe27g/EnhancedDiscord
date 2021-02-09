@@ -16,7 +16,7 @@ module.exports = new Plugin({
         ai = EDApi.findModule('actionIcon');
 
         const getUser = EDApi.findModule('getCurrentUser').getCurrentUser;
-        const getAllChannels = EDApi.findModule('getChannels').getChannels;
+        const getAllChannels = EDApi.findModule('getMutableGuildChannels').getMutableGuildChannels;
         const can = EDApi.findModule('computePermissions').can;
 
         g_dc = EDApi.findModule('getDefaultChannel');
@@ -137,7 +137,7 @@ module.exports = new Plugin({
             return egg;
         });*/
 
-        const cancan = EDApi.findModuleByProps('can', 'canUser').can;
+        const cancan = EDApi.findModuleByProps('can').can;
         gsr = EDApi.findModuleByDisplayName("FluxContainer(GuildSettingsRoles)").prototype;
         EDApi.monkeyPatch(gsr, 'render', b => {
             const egg = b.callOriginalMethod(b.methodArguments);

@@ -1,7 +1,8 @@
 const Plugin = require('../plugin');
 
 // contains modified code from https://stackoverflow.com/a/47820271
-const { dialog } = require('electron').remote;
+const ipcRenderer = require('electron').ipcRenderer;
+const { dialog } = JSON.parse(ipcRenderer.sendSync('main-process-utils'));
 const http = require('https');
 const fs = require('fs');
 let ttM = {}, iteM = {};
@@ -76,20 +77,21 @@ module.exports = new Plugin({
         this._contClass = EDApi.findModule('embedWrapper').container;
         ttM = EDApi.findModule('tooltipPointer');
         iteM = EDApi.findModule('hideInteraction');
-        document.addEventListener('contextmenu', this.listener);
+        Dispatcher = EDApi.findModule("dispatch");
+        Dispatcher.subscribe("CONTEXT_MENU_OPEN", this.listener);
     },
     listener(e) {
         if (document.getElementsByClassName(this._cmClass).length == 0) setTimeout(() => module.exports.onContextMenu(e), 0);
         else this.onContextMenu(e);
     },
     onContextMenu(e) {
+        e = e.contextMenu;
         const messageGroup = e.target.closest('.'+this._contClass);
         const parentElem = e.target.parentElement;
         const guildWrapper = EDApi.findModule('childWrapper').wrapper;
         const memberAvatar = EDApi.findModule('nameAndDecorators').avatar;
-
+    
         if (e.target.localName != 'a' && e.target.localName != 'img' && e.target.localName != 'video' && !messageGroup && !e.target.className.includes(guildWrapper) && !parentElem.className.includes(memberAvatar) && !e.target.className.includes('avatar-')) return;
-
         let saveLabel = 'Download',
             url = e.target.poster || e.target.style.backgroundImage.substring(e.target.style.backgroundImage.indexOf(`'`) + 1, e.target.style.backgroundImage.lastIndexOf(`'`)) || e.target.href || e.target.src;
 
@@ -127,6 +129,6 @@ module.exports = new Plugin({
         setTimeout(() => addMenuItem(url, saveLabel, fileName, fileExtension), 5);
     },
     unload: function() {
-        document.removeEventListener('contextmenu', this.listener);
+        Dispatcher.unsubscribe("CONTEXT_MENU_OPEN", this.listener);
     }
 });
