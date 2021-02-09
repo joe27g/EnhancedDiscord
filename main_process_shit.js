@@ -9,12 +9,16 @@ ipcMain.on('main-process-info', (event, arg) => {
     }`
 });
 
-ipcMain.on('current-web-contents', (event, arg) => {
-    event.returnValue = event.sender.__currentWebContents
-});
-
 ipcMain.on('main-process-utils', (event, arg) => {
     event.returnValue = `{
         "dialog": "${electron.dialog}"
     }`
 });
+
+ipcMain.handle('bd-navigate-page-listener', (event, arg) => {
+    event.sender.getOwnerBrowserWindow().webContents.on('did-navigate-in-page', arg);
+})
+
+ipcMain.handle('remove-bd-navigate-page-listener', (event, arg) => {
+    event.sender.getOwnerBrowserWindow().webContents.removeEventListener('did-navigate-in-page', arg);
+})

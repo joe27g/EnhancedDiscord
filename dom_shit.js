@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const electron = require('electron');
+
 const mainProcessInfo = JSON.parse(electron.ipcRenderer.sendSync('main-process-info'));
 const Module =  require('module');
 Module.globalPaths.push(mainProcessInfo.originalNodeModulesPath);
@@ -10,6 +11,8 @@ if (mainProcessInfo.originalPreloadScript) {
     //electron.contextBridge.exposeInMainWorld = (key, val) => window[key] = val; // Expose DiscordNative
     require(mainProcessInfo.originalPreloadScript);
 }
+
+//electron.ipcRenderer.sendSync('current-web-contents');
 
 //Get inject directory
 if (!process.env.injDir) process.env.injDir = __dirname;
@@ -169,7 +172,7 @@ process.once('loaded', async () => {
 
     if (ED.config.bdPlugins) {
         try {
-            await require('./bd_shit').setup(currentWindow);
+            await require('./bd_shit').setup();
             c.log(`Preparing BD plugins...`);
             for (const i in pluginFiles) {
                 if (!pluginFiles[i].endsWith('.js') || !pluginFiles[i].endsWith('.plugin.js')) continue;

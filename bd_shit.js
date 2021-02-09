@@ -3,13 +3,13 @@ const fs = require('fs');
 const Module = require('module').Module;
 const originalRequire = Module._extensions['.js'];
 const EDPlugin = require('./plugin');
+const electron = require('electron');
 
 const splitRegex = /[^\S\r\n]*?(?:\r\n|\n)[^\S\r\n]*?\*[^\S\r\n]?/;
 const escapedAtRegex = /^\\@/;
 module.exports = class BDManager {
 
-    static async setup(currentWindow) {
-        this.currentWindow = currentWindow;
+    static async setup() {
         this.defineGlobals();
         this.jqueryElement = document.createElement('script');
         this.jqueryElement.src = `//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js`;
@@ -23,7 +23,9 @@ module.exports = class BDManager {
         });
         this.observer.observe(document, {childList: true, subtree: true});
 
-        this.currentWindow.webContents.on('did-navigate-in-page', BDManager.onSwitch);
+        //this.currentWindow.webContents.on('did-navigate-in-page', BDManager.onSwitch);
+        electron.ipcRenderer.invoke('bd-navigate-page-listener', BDManager.onSwitch);
+        
 
         fs.readFile(path.join(process.env.injDir, 'bd.css'), (err, text) => {
             if (err) return console.error(err);
@@ -36,7 +38,8 @@ module.exports = class BDManager {
     static destroy() {
         EDApi.clearCSS('BDManager');
         this.observer.disconnect();
-        this.currentWindow.webContents.removeEventListener('did-navigate-in-page', BDManager.onSwitch);
+        //this.currentWindow.webContents.removeEventListener('did-navigate-in-page', BDManager.onSwitch);
+        electron.ipcRenderer.invoke('remove-bd-navigate-page-listener', BDManager.onSwitch);
         this.jqueryElement.remove();
         Module._extensions['.js'] = originalRequire;
     }
