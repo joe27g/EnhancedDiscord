@@ -222,6 +222,10 @@ process.once('loaded', async () => {
     EDApi.monkeyPatch(ht, 'showToken', window.fixedShowToken);
     if (!ED.localStorage.getItem('token') && ht.getToken())
         window.fixedShowToken(); // prevent you from being logged out for no reason
+
+    // change the console warning to be more fun
+    electron.ipcRenderer.invoke('custom-devtools-warning');
+    
     // expose stuff for devtools
     Object.assign(electron.webFrame.top.context.window, {ED, EDApi, BdApi});
 });
