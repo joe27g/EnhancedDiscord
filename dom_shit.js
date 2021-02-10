@@ -2,6 +2,8 @@ const path = require('path');
 const fs = require('fs');
 const electron = require('electron');
 
+electron.ipcRenderer.invoke('end-of-support-notice');
+
 const mainProcessInfo = JSON.parse(electron.ipcRenderer.sendSync('main-process-info'));
 const Module =  require('module');
 Module.globalPaths.push(mainProcessInfo.originalNodeModulesPath);

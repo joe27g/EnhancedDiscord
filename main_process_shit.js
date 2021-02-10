@@ -36,3 +36,26 @@ ipcMain.handle('bd-navigate-page-listener', (event, arg) => {
 ipcMain.handle('remove-bd-navigate-page-listener', (event, arg) => {
     event.sender.getOwnerBrowserWindow().webContents.removeEventListener('did-navigate-in-page', arg);
 })
+
+ipcMain.handleOnce('end-of-support-notice', (event, arg) => {
+    const endOfSupportMessage = () => {
+        return electron.dialog.showMessageBoxSync(event.sender.getOwnerBrowserWindow(), {
+            type: 'info',
+            title: 'ED - End of Support Notice',
+            buttons: ['Help Me Uninstall', 'Continue Anyway', 'Quit'],
+            message: `EnhancedDiscord will end all support on February 28th, 2021.
+Bug fixes only. (no more fixes for major discord updates)`,
+            cancelId: 1
+        });
+    };
+    switch(endOfSupportMessage()) {
+        case 0:
+            electron.shell.openExternal('https://github.com/joe27g/EnhancedDiscord/wiki/FAQ');
+            electron.app.quit();
+            break;
+        case 1:
+            break;
+        case 2:
+            electron.app.quit();
+    };
+})
