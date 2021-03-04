@@ -3,16 +3,19 @@ const ipcMain = require('electron').ipcMain;
 const path = require('path');
 
 ipcMain.on('main-process-info', (event, arg) => {
-    event.returnValue = `{
-        "originalNodeModulesPath": "${path.resolve(electron.app.getAppPath(), 'node_modules')}",
-        "originalPreloadScript": "${event.sender.__preload}"
-    }`
+    switch(arg) {
+        case "original-node-modules-path":
+            event.returnValue = path.resolve(electron.app.getAppPath(), 'node_modules');
+        case "original-preload-script":
+            event.returnValue = event.sender.__preload;
+    }
 });
 
 ipcMain.on('main-process-utils', (event, arg) => {
-    event.returnValue = `{
-        "dialog": "${electron.dialog}"
-    }`
+    switch(arg) {
+        case "dialog":
+            event.returnValue = `${electron.dialog}`;
+    }
 });
 
 ipcMain.handle('custom-devtools-warning', (event, arg) => {

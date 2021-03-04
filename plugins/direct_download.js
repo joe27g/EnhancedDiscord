@@ -2,7 +2,7 @@ const Plugin = require('../plugin');
 
 // contains modified code from https://stackoverflow.com/a/47820271
 const ipcRenderer = require('electron').ipcRenderer;
-const { dialog } = JSON.parse(ipcRenderer.sendSync('main-process-utils'));
+const dialog = ipcRenderer.sendSync('main-process-utils', 'dialog');
 const http = require('https');
 const fs = require('fs');
 let ttM = {}, iteM = {};
