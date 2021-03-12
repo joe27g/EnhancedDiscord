@@ -235,16 +235,25 @@ namespace EnhancedDiscordUI
             {
                 platform = "Mac";
             }
-            
+
             StatusText.Text = "Detected platform: " + platform + " | Discord release: " + release;
             Logger.Log(StatusText.Text);
 
             string basePath;
             string appVersion = dLocation.Substring(dLocation.IndexOf("app-") + 4);
+            // 1.x needs to be patched differently
+            bool is1x = appVersion.StartsWith("1.");
             if (platform == "Windows")
             {
                 basePath = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(dLocation)));
-                basePath = Path.Combine(basePath, "Roaming");
+                if (is1x)
+                {
+                    basePath = Path.Combine(basePath, "Local");
+                }
+                else
+                {
+                    basePath = Path.Combine(basePath, "Roaming");
+                }
             }
             else if (platform == "Mac")
             {
@@ -260,11 +269,27 @@ namespace EnhancedDiscordUI
                     basePath = Path.Combine(basePath, ".config");
                 }
             }
-            string[] pathPieces = { basePath, release, appVersion, "modules", "discord_desktop_core", "index.js" };
-            // the base "appdata" folder ^        ^       ^
-            // i.e. "discord" or "discordcanary" -'       |
-            // i.e. "0.0.300" or "0.0.204" ---------------'
+            string[] pathPieces;
+            if (is1x)
+            {
+                // 1.x
+                pathPieces = new string[] { basePath, release, "app-" + appVersion, "modules", "discord_desktop_core-1", "discord_desktop_core", "index.js" };
+                // the base "appdata" folder     ^         ^   ^
+                // (local)                                 |   |
+                // i.e. "discord" or "discordcanary" ------'   |
+                // i.e. "app-1.0.9000" ------------------------'
+            }
+            else
+            {
+                // 0.x
+                pathPieces = new string[] { basePath, release, appVersion, "modules", "discord_desktop_core", "index.js" };
+                // the base "appdata" folder     ^         ^   ^
+                // (roaming)                               |   |
+                // i.e. "discord" or "discordcanary" ------'   |
+                // i.e. "0.0.300" or "0.0.204" ----------------'
+            }
             string targetPath = Path.Combine(pathPieces);
+            Logger.Log("Target path = " + targetPath);
 
             if (targetPath == "" || !File.Exists(targetPath))
             {
@@ -591,7 +616,7 @@ namespace EnhancedDiscordUI
             StatusText.Show();
             InstallProgress.Show();
             InstallProgress.Value = 0;
-       
+
             string tempPath = Path.Combine(Path.GetTempPath(), "EnhancedDiscord");
             if (Directory.Exists(tempPath))
             {
