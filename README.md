@@ -1,9 +1,9 @@
+## END OF SUPPORT
+__EnhancedDiscord is being shut down.__ It's been nice while it lasted, but we can't keep up with the maintenance that Discord's constant changes require. There won't be any more updates, and on **April 12th**, all support will be dropped and the site will go offline. We recommend you find another client mod that is actively maintained.
+<br><hr><br>
+
 # EnhancedDiscord
 A lightweight client mod designed to enhance your Discord experience without slowing down your PC.
-
-Support server:
-<a href="https://discord.gg/XAvh9tq"><img src="https://discordapp.com/api/guilds/415246389287583755/embed.png" alt="Discord server" /></a>
-(https://discord.gg/XAvh9tq)
 
 #### DISCLAIMER!
 > **Using EnhancedDiscord, or any other client mod, is against [Discord's Terms of Service](https://discordapp.com/terms). Use it at your own risk.**
@@ -29,12 +29,4 @@ For info about how to create your own plugins, check out the [custom plugins wik
 
 ### Having issues?
 
-First, check out the [FAQ](https://github.com/joe27g/EnhancedDiscord/wiki/FAQ) to see if your issue is listed there. If not, ask in #support in the support server (link below.)
-
-### Suggestions? Comments?
-
-Feel free to chat in our [support server](https://discord.gg/XAvh9tq). We have a #suggestions channel as well as many others to discuss EnhancedDiscord and other topics.
-
-### Contributing
-
-Feel free to make pull requests or make your own plugins repository. If you do make your own plugins, request the 'Plugin Developer' role in the support server so you can announce your releases!
+First, check out the [FAQ](https://github.com/joe27g/EnhancedDiscord/wiki/FAQ) to see if your issue is listed there. ~~If not, ask in #support in the support server (link below.)~~
