@@ -273,11 +273,17 @@ namespace EnhancedDiscordUI
             if (is1x)
             {
                 // 1.x
-                pathPieces = new string[] { basePath, release, "app-" + appVersion, "modules", "discord_desktop_core-1", "discord_desktop_core", "index.js" };
+                pathPieces = new string[] { basePath, release, "app-" + appVersion, "modules" };
                 // the base "appdata" folder     ^         ^   ^
                 // (local)                                 |   |
                 // i.e. "discord" or "discordcanary" ------'   |
                 // i.e. "app-1.0.9000" ------------------------'
+                // i.e. "discord_desktop_core-1" or "discord_desktop_core-2"
+                string ddc_part = Directory.EnumerateDirectories(Path.Combine(pathPieces))
+                    .Select(x => x.Split(Path.DirectorySeparatorChar).Last())
+                    .Where(x => x.StartsWith("discord_desktop_core"))
+                    .First();
+                pathPieces = pathPieces.Concat(new[] { ddc_part, "discord_desktop_core", "index.js" }).ToArray();
             }
             else
             {
